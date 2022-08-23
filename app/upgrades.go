@@ -15,7 +15,7 @@ import (
 // when an application is migrating from Cosmos SDK version v0.45.x to v0.46.x.
 const UpgradeName = "v045-to-v046"
 
-func (app SimApp) RegisterUpgradeHandlers() {
+func (app EveApp) RegisterUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(UpgradeName,
 		func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)

@@ -25,7 +25,7 @@ func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string,
 	}
 
 	config := NewConfigFromFlags()
-	config.ChainID = helpers.SimAppChainID
+	config.ChainID = helpers.EveAppChainID
 
 	var logger log.Logger
 	if FlagVerboseValue {
