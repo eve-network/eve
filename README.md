@@ -6,7 +6,7 @@ Eve is a modern cosmos-sdk blockchain.
 * pebbledb by default
 * cosmwasm
 * token factory
-* variable length blocks made on demand
+* variable length blocks made on demand with a 3 minute heartbeat
 * highly selective genesis validator set limited to contributors
 * 50 validators
 
