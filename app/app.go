@@ -198,7 +198,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".simapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".eve")
 }
 
 // NewEveApp returns a reference to an initialized EveApp.
