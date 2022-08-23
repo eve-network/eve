@@ -3,7 +3,7 @@ import os
 import json
 from pathlib import Path
 
-# cd networks/craft-v4
+# cd networks/eve-wip
 
 LAUNCH_TIME = "2022-12-30T01:00:00Z"
 CHAIN_ID = "eve-v1"
@@ -12,7 +12,7 @@ current_path = os.path.dirname(os.path.realpath(__file__))
 FOLDER = "gentx" # local dir where we store the gentx JSON files
 
 CUSTOM_GENESIS_ACCOUNT_VALUES = {    
-    "eveaddr": "1000000ueve # note here", # useful to auto gen extra for non gentx accounts.
+    "eveaddr": "1000000ueve # note here", # useful to auto gen extra for non gentx accounts, or to give them more
 }
 
 def main():
@@ -50,7 +50,7 @@ def resetGenesisFile():
         genesis["app_state"]['crisis']['constant_fee']["denom"] = 'ueve' 
 
         genesis["app_state"]['mint']["minter"]["inflation"] = '0.150000000000000000' # 15% inflation
-        genesis["app_state"]['mint']["params"]["mint_denom"] = 'ueve' # exp pays in ucraft        
+        genesis["app_state"]['mint']["params"]["mint_denom"] = 'ueve'     
 
     # save genesis.json
     with open(GENESIS_FILE, 'w') as f:
@@ -76,26 +76,26 @@ def createGenesisAccountsCommands():
     os.chdir(current_path)
     os.makedirs(FOLDER, exist_ok=True)
     gentx_files = os.listdir(FOLDER)
-    # give validators their amounts in the genesis (1uexp & some craft)
+    # give validators their amounts in the genesis (1ueve, or more if provided in the custom dict)
     for file in gentx_files:
         f = open(FOLDER + "/" + file, 'r')
         data = json.load(f)
 
         validatorData = data['body']['messages'][0]
         moniker = validatorData['description']['moniker']
-        val_addr = validatorData['delegator_address'] # craftxxxxx
+        val_addr = validatorData['delegator_address'] # evexxxxx
         amt = validatorData['value']['amount']
 
         if val_addr not in CUSTOM_GENESIS_ACCOUNT_VALUES.keys():
-            print(f"craftd add-genesis-account {val_addr} {amt}uexp,10000000000ucraft #{moniker}")
+            print(f"eve add-genesis-account {val_addr} {amt}ueve #{moniker}")
             continue # 
                 
     for account in CUSTOM_GENESIS_ACCOUNT_VALUES:
-        print(f"craftd add-genesis-account {account} {CUSTOM_GENESIS_ACCOUNT_VALUES[account]}")
+        print(f"eve add-genesis-account {account} {CUSTOM_GENESIS_ACCOUNT_VALUES[account]}")
 
     print(f"# [!] COPY-PASTE-RUN THE ABOVE TO CREATE THE GENESIS ACCOUNTS")
-    print(f"# [!] THEN `craftd collect-gentxs --gentx-dir gentx/`")
-    print(f"# [!] THEN `craftd validate-genesis`")
+    print(f"# [!] THEN `eve collect-gentxs --gentx-dir gentx/`")
+    print(f"# [!] THEN `eve validate-genesis`")
     print(f"# [!] THEN `code (LOCATION_OF_GENESIS_FILE), AND PUT ON MACHINES`")
 
 
