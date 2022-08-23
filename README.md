@@ -2,7 +2,13 @@
 
 Eve is a modern cosmos-sdk blockchain.
 
-* genesis embedded in binary after launch
+* genesis:
+  * embedded in binary after launch
+  * no "dev fund"
+  * community tax set to 20% initally
+  * 1 validator = 1 eve
+  
+  
 * pebbledb by default
 * cosmwasm
 * token factory
