@@ -6,7 +6,7 @@ Eve is a modern cosmos-sdk blockchain.
 
 Anything described below, can be modified by making a pull request.  
 
-* genesis:
+* genesis:  ????????
   * embedded in binary after launch
   * no "dev fund"
   * community tax set to 20% initally
