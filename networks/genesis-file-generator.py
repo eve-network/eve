@@ -8,6 +8,7 @@ from pathlib import Path
 LAUNCH_TIME = "2022-12-30T01:00:00Z"
 CHAIN_ID = "eve-v1"
 GENESIS_FILE=f"{Path.home()}/.simapp/config/genesis.json" # .eve in future
+current_path = os.path.dirname(os.path.realpath(__file__))
 FOLDER = "gentx" # local dir where we store the gentx JSON files
 
 CUSTOM_GENESIS_ACCOUNT_VALUES = {    
@@ -72,6 +73,7 @@ def outputDetails() -> str:
 
 
 def createGenesisAccountsCommands():
+    os.chdir(current_path)
     os.makedirs(FOLDER, exist_ok=True)
     gentx_files = os.listdir(FOLDER)
     # give validators their amounts in the genesis (1uexp & some craft)
