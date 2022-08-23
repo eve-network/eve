@@ -1,4 +1,4 @@
-package simapp
+package app
 
 import (
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
