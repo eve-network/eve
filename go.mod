@@ -122,9 +122,6 @@ require (
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-)
-
-require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
