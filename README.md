@@ -11,6 +11,8 @@ Anything described below, can be modified by making a pull request.
   * no "dev fund"
   * community tax set to 20% initally
   * 1 validator = 1 eve
+  * 10% minimum commission
+
   
   
 * pebbledb by default
@@ -32,5 +34,8 @@ From eve will flow new designs and techniques that increase development velocity
 * Chronic contributors will be added as owners
 * We'll move this out of notional-labs sooner or later and owners will own the eve-network (or such) github org
 * you can use https://gitpod.io to contribute easily without setting up a development environment
-* code is docs
-* docs is code
+* you contribute here, in this repository, and there are many ways to contribute
+  * code == docs
+  * docs == code
+  * logo == code
+  * docs == logo
