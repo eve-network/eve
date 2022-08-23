@@ -39,3 +39,7 @@ From eve will flow new designs and techniques that increase development velocity
   * docs == code
   * logo == code
   * docs == logo
+
+
+## Airdrop
+* TBD
