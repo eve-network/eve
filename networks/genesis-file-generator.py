@@ -43,6 +43,7 @@ def resetGenesisFile():
 
 
         genesis["app_state"]['staking']['params']["min_commission_rate"] = '0.10000000000000000' # 10% min commission
+        genesis["app_state"]['distribution']['params']["community_tax"] = '0.20000000000000000' # 20% community tax
 
         genesis["app_state"]['staking']['params']["bond_denom"] = 'ueve' 
         genesis["app_state"]['crisis']['constant_fee']["denom"] = 'ueve' 
