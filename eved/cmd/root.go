@@ -59,7 +59,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithViper("EVE")
 
 	rootCmd := &cobra.Command{
-		Use:   "eve",
+		Use:   "eved",
 		Short: "The eve modern blockchain",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
