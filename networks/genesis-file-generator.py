@@ -7,12 +7,13 @@ from pathlib import Path
 
 LAUNCH_TIME = "2022-12-30T01:00:00Z"
 CHAIN_ID = "eve-v1"
-GENESIS_FILE=f"{Path.home()}/.simapp/config/genesis.json" # .eve in future
+GENESIS_FILE=f"{Path.home()}/.eve/config/genesis.json" # .eve in future
 current_path = os.path.dirname(os.path.realpath(__file__))
 FOLDER = "gentx" # local dir where we store the gentx JSON files
 
-CUSTOM_GENESIS_ACCOUNT_VALUES = {    
-    "eveaddr": "1000000ueve # note here", # useful to auto gen extra for non gentx accounts, or to give them more
+CUSTOM_GENESIS_ACCOUNT_VALUES = {
+    # test_node account example
+    "eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn": "2000000ueve # note here", # useful to auto gen extra for non gentx accounts, or to give them more
 }
 
 def main():
