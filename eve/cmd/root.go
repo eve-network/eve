@@ -127,7 +127,7 @@ func initAppConfig() (string, interface{}) {
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
-	srvCfg.BaseConfig.AppDBBackend = "goleveldb"
+	srvCfg.BaseConfig.AppDBBackend = "pebbledb"
 	srvCfg.MinGasPrices = "0ueve"
 	srvCfg.API.Enable = true // enable 1317 port (API / 'lcd' by default)
 	srvCfg.StateSync.SnapshotInterval = 1500
