@@ -127,19 +127,12 @@ func initAppConfig() (string, interface{}) {
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
-	// The SDK's default minimum gas price is set to "" (empty value) inside
-	// app.toml. If left empty by validators, the node will halt on startup.
-	// However, the chain developer can set a default app.toml value for their
-	// validators here.
-	//
-	// In summary:
-	// - if you leave srvCfg.MinGasPrices = "", all validators MUST tweak their
-	//   own app.toml config,
-	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
-	//   own app.toml to override, or use this default value.
-	//
-	// In simapp, we set the min gas prices to 0.
+	srvCfg.BaseConfig.AppDBBackend = "goleveldb"
 	srvCfg.MinGasPrices = "0ueve"
+	srvCfg.API.Enable = true // enable 1317 port (API / 'lcd' by default)
+	srvCfg.StateSync.SnapshotInterval = 1500
+	srvCfg.StateSync.SnapshotKeepRecent = 2
+	srvCfg.Rosetta.DenomToSuggest = "ueve"
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
