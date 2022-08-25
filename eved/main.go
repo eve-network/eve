@@ -6,13 +6,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/notional-labs/eve/app"
-	"github.com/notional-labs/eve/eve/cmd"
+	"github.com/notional-labs/eve/eved/cmd"
 )
 
 func main() {
 	rootCmd, _ := cmd.NewRootCmd()
 
-	if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "EVE", app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
 			os.Exit(e.Code)
