@@ -2,6 +2,9 @@
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
+ifeq ($(VERSION),)
+  VERSION := v0.0.0
+endif
 
 export GO111MODULE = on
 
@@ -9,6 +12,7 @@ export GO111MODULE = on
 
 LEDGER_ENABLED ?= true
 build_tags = netgo
+build_tags += pebbledb
 ifeq ($(LEDGER_ENABLED),true)
   ifeq ($(OS),Windows_NT)
     GCCEXE = $(shell where gcc.exe 2> NUL)
@@ -46,7 +50,9 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=eved \
 		  -X github.com/cosmos/cosmos-sdk/version.ServerName=eve \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+      -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+      
 
 ifeq ($(LINK_STATICALLY),true)
   ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
@@ -61,11 +67,11 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 all: install
 
 install: go.sum
-		go install $(BUILD_FLAGS) ./eve
+		go install $(BUILD_FLAGS) ./eved
 
 go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
 		@go mod verify
 
 build:
-	go build $(BUILD_FLAGS) -o ./build/eved ./eve
+	go build $(BUILD_FLAGS) -o ./build/eved ./eved
