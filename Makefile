@@ -50,7 +50,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=eved \
 		  -X github.com/cosmos/cosmos-sdk/version.ServerName=eve \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-      -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb \
+		  -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
       
 
