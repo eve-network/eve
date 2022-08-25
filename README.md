@@ -2,6 +2,10 @@
 
 Eve is a modern cosmos-sdk blockchain.
 
+## No Promises
+
+Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.
+
 ## Note
 
 Anything described below, can be modified by making a pull request.  
