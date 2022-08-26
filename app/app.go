@@ -205,6 +205,8 @@ func GetEnabledProposals() []wasm.ProposalType {
 }
 
 var (
+	Upgrades = []Upgrade{}
+
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
@@ -399,9 +401,6 @@ func NewEveApp(
 		bApp,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-
-	// do this after InitSpecialKeepers, before InitNormalKeepers
-	app.setupUpgradeStoreLoaders()
 
 	// add keepers (InitNormalKeepers)
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -598,7 +597,7 @@ func NewEveApp(
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// Make sure it's called after `app.mm` and `app.configurator` are set.
-	app.RegisterUpgradeHandlers()
+	app.setupUpgradeStoreLoaders()
 
 	// add test gRPC service for testing gRPC queries in isolation
 	testdata.RegisterQueryServer(app.GRPCQueryRouter(), testdata.QueryImpl{})
@@ -853,10 +852,9 @@ func (app *EveApp) setupUpgradeStoreLoaders() {
 		return
 	}
 
-	// TODO: Add upgrades support later?
-	// for _, upgrade := range Upgrades {
-	// 	if upgradeInfo.Name == upgrade.UpgradeName {
-	// 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
-	// 	}
-	// }
+	for _, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
+		}
+	}
 }
