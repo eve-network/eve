@@ -4,7 +4,7 @@ KEY="eve1"
 CHAINID="eve-t1"
 MONIKER="localeve"
 KEYALGO="secp256k1"
-KEYRING="test"
+KEYRING="test" # export EVE_KEYRING="TEST"
 LOGLEVEL="info"
 TRACE="" # "--trace"
 
@@ -69,4 +69,4 @@ sed -i 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["\*"\]/g' ~/.eved
 # cors_allowed_origins = []
 
 # # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-eved start --pruning=nothing  --minimum-gas-prices=0ucraft #--mode validator     
+eved start --pruning=nothing  --minimum-gas-prices=0ueve #--mode validator     

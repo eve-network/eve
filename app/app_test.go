@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -34,6 +35,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
+	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 )
 
 func TestEveAppExportAndBlockedAddrs(t *testing.T) {
@@ -62,7 +65,7 @@ func TestEveAppExportAndBlockedAddrs(t *testing.T) {
 
 	logger2 := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	// Making a new app object with the db, so that initchain hasn't been called
-	app2 := NewEveApp(logger2, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, EmptyAppOptions{})
+	app2 := NewEveApp(logger2, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, GetEnabledProposals(), EmptyAppOptions{}, nil)
 	_, err := app2.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }
@@ -76,7 +79,7 @@ func TestRunMigrations(t *testing.T) {
 	db := dbm.NewMemDB()
 	encCfg := MakeTestEncodingConfig()
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, EmptyAppOptions{})
+	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, GetEnabledProposals(), EmptyAppOptions{}, nil)
 
 	// Create a new baseapp and configurator for the purpose of this test.
 	bApp := baseapp.NewBaseApp(appName, logger, db, encCfg.TxConfig.TxDecoder())
@@ -188,6 +191,9 @@ func TestRunMigrations(t *testing.T) {
 					"crisis":       crisis.AppModule{}.ConsensusVersion(),
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
 					"capability":   capability.AppModule{}.ConsensusVersion(),
+					"wasm":         wasm.AppModule{}.ConsensusVersion(),
+					"ibc":          ibc.AppModule{}.ConsensusVersion(),
+					"transfer":     transfer.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -205,7 +211,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 	db := dbm.NewMemDB()
 	encCfg := MakeTestEncodingConfig()
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, EmptyAppOptions{})
+	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, GetEnabledProposals(), EmptyAppOptions{}, nil)
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
 	// Create a mock module. This module will serve as the new module we're

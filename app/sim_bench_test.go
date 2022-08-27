@@ -30,7 +30,8 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		require.NoError(b, os.RemoveAll(dir))
 	}()
 
-	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt())
+	// app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), GetEnabledProposals(), EmptyAppOptions{}, nil)
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -77,7 +78,7 @@ func BenchmarkInvariants(b *testing.B) {
 		require.NoError(b, os.RemoveAll(dir))
 	}()
 
-	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewEveApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), GetEnabledProposals(), EmptyAppOptions{}, nil)
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
