@@ -1,0 +1,17 @@
+syntax = "proto3";
+package eve.tokenfactory.tokenfactory;
+
+option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
+
+message Denom {
+  string denom = 1; 
+  string description = 2; 
+  string ticker = 3; 
+  int32 precision = 4; 
+  string url = 5; 
+  int32 maxSupply = 6; 
+  int32 supply = 7; 
+  bool canChangeMaxSupply = 8; 
+  string owner = 9;
+}
+

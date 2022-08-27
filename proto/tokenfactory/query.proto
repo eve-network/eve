@@ -1,0 +1,45 @@
+syntax = "proto3";
+package clockworkgr.tokenfactory.tokenfactory;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "tokenfactory/denom.proto";
+// this line is used by starport scaffolding # 1
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/clockworkgr/tokenfactory/x/tokenfactory/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // Queries a denom by index.
+	rpc Denom(QueryGetDenomRequest) returns (QueryGetDenomResponse) {
+		option (google.api.http).get = "/clockworkgr/tokenfactory/tokenfactory/denom/{denom}";
+	}
+
+	// Queries a list of denom items.
+	rpc DenomAll(QueryAllDenomRequest) returns (QueryAllDenomResponse) {
+		option (google.api.http).get = "/clockworkgr/tokenfactory/tokenfactory/denom";
+	}
+
+// this line is used by starport scaffolding # 2
+}
+
+message QueryGetDenomRequest {
+	  string denom = 1;
+
+}
+
+message QueryGetDenomResponse {
+	Denom denom = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllDenomRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllDenomResponse {
+	repeated Denom denom = 1 [(gogoproto.nullable) = false];
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// this line is used by starport scaffolding # 3
