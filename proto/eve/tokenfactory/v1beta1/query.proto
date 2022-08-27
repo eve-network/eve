@@ -1,13 +1,13 @@
 syntax = "proto3";
-package eve.tokenfactory.tokenfactory;
+package eve.tokenfactory.v1beta1;
 
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "tokenfactory/denom.proto";
+import "eve/tokenfactory/v1beta1/denom.proto";
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
+option go_package = "x/tokenfactory/types";
 
 // Query defines the gRPC querier service.
 service Query {

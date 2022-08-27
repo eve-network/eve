@@ -1,10 +1,10 @@
 syntax = "proto3";
-package eve.tokenfactory.tokenfactory;
+package eve.tokenfactory.v1beta1;
 
-import "tokenfactory/denom.proto";
+import "eve/tokenfactory/v1beta1/denom.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
+option go_package = "x/tokenfactory/types";
 
 // GenesisState defines the tokenfactory module's genesis state.
 message GenesisState {
