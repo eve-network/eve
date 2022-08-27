@@ -54,7 +54,8 @@ func (msg *MsgCreateDenom) GetSignBytes() []byte {
 func (msg *MsgCreateDenom) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+		// return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address")
 	}
 
 	tickerLength := len(msg.Ticker)
