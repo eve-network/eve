@@ -2,13 +2,11 @@ syntax = "proto3";
 package eve.tokenfactory.tokenfactory;
 
 import "tokenfactory/denom.proto";
-// this line is used by starport scaffolding # genesis/proto/import
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
 
 // GenesisState defines the tokenfactory module's genesis state.
 message GenesisState {
-    repeated Denom denomList = 1 [(gogoproto.nullable) = false];
-  // this line is used by starport scaffolding # genesis/proto/state
+    repeated Denom denomList = 1 [(gogoproto.nullable) = false];  
 }

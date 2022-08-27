@@ -1,10 +1,9 @@
 syntax = "proto3";
-package clockworkgr.tokenfactory.tokenfactory;
+package eve.tokenfactory.tokenfactory;
 
 import "tokenfactory/denom.proto";
-// this line is used by starport scaffolding # proto/tx/import
 
-option go_package = "github.com/clockworkgr/tokenfactory/x/tokenfactory/types";
+option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
 
 // Msg defines the Msg service.
 service Msg {
@@ -12,7 +11,6 @@ service Msg {
   rpc UpdateDenom(MsgUpdateDenom) returns (MsgUpdateDenomResponse);
   rpc MintAndSendTokens(MsgMintAndSendTokens) returns (MsgMintAndSendTokensResponse);
   rpc UpdateOwner(MsgUpdateOwner) returns (MsgUpdateOwnerResponse);
-// this line is used by starport scaffolding # proto/tx/rpc
 }
 
 message MsgCreateDenom {
@@ -55,5 +53,3 @@ message MsgUpdateOwner {
 
 message MsgUpdateOwnerResponse {
 }
-
-// this line is used by starport scaffolding # proto/tx/message

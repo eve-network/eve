@@ -1,4 +1,4 @@
-eved tx tokenfactory create-denom reece "my denom" reece 6 https://reece.sh 100000 false --from eve1 --chain-id eve-t1 --yes
+eved tx tokenfactory create-denom reece "my denom" reece 6 https://reece.sh 100000 false --from eve1 --chain-id eve-t1 --yes -b sync
 
 eved q tokenfactory list-denom
 
