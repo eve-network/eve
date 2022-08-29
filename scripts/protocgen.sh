@@ -41,5 +41,4 @@ cd ../
 # move proto files to the right places
 #
 # Note: Proto files are suffixed with the current binary version.
-
-go mod tidy -compat=1.19
+# go mod tidy -compat=1.19
