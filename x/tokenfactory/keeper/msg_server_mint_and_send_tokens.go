@@ -52,8 +52,6 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 		MaxSupply:          valFound.MaxSupply,
 		Supply:             valFound.Supply + msg.Amount,
 		Precision:          valFound.Precision,
-		Ticker:             valFound.Ticker,
-		Url:                valFound.Url,
 		CanChangeMaxSupply: valFound.CanChangeMaxSupply,
 	}
 

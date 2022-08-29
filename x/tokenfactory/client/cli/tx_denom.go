@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
@@ -12,26 +14,24 @@ import (
 
 func CmdCreateDenom() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-denom [denom] [description] [ticker] [precision] [url] [max-supply] [can-change-max-supply]",
+		Use:   "create-denom [denom] [description] [precision] [max-supply] [can-change-max-supply]",
 		Short: "Create a new Denom",
-		Args:  cobra.ExactArgs(7),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// Get indexes
 			indexDenom := args[0]
 
 			// Get value arguments
 			argDescription := args[1]
-			argTicker := args[2]
-			argPrecision, err := cast.ToInt32E(args[3])
+			argPrecision, err := cast.ToInt32E(args[2])
 			if err != nil {
 				return err
 			}
-			argUrl := args[4]
-			argMaxSupply, err := cast.ToInt32E(args[5])
+			argMaxSupply, err := cast.ToInt32E(args[3])
 			if err != nil {
 				return err
 			}
-			argCanChangeMaxSupply, err := cast.ToBoolE(args[6])
+			argCanChangeMaxSupply, err := cast.ToBoolE(args[4])
 			if err != nil {
 				return err
 			}
@@ -45,9 +45,7 @@ func CmdCreateDenom() *cobra.Command {
 				clientCtx.GetFromAddress().String(),
 				indexDenom,
 				argDescription,
-				argTicker,
 				argPrecision,
-				argUrl,
 				argMaxSupply,
 				argCanChangeMaxSupply,
 			)
@@ -63,39 +61,50 @@ func CmdCreateDenom() *cobra.Command {
 	return cmd
 }
 
-func CmdUpdateDenom() *cobra.Command {
+func CmdUpdateDenomDescription() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-denom [denom] [description] [url] [max-supply] [can-change-max-supply]",
-		Short: "Update a Denom",
-		Args:  cobra.ExactArgs(5),
+		Use:   "update-denom-desc [denom] [description]",
+		Short: "Update a Denom's description",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			// Get indexes
 			indexDenom := args[0]
-
-			// Get value arguments
 			argDescription := args[1]
-			argUrl := args[2]
-			argMaxSupply, err := cast.ToInt32E(args[3])
-			if err != nil {
-				return err
-			}
-			argCanChangeMaxSupply, err := cast.ToBoolE(args[4])
-			if err != nil {
-				return err
-			}
 
+			// query default denom data that we are not setting.
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
+			queryClient := types.NewQueryClient(clientCtx)
+			argDenom := args[0]
+
+			params := &types.QueryGetDenomRequest{
+				Denom: argDenom,
+			}
+
+			res, err := queryClient.Denom(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			// argMaxSupply, err := cast.ToInt32E(args[2])
+			// if err != nil {
+			// 	return err
+			// }
+			// argCanChangeMaxSupply, err := cast.ToBoolE(args[3])
+			// if err != nil {
+			// 	return err
+			// }
+
+			// query maxSupply from the denom
+
 			msg := types.NewMsgUpdateDenom(
 				clientCtx.GetFromAddress().String(),
 				indexDenom,
 				argDescription,
-				argUrl,
-				argMaxSupply,
-				argCanChangeMaxSupply,
+				res.GetDenom().MaxSupply,
+				res.GetDenom().CanChangeMaxSupply,
 			)
 			if err := msg.ValidateBasic(); err != nil {
 				return err

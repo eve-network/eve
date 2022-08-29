@@ -17,21 +17,20 @@ message MsgCreateDenom {
   string owner = 1;
   string denom = 2;
   string description = 3;
-  string ticker = 4;
-  int32 precision = 5;
-  string url = 6;
-  int32 maxSupply = 7;
-  bool canChangeMaxSupply = 8;
+  // string ticker = 4;
+  int32 precision = 4;
+  // string url = 6;
+  int32 maxSupply = 5;
+  bool canChangeMaxSupply = 6;
 }
 message MsgCreateDenomResponse {}
 
 message MsgUpdateDenom {
   string owner = 1;
   string denom = 2;
-  string description = 3;
-  string url = 4;
-  int32 maxSupply = 5;
-  bool canChangeMaxSupply = 6;
+  string description = 3;  
+  int32 maxSupply = 4;
+  bool canChangeMaxSupply = 5;
 }
 message MsgUpdateDenomResponse {}
 

@@ -32,8 +32,6 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 		MaxSupply:          valFound.MaxSupply,
 		Supply:             valFound.Supply,
 		Precision:          valFound.Precision,
-		Ticker:             valFound.Ticker,
-		Url:                valFound.Url,
 		CanChangeMaxSupply: valFound.CanChangeMaxSupply,
 	}
 

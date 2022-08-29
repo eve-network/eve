@@ -5,13 +5,11 @@ option go_package = "x/tokenfactory/types";
 
 message Denom {
   string denom = 1; 
-  string description = 2; 
-  string ticker = 3; 
-  int32 precision = 4; 
-  string url = 5; 
-  int32 maxSupply = 6; 
-  int32 supply = 7; 
-  bool canChangeMaxSupply = 8; 
-  string owner = 9;
+  string description = 2;   
+  int32 precision = 3;   
+  int32 maxSupply = 4; 
+  int32 supply = 5;
+  bool canChangeMaxSupply = 6;
+  string owner = 7;
 }
 
