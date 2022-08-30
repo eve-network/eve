@@ -67,6 +67,9 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 		MaxSupply:          msg.MaxSupply,
 		Supply:             valFound.Supply,
 		CanChangeMaxSupply: msg.CanChangeMaxSupply,
+		Description:        msg.Description,
+		TokenImage:         msg.TokenImage,
+		Website:            msg.Website,
 	}
 
 	k.SetDenom(ctx, denom)

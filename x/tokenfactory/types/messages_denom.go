@@ -75,13 +75,18 @@ func NewMsgUpdateDenom(
 	denom string,
 	maxSupply int32,
 	canChangeMaxSupply bool,
-	denomMetadata DenomMetaData,
+	description string, // TODO: can we make a metadata struct & use somehow?
+	token_image string,
+	website string,
 ) *MsgUpdateDenom {
 	return &MsgUpdateDenom{
 		Owner:              owner,
 		Denom:              denom,
 		MaxSupply:          maxSupply,
 		CanChangeMaxSupply: canChangeMaxSupply,
+		Description:        description,
+		TokenImage:         token_image,
+		Website:            website,
 	}
 }
 

@@ -22,15 +22,20 @@ message MsgCreateDenom {
   // string url = 6;
   int32 maxSupply = 5;
   bool canChangeMaxSupply = 6;
+  // no metadata here, you can only do AFTER creation via update
 }
 message MsgCreateDenomResponse {}
 
 message MsgUpdateDenom {
   string owner = 1;
-  string denom = 2;
-  string description = 3;  
-  int32 maxSupply = 4;
-  bool canChangeMaxSupply = 5;
+  string denom = 2;  
+  int32 maxSupply = 3;
+  bool canChangeMaxSupply = 4;
+
+  // metadata
+  string description = 5;  
+  string token_image = 6;
+  string website = 7;
 }
 message MsgUpdateDenomResponse {}
 
