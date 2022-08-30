@@ -14,7 +14,7 @@ import (
 
 func CmdCreateDenom() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-denom [denom] [description] [precision] [max-supply] [can-change-max-supply]",
+		Use:   "create-denom [denom] [precision] [max-supply] [can-change-max-supply]",
 		Short: "Create a new Denom",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -22,7 +22,7 @@ func CmdCreateDenom() *cobra.Command {
 			indexDenom := args[0]
 
 			// Get value arguments
-			argDescription := args[1]
+			// argDescription := args[1]
 			argPrecision, err := cast.ToInt32E(args[2])
 			if err != nil {
 				return err
@@ -44,7 +44,6 @@ func CmdCreateDenom() *cobra.Command {
 			msg := types.NewMsgCreateDenom(
 				clientCtx.GetFromAddress().String(),
 				indexDenom,
-				argDescription,
 				argPrecision,
 				argMaxSupply,
 				argCanChangeMaxSupply,
@@ -68,7 +67,7 @@ func CmdUpdateDenomDescription() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			indexDenom := args[0]
-			argDescription := args[1]
+			// argDescription := args[1]
 
 			// query default denom data that we are not setting.
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -102,7 +101,7 @@ func CmdUpdateDenomDescription() *cobra.Command {
 			msg := types.NewMsgUpdateDenom(
 				clientCtx.GetFromAddress().String(),
 				indexDenom,
-				argDescription,
+				// argDescription,
 				res.GetDenom().MaxSupply,
 				res.GetDenom().CanChangeMaxSupply,
 			)

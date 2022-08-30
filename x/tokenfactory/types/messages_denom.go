@@ -5,12 +5,12 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// MsgCreateDenom
 var _ sdk.Msg = &MsgCreateDenom{}
 
 func NewMsgCreateDenom(
 	owner string,
 	denom string,
-	description string,
 	precision int32,
 	maxSupply int32,
 	canChangeMaxSupply bool,
@@ -19,7 +19,6 @@ func NewMsgCreateDenom(
 	return &MsgCreateDenom{
 		Owner:              owner,
 		Denom:              denom,
-		Description:        description,
 		Precision:          precision,
 		MaxSupply:          maxSupply,
 		CanChangeMaxSupply: canChangeMaxSupply,
@@ -68,19 +67,19 @@ func (msg *MsgCreateDenom) ValidateBasic() error {
 	return nil
 }
 
+// MsgUpdateDenom
 var _ sdk.Msg = &MsgUpdateDenom{}
 
 func NewMsgUpdateDenom(
 	owner string,
 	denom string,
-	description string,
 	maxSupply int32,
 	canChangeMaxSupply bool,
+	denomMetadata DenomMetaData,
 ) *MsgUpdateDenom {
 	return &MsgUpdateDenom{
 		Owner:              owner,
 		Denom:              denom,
-		Description:        description,
 		MaxSupply:          maxSupply,
 		CanChangeMaxSupply: canChangeMaxSupply,
 	}

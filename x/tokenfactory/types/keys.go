@@ -17,6 +17,6 @@ const (
 	MemStoreKey = "mem_tokenfactory"
 )
 
-func KeyPrefix(p string) []byte {
+func GetKeyPrefix(p string) []byte {
 	return []byte(p)
 }

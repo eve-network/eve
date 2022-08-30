@@ -23,7 +23,6 @@ func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom)
 	var denom = types.Denom{
 		Owner:              msg.Owner,
 		Denom:              msg.Denom,
-		Description:        msg.Description,
 		Precision:          msg.Precision,
 		MaxSupply:          msg.MaxSupply,
 		Supply:             0,
@@ -60,10 +59,10 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 	if !valFound.CanChangeMaxSupply && msg.CanChangeMaxSupply {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
 	}
+
 	var denom = types.Denom{
 		Owner:              msg.Owner,
 		Denom:              msg.Denom,
-		Description:        msg.Description,
 		Precision:          valFound.Precision,
 		MaxSupply:          msg.MaxSupply,
 		Supply:             valFound.Supply,

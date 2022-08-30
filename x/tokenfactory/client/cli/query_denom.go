@@ -12,8 +12,8 @@ import (
 
 func CmdListDenom() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-denom",
-		Short: "list all Denom",
+		Use:   "list-denoms",
+		Short: "list all Denoms",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 

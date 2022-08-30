@@ -20,7 +20,6 @@ func TestGenesis(t *testing.T) {
 				Denom: "1",
 			},
 		},
-		// this line is used by starport scaffolding # genesis/test/state
 	}
 
 	k, ctx := keepertest.TokenfactoryKeeper(t)
@@ -29,5 +28,4 @@ func TestGenesis(t *testing.T) {
 	require.NotNil(t, got)
 
 	require.ElementsMatch(t, genesisState.DenomList, got.DenomList)
-	// this line is used by starport scaffolding # genesis/test/assert
 }

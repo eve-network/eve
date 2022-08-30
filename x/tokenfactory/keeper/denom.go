@@ -8,7 +8,7 @@ import (
 
 // SetDenom set a specific denom in the store from its index
 func (k Keeper) SetDenom(ctx sdk.Context, denom types.Denom) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DenomKeyPrefix))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetKeyPrefix(types.DenomKeyPrefix))
 	b := k.cdc.MustMarshal(&denom)
 	store.Set(types.DenomKey(
 		denom.Denom,
@@ -21,7 +21,7 @@ func (k Keeper) GetDenom(
 	denom string,
 
 ) (val types.Denom, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DenomKeyPrefix))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetKeyPrefix(types.DenomKeyPrefix))
 
 	b := store.Get(types.DenomKey(
 		denom,
@@ -35,8 +35,8 @@ func (k Keeper) GetDenom(
 }
 
 // GetAllDenom returns all denom
-func (k Keeper) GetAllDenom(ctx sdk.Context) (list []types.Denom) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.DenomKeyPrefix))
+func (k Keeper) GetAllDenoms(ctx sdk.Context) (list []types.Denom) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetKeyPrefix(types.DenomKeyPrefix))
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()

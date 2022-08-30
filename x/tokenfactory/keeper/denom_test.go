@@ -38,5 +38,5 @@ func TestDenomGet(t *testing.T) {
 func TestDenomGetAll(t *testing.T) {
 	keeper, ctx := keepertest.TokenfactoryKeeper(t)
 	items := createNDenom(keeper, ctx, 10)
-	require.ElementsMatch(t, items, keeper.GetAllDenom(ctx))
+	require.ElementsMatch(t, items, keeper.GetAllDenoms(ctx))
 }

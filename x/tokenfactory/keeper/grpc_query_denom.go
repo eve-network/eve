@@ -20,7 +20,7 @@ func (k Keeper) DenomAll(c context.Context, req *types.QueryAllDenomRequest) (*t
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	denomStore := prefix.NewStore(store, types.KeyPrefix(types.DenomKeyPrefix))
+	denomStore := prefix.NewStore(store, types.GetKeyPrefix(types.DenomKeyPrefix))
 
 	pageRes, err := query.Paginate(denomStore, req.Pagination, func(key []byte, value []byte) error {
 		var denom types.Denom

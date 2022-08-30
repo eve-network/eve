@@ -23,13 +23,17 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Denom struct {
-	Denom              string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
-	Description        string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Precision          int32  `protobuf:"varint,3,opt,name=precision,proto3" json:"precision,omitempty"`
-	MaxSupply          int32  `protobuf:"varint,4,opt,name=maxSupply,proto3" json:"maxSupply,omitempty"`
-	Supply             int32  `protobuf:"varint,5,opt,name=supply,proto3" json:"supply,omitempty"`
-	CanChangeMaxSupply bool   `protobuf:"varint,6,opt,name=canChangeMaxSupply,proto3" json:"canChangeMaxSupply,omitempty"`
-	Owner              string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// string description = 2;
+	Precision          int32  `protobuf:"varint,2,opt,name=precision,proto3" json:"precision,omitempty"`
+	MaxSupply          int32  `protobuf:"varint,3,opt,name=maxSupply,proto3" json:"maxSupply,omitempty"`
+	Supply             int32  `protobuf:"varint,4,opt,name=supply,proto3" json:"supply,omitempty"`
+	CanChangeMaxSupply bool   `protobuf:"varint,5,opt,name=canChangeMaxSupply,proto3" json:"canChangeMaxSupply,omitempty"`
+	Owner              string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
+	// metadata
+	Description string `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
+	TokenImage  string `protobuf:"bytes,8,opt,name=token_image,json=tokenImage,proto3" json:"token_image,omitempty"`
+	Website     string `protobuf:"bytes,9,opt,name=website,proto3" json:"website,omitempty"`
 }
 
 func (m *Denom) Reset()         { *m = Denom{} }
@@ -72,13 +76,6 @@ func (m *Denom) GetDenom() string {
 	return ""
 }
 
-func (m *Denom) GetDescription() string {
-	if m != nil {
-		return m.Description
-	}
-	return ""
-}
-
 func (m *Denom) GetPrecision() int32 {
 	if m != nil {
 		return m.Precision
@@ -114,6 +111,27 @@ func (m *Denom) GetOwner() string {
 	return ""
 }
 
+func (m *Denom) GetDescription() string {
+	if m != nil {
+		return m.Description
+	}
+	return ""
+}
+
+func (m *Denom) GetTokenImage() string {
+	if m != nil {
+		return m.TokenImage
+	}
+	return ""
+}
+
+func (m *Denom) GetWebsite() string {
+	if m != nil {
+		return m.Website
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Denom)(nil), "eve.tokenfactory.v1beta1.Denom")
 }
@@ -123,23 +141,25 @@ func init() {
 }
 
 var fileDescriptor_9f6485742066c885 = []byte{
-	// 245 bytes of a gzipped FileDescriptorProto
+	// 278 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0xb1, 0x4e, 0xc3, 0x30,
-	0x18, 0x84, 0xf3, 0x03, 0x09, 0xd4, 0x6c, 0x56, 0x85, 0x3c, 0x20, 0x2b, 0x42, 0x0c, 0x99, 0x1c,
-	0x55, 0xbc, 0x01, 0xb0, 0xb2, 0x84, 0x8d, 0xcd, 0x4d, 0x7f, 0x20, 0x82, 0xda, 0x96, 0x63, 0x42,
-	0xf3, 0x16, 0x3c, 0x16, 0x63, 0x47, 0xd8, 0x50, 0xf2, 0x22, 0xc8, 0x76, 0x55, 0x8a, 0xd4, 0xf1,
-	0xee, 0xbb, 0x93, 0x4e, 0x47, 0x2e, 0xb1, 0xc3, 0xd2, 0xe9, 0x17, 0x54, 0x8f, 0xb2, 0x76, 0xda,
-	0xf6, 0x65, 0x37, 0x9b, 0xa3, 0x93, 0xb3, 0x72, 0x81, 0x4a, 0x2f, 0x85, 0xb1, 0xda, 0x69, 0xca,
-	0xb0, 0x43, 0xb1, 0x9b, 0x12, 0x9b, 0xd4, 0xc5, 0x37, 0x90, 0xf4, 0xd6, 0x27, 0xe9, 0x94, 0xa4,
-	0xa1, 0xc2, 0x20, 0x87, 0x62, 0x52, 0x45, 0x41, 0x73, 0x72, 0xba, 0xc0, 0xb6, 0xb6, 0x8d, 0x71,
-	0x8d, 0x56, 0xec, 0x20, 0xb0, 0x5d, 0x8b, 0x9e, 0x93, 0x89, 0xb1, 0x58, 0x37, 0xad, 0xe7, 0x87,
-	0x39, 0x14, 0x69, 0xf5, 0x67, 0x78, 0xba, 0x94, 0xab, 0xfb, 0x37, 0x63, 0x5e, 0x7b, 0x76, 0x14,
-	0xe9, 0xd6, 0xa0, 0x67, 0x24, 0x6b, 0x23, 0x4a, 0x03, 0xda, 0x28, 0x2a, 0x08, 0xad, 0xa5, 0xba,
-	0x79, 0x96, 0xea, 0x09, 0xef, 0xb6, 0xf5, 0x2c, 0x87, 0xe2, 0xa4, 0xda, 0x43, 0xfc, 0x76, 0xfd,
-	0xae, 0xd0, 0xb2, 0xe3, 0xb8, 0x3d, 0x88, 0x6b, 0xf1, 0x39, 0x70, 0x58, 0x0f, 0x1c, 0x7e, 0x06,
-	0x0e, 0x1f, 0x23, 0x4f, 0xd6, 0x23, 0x4f, 0xbe, 0x46, 0x9e, 0x3c, 0x4c, 0x57, 0xff, 0x3f, 0x73,
-	0xbd, 0xc1, 0x76, 0x9e, 0x85, 0xb3, 0xae, 0x7e, 0x03, 0x00, 0x00, 0xff, 0xff, 0x78, 0xfc, 0x1f,
-	0xbb, 0x54, 0x01, 0x00, 0x00,
+	0x14, 0x45, 0xe3, 0x42, 0xd2, 0xe6, 0x75, 0xb3, 0x2a, 0xe4, 0x01, 0x99, 0x08, 0x31, 0x64, 0x4a,
+	0x54, 0xf1, 0x07, 0xc0, 0xc2, 0xc0, 0x12, 0x36, 0x16, 0xe4, 0xa4, 0x8f, 0x12, 0x41, 0x6c, 0x2b,
+	0x31, 0x69, 0xf3, 0x17, 0x0c, 0x7c, 0x14, 0x63, 0x47, 0x46, 0x94, 0xfc, 0x08, 0x8a, 0x53, 0x4a,
+	0x91, 0x3a, 0xde, 0x73, 0xae, 0xa5, 0xeb, 0x07, 0x17, 0x58, 0x63, 0x6c, 0xd4, 0x0b, 0xca, 0x27,
+	0x91, 0x19, 0x55, 0x36, 0x71, 0x3d, 0x4f, 0xd1, 0x88, 0x79, 0xbc, 0x40, 0xa9, 0x8a, 0x48, 0x97,
+	0xca, 0x28, 0xca, 0xb0, 0xc6, 0x68, 0xbf, 0x15, 0x6d, 0x5b, 0xe7, 0x1f, 0x23, 0x70, 0x6f, 0xfa,
+	0x26, 0x9d, 0x81, 0x6b, 0x9f, 0x30, 0x12, 0x90, 0xd0, 0x4f, 0x86, 0x40, 0x4f, 0xc1, 0xd7, 0x25,
+	0x66, 0x79, 0x95, 0x2b, 0xc9, 0x46, 0x01, 0x09, 0xdd, 0xe4, 0x0f, 0xf4, 0xb6, 0x10, 0xeb, 0xfb,
+	0x37, 0xad, 0x5f, 0x1b, 0x76, 0x34, 0xd8, 0x1d, 0xa0, 0x27, 0xe0, 0x55, 0x83, 0x3a, 0xb6, 0x6a,
+	0x9b, 0x68, 0x04, 0x34, 0x13, 0xf2, 0xfa, 0x59, 0xc8, 0x25, 0xde, 0xed, 0x9e, 0xbb, 0x01, 0x09,
+	0x27, 0xc9, 0x01, 0xd3, 0x2f, 0x53, 0x2b, 0x89, 0x25, 0xf3, 0x86, 0x65, 0x36, 0xd0, 0x00, 0xa6,
+	0x0b, 0xac, 0xb2, 0x32, 0xd7, 0xa6, 0xdf, 0x36, 0xb6, 0x6e, 0x1f, 0xd1, 0x33, 0x98, 0xda, 0x3f,
+	0x3f, 0xe6, 0x85, 0x58, 0x22, 0x9b, 0xd8, 0x06, 0x58, 0x74, 0xdb, 0x13, 0xca, 0x60, 0xbc, 0xc2,
+	0xb4, 0xca, 0x0d, 0x32, 0xdf, 0xca, 0xdf, 0x78, 0x15, 0x7d, 0xb6, 0x9c, 0x6c, 0x5a, 0x4e, 0xbe,
+	0x5b, 0x4e, 0xde, 0x3b, 0xee, 0x6c, 0x3a, 0xee, 0x7c, 0x75, 0xdc, 0x79, 0x98, 0xad, 0xff, 0x9f,
+	0xdb, 0x34, 0x1a, 0xab, 0xd4, 0xb3, 0x77, 0xbe, 0xfc, 0x09, 0x00, 0x00, 0xff, 0xff, 0xe9, 0x3e,
+	0x98, 0xa4, 0x8f, 0x01, 0x00, 0x00,
 }
 
 func (m *Denom) Marshal() (dAtA []byte, err error) {
@@ -162,12 +182,33 @@ func (m *Denom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Website) > 0 {
+		i -= len(m.Website)
+		copy(dAtA[i:], m.Website)
+		i = encodeVarintDenom(dAtA, i, uint64(len(m.Website)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if len(m.TokenImage) > 0 {
+		i -= len(m.TokenImage)
+		copy(dAtA[i:], m.TokenImage)
+		i = encodeVarintDenom(dAtA, i, uint64(len(m.TokenImage)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintDenom(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x3a
+	}
 	if len(m.Owner) > 0 {
 		i -= len(m.Owner)
 		copy(dAtA[i:], m.Owner)
 		i = encodeVarintDenom(dAtA, i, uint64(len(m.Owner)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x32
 	}
 	if m.CanChangeMaxSupply {
 		i--
@@ -177,29 +218,22 @@ func (m *Denom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x28
 	}
 	if m.Supply != 0 {
 		i = encodeVarintDenom(dAtA, i, uint64(m.Supply))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x20
 	}
 	if m.MaxSupply != 0 {
 		i = encodeVarintDenom(dAtA, i, uint64(m.MaxSupply))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x18
 	}
 	if m.Precision != 0 {
 		i = encodeVarintDenom(dAtA, i, uint64(m.Precision))
 		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintDenom(dAtA, i, uint64(len(m.Description)))
-		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x10
 	}
 	if len(m.Denom) > 0 {
 		i -= len(m.Denom)
@@ -232,10 +266,6 @@ func (m *Denom) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovDenom(uint64(l))
 	}
-	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovDenom(uint64(l))
-	}
 	if m.Precision != 0 {
 		n += 1 + sovDenom(uint64(m.Precision))
 	}
@@ -249,6 +279,18 @@ func (m *Denom) Size() (n int) {
 		n += 2
 	}
 	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovDenom(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovDenom(uint64(l))
+	}
+	l = len(m.TokenImage)
+	if l > 0 {
+		n += 1 + l + sovDenom(uint64(l))
+	}
+	l = len(m.Website)
 	if l > 0 {
 		n += 1 + l + sovDenom(uint64(l))
 	}
@@ -323,6 +365,115 @@ func (m *Denom) Unmarshal(dAtA []byte) error {
 			m.Denom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Precision", wireType)
+			}
+			m.Precision = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Precision |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxSupply", wireType)
+			}
+			m.MaxSupply = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxSupply |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Supply", wireType)
+			}
+			m.Supply = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Supply |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CanChangeMaxSupply", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.CanChangeMaxSupply = bool(v != 0)
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDenom
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDenom
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -354,86 +505,9 @@ func (m *Denom) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Precision", wireType)
-			}
-			m.Precision = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDenom
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Precision |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxSupply", wireType)
-			}
-			m.MaxSupply = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDenom
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxSupply |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Supply", wireType)
-			}
-			m.Supply = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDenom
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Supply |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CanChangeMaxSupply", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDenom
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.CanChangeMaxSupply = bool(v != 0)
-		case 7:
+		case 8:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TokenImage", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -461,7 +535,39 @@ func (m *Denom) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
+			m.TokenImage = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Website", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDenom
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDenom
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDenom
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Website = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

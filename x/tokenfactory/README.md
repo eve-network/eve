@@ -4,8 +4,8 @@ Design considerations:
 - Osmosis
 - CW20
 
-// name, denom, decimals, total_supply, canChangeTotalSupply
-// extra: description, url, website, tokenImage, twitter? (metadata message)
+// name, Denom, decimals, total_supply, canChangeTotalSupply
+// extra: description, URL, website, token Image, Twitter? (metadata message)
 
 ```
 CW20:
@@ -42,4 +42,8 @@ queries:
 - metadata [denom] 
 - denoms-from-creator [creator address] ?
 - others which are already there
+
+
+- list-denoms
+- show-denom [denom]
 ```
