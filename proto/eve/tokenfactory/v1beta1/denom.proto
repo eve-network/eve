@@ -5,11 +5,15 @@ option go_package = "x/tokenfactory/types";
 
 message Denom {
   string denom = 1; 
-  string description = 2;   
-  int32 precision = 3;   
-  int32 maxSupply = 4; 
-  int32 supply = 5;
-  bool canChangeMaxSupply = 6;
-  string owner = 7;
-}
+  // string description = 2;   
+  int32 precision = 2;   
+  int32 maxSupply = 3; 
+  int32 supply = 4;
+  bool canChangeMaxSupply = 5;
+  string owner = 6;
 
+  // metadata
+  string description = 7;  
+  string token_image = 8;
+  string website = 9;
+}

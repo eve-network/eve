@@ -5,7 +5,7 @@
 
 eved tx tokenfactory create-denom reece "my denom" 6 100000 false --from eve1 --chain-id eve-t1 --yes -b sync --keyring-backend test
 
-eved q tokenfactory list-denom
+eved q tokenfactory list-denoms
 
 eved q tokenfactory show-denom reece
 
