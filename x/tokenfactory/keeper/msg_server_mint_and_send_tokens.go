@@ -47,6 +47,7 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 
 	var denom = types.Denom{
 		Owner:              valFound.Owner,
+		Name:               valFound.Name,
 		Denom:              valFound.Denom,
 		MaxSupply:          valFound.MaxSupply,
 		Supply:             valFound.Supply + msg.Amount,

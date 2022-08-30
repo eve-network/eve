@@ -2,7 +2,7 @@
 # TODO: dont allow minting token named eve / ueve?
 
 # = Init token = ($aaa, description, 6 points of percision, 100,000 max supply, maxSupplyNotChangeable, mintable, burnable)
-eved tx tokenfactory create-denom aaa "my denom description" 6 100000 false --from eve1 --chain-id eve-t1 --yes -b sync --keyring-backend test
+eved tx tokenfactory create-denom "MyToken AAA" aaa 6 100000 false --from eve1 --chain-id eve-t1 --yes -b sync --keyring-backend test
 eved q tokenfactory show-denom aaa
 # eved q tokenfactory list-denoms
 

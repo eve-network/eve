@@ -49,12 +49,12 @@ func GetTxCmd() *cobra.Command {
 
 func CmdCreateDenom() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-denom [denom] [precision] [max-supply] [can-change-max-supply]",
+		Use:   "create-denom [name] [denom] [precision] [max-supply] [can-change-max-supply]",
 		Short: "Create a new Denom",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			// Get indexes
-			indexDenom := args[0]
+			name := args[0]
+			indexDenom := args[1]
 			argPrecision, err := cast.ToInt32E(args[2])
 			if err != nil {
 				return err
@@ -75,6 +75,7 @@ func CmdCreateDenom() *cobra.Command {
 
 			msg := types.NewMsgCreateDenom(
 				clientCtx.GetFromAddress().String(),
+				name,
 				indexDenom,
 				argPrecision,
 				argMaxSupply,
@@ -159,7 +160,7 @@ func CmdMintAndSendTokens() *cobra.Command {
 	return cmd
 }
 
-// is this even needed?
+// is this even needed after init of a token?
 func CmdUpdateDenomCanChangeMaxSupply() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-denom-change-supply [denom] [true/false]",

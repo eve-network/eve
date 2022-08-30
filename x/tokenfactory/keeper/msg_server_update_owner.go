@@ -27,6 +27,7 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 
 	var denom = types.Denom{
 		Owner:              msg.NewOwner,
+		Name:               valFound.Name,
 		Denom:              msg.Denom,
 		MaxSupply:          valFound.MaxSupply,
 		Supply:             valFound.Supply,

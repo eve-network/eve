@@ -15,13 +15,12 @@ service Msg {
 
 message MsgCreateDenom {
   string owner = 1;
-  string denom = 2;
-  string description = 3;
-  // string ticker = 4;
-  int32 precision = 4;
-  // string url = 6;
-  int32 maxSupply = 5;
-  bool canChangeMaxSupply = 6;
+  string name = 2;
+  string denom = 3;
+  string description = 4;
+  int32 precision = 5;
+  int32 maxSupply = 6;
+  bool canChangeMaxSupply = 7;
   // no metadata here, you can only do AFTER creation via update
 }
 message MsgCreateDenomResponse {}

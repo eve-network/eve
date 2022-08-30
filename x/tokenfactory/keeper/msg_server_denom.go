@@ -22,6 +22,7 @@ func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom)
 
 	var denom = types.Denom{
 		Owner:              msg.Owner,
+		Name:               msg.Name,
 		Denom:              msg.Denom,
 		Precision:          msg.Precision,
 		MaxSupply:          msg.MaxSupply,
@@ -62,6 +63,7 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 
 	var denom = types.Denom{
 		Owner:              msg.Owner,
+		Name:               valFound.Name,
 		Denom:              msg.Denom,
 		Precision:          valFound.Precision,
 		MaxSupply:          msg.MaxSupply,

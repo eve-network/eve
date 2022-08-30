@@ -10,6 +10,7 @@ var _ sdk.Msg = &MsgCreateDenom{}
 
 func NewMsgCreateDenom(
 	owner string,
+	name string,
 	denom string,
 	precision int32,
 	maxSupply int32,
@@ -18,6 +19,7 @@ func NewMsgCreateDenom(
 ) *MsgCreateDenom {
 	return &MsgCreateDenom{
 		Owner:              owner,
+		Name:               name,
 		Denom:              denom,
 		Precision:          precision,
 		MaxSupply:          maxSupply,
