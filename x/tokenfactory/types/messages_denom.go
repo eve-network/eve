@@ -20,7 +20,7 @@ func NewMsgCreateDenom(
 	return &MsgCreateDenom{
 		Owner:              owner,
 		Name:               name,
-		Denom:              denom,
+		Denom:              "factory/" + owner + "/" + denom,
 		Precision:          precision,
 		MaxSupply:          maxSupply,
 		CanChangeMaxSupply: canChangeMaxSupply,
@@ -55,13 +55,13 @@ func (msg *MsgCreateDenom) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address")
 	}
 
-	tickerLength := len(msg.Denom)
-	if tickerLength < 3 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Denom length must be at least 3 chars long")
-	}
-	if tickerLength > 10 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Denom length must be 10 chars long maximum")
-	}
+	// tickerLength := len(msg.Denom) // ! we do factory/{addr}/{ticker} now
+	// if tickerLength < 3 {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Denom length must be at least 3 chars long")
+	// }
+	// if tickerLength > 10 {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Denom length must be 10 chars long maximum")
+	// }
 	if msg.MaxSupply == 0 {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
 	}
