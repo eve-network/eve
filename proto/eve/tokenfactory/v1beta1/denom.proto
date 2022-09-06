@@ -1,0 +1,19 @@
+syntax = "proto3";
+package eve.tokenfactory.v1beta1;
+
+option go_package = "x/tokenfactory/types";
+
+message Denom {
+  string name = 1;
+  string denom = 2;
+  int32 precision = 3;   
+  int32 maxSupply = 4; 
+  int32 supply = 5;
+  bool canChangeMaxSupply = 6;
+  string owner = 7;
+
+  // metadata
+  string description = 8;  
+  string token_image = 9;
+  string website = 10;
+}

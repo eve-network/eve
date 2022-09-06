@@ -1,0 +1,12 @@
+syntax = "proto3";
+package eve.tokenfactory.v1beta1;
+
+import "eve/tokenfactory/v1beta1/denom.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "x/tokenfactory/types";
+
+// GenesisState defines the tokenfactory module's genesis state.
+message GenesisState {
+    repeated Denom denomList = 1 [(gogoproto.nullable) = false];  
+}

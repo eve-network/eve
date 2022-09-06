@@ -1,0 +1,42 @@
+syntax = "proto3";
+package eve.tokenfactory.v1beta1;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "eve/tokenfactory/v1beta1/denom.proto";
+
+import "gogoproto/gogo.proto";
+
+option go_package = "x/tokenfactory/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // Queries a denom by index.
+	rpc Denom(QueryGetDenomRequest) returns (QueryGetDenomResponse) {
+		option (google.api.http).get = "/notional-labs/eve/tokenfactory/denom/{denom}";
+	}
+
+	// Queries a list of denom items.
+	rpc DenomAll(QueryAllDenomRequest) returns (QueryAllDenomResponse) {
+		option (google.api.http).get = "/notional-labs/eve/tokenfactory/denom";
+	}
+}
+
+message QueryGetDenomRequest {
+	  string denom = 1;
+
+}
+
+message QueryGetDenomResponse {
+	Denom denom = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllDenomRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllDenomResponse {
+	repeated Denom denom = 1 [(gogoproto.nullable) = false];
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
