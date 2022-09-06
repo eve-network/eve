@@ -1,10 +1,15 @@
 #!/usr/bin/make -f
 
+
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 ifeq ($(VERSION),)
   VERSION := v0.0.0
 endif
+
+PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
+DOCKER := $(shell which docker)
+DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 
 export GO111MODULE = on
 
@@ -75,3 +80,21 @@ go.sum: go.mod
 
 build:
 	go build $(BUILD_FLAGS) -o ./build/eved ./eved
+
+
+# https://github.com/cosmos/cosmos-sdk/blob/main/Makefile#L395
+## profobuf ##
+protoVer=v0.7
+protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
+containerProtoGen=$(PROJECT_NAME)-proto-gen-$(protoVer)
+containerProtoGenAny=$(PROJECT_NAME)-proto-gen-any-$(protoVer)
+containerProtoGenSwagger=$(PROJECT_NAME)-proto-gen-swagger-$(protoVer)
+containerProtoFmt=$(PROJECT_NAME)-proto-fmt-$(protoVer)
+
+proto-gen:
+	@echo "Generating Protobuf files"
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGen}$$"; then docker start -a $(containerProtoGen); else docker run --name $(containerProtoGen) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
+		sh ./scripts/protocgen.sh; fi
+
+proto-lint:
+	@$(DOCKER_BUF) lint --error-format=json
