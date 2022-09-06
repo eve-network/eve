@@ -27,6 +27,7 @@ Anything described below can be modified by making a pull request.
 
 ## Credits
 https://github.com/clockworkgr/tokenfactory  (v45 -> v46.1)
+WasmBindings - Fork of Osmosis's wasmbindings
 
 ## Imperative
 
