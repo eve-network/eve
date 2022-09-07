@@ -1,8 +1,6 @@
 package bindings
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+import "cosmossdk.io/math"
 
 type EveMsg struct {
 	/// Contracts can create denoms, namespaced under the contract's address.
@@ -40,7 +38,7 @@ type ChangeOwner struct {
 }
 
 type MintTokens struct {
-	Denom     string  `json:"denom"`
-	Amount    sdk.Int `json:"amount"`
-	Recipient string  `json:"recipient"`
+	Denom     string   `json:"denom"`
+	Amount    math.Int `json:"amount"`
+	Recipient string   `json:"recipient"`
 }
