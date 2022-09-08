@@ -43,8 +43,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var CreateEmptyBlocksInterval = "60s"
-
 // NewRootCmd creates a new root command for eve. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -91,24 +89,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
 
-			if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig); err != nil {
-				return err
-			}
-
-			srvCtx := server.GetServerContextFromCmd(cmd)
-
-			d, err := time.ParseDuration(CreateEmptyBlocksInterval)
-			if err != nil {
-				panic(err)
-			}
-
-			srvCtx.Config.Consensus.CreateEmptyBlocksInterval = d
-			srvCtx.Config.Consensus.CreateEmptyBlocks = false
-			srvCtx.Config.Consensus.TimeoutCommit = 500 * time.Millisecond
-			srvCtx.Config.Consensus.TimeoutPropose = 2 * time.Second
-			srvCtx.Config.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
-
-			return server.SetCmdServerContext(cmd, srvCtx)
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
 	}
 
@@ -122,9 +103,15 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 func initTendermintConfig() *tmcfg.Config {
 	cfg := tmcfg.DefaultConfig()
 
-	// these values put a higher strain on node memory
-	// cfg.P2P.MaxNumInboundPeers = 100
-	// cfg.P2P.MaxNumOutboundPeers = 40
+	// peers
+	cfg.P2P.MaxNumInboundPeers = 200
+	cfg.P2P.MaxNumOutboundPeers = 40
+
+	// block times
+	cfg.Consensus.TimeoutCommit = cast.ToDuration("1s")
+	cfg.Consensus.CreateEmptyBlocks = false
+	cfg.Consensus.TimeoutPropose = 2 * time.Second
+	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
 
 	return cfg
 }
@@ -158,6 +145,7 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 	srvCfg.Rosetta.DenomToSuggest = "ueve"
+	srvCfg.Rosetta.Enable = true
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
