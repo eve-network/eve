@@ -108,7 +108,8 @@ func initTendermintConfig() *tmcfg.Config {
 	cfg.P2P.MaxNumOutboundPeers = 40
 
 	// block times
-	cfg.Consensus.TimeoutCommit = cast.ToDuration("1s")
+	cfg.Consensus.TimeoutCommit = 500 * time.Millisecond
+	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second
 	cfg.Consensus.CreateEmptyBlocks = false
 	cfg.Consensus.TimeoutPropose = 2 * time.Second
 	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
