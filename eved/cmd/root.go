@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/notional-labs/eve/app"
 	"github.com/spf13/cast"
@@ -41,6 +42,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+var CreateEmptyBlocksInterval = "60s"
 
 // NewRootCmd creates a new root command for eve. It is called once in the
 // main function.
@@ -88,7 +91,24 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
 
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
+			if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig); err != nil {
+				return err
+			}
+
+			srvCtx := server.GetServerContextFromCmd(cmd)
+
+			d, err := time.ParseDuration(CreateEmptyBlocksInterval)
+			if err != nil {
+				panic(err)
+			}
+
+			srvCtx.Config.Consensus.CreateEmptyBlocksInterval = d
+			srvCtx.Config.Consensus.CreateEmptyBlocks = false
+			srvCtx.Config.Consensus.TimeoutCommit = 500 * time.Millisecond
+			srvCtx.Config.Consensus.TimeoutPropose = 2 * time.Second
+			srvCtx.Config.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
+
+			return server.SetCmdServerContext(cmd, srvCtx)
 		},
 	}
 
