@@ -10,7 +10,7 @@ message Denom {
   int32 maxSupply = 4; 
   int32 supply = 5;
   bool canChangeMaxSupply = 6;
-  string owner = 7;
+  string owner = 7; // TODO: admin in future?
 
   // metadata
   string description = 8;  
