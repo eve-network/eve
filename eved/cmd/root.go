@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/notional-labs/eve/app"
 	"github.com/spf13/cast"
@@ -102,9 +103,16 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 func initTendermintConfig() *tmcfg.Config {
 	cfg := tmcfg.DefaultConfig()
 
-	// these values put a higher strain on node memory
-	// cfg.P2P.MaxNumInboundPeers = 100
-	// cfg.P2P.MaxNumOutboundPeers = 40
+	// peers
+	cfg.P2P.MaxNumInboundPeers = 200
+	cfg.P2P.MaxNumOutboundPeers = 40
+
+	// block times
+	cfg.Consensus.TimeoutCommit = 500 * time.Millisecond
+	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second
+	cfg.Consensus.CreateEmptyBlocks = false
+	cfg.Consensus.TimeoutPropose = 2 * time.Second
+	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
 
 	return cfg
 }
@@ -138,6 +146,7 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 	srvCfg.Rosetta.DenomToSuggest = "ueve"
+	srvCfg.Rosetta.Enable = true
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
