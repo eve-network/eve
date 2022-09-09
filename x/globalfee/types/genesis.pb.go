@@ -122,12 +122,12 @@ func (m *Params) GetMinimumGasPrices() github_com_cosmos_cosmos_sdk_types.DecCoi
 }
 
 func init() {
-	proto.RegisterType((*GenesisState)(nil), "gaia.globalfee.v1beta1.GenesisState")
-	proto.RegisterType((*Params)(nil), "gaia.globalfee.v1beta1.Params")
+	proto.RegisterType((*GenesisState)(nil), "eve.globalfee.v1beta1.GenesisState")
+	proto.RegisterType((*Params)(nil), "eve.globalfee.v1beta1.Params")
 }
 
 func init() {
-	proto.RegisterFile("gaia/globalfee/v1beta1/genesis.proto", fileDescriptor_015b3e8b7a7c65c5)
+	proto.RegisterFile("eve/globalfee/v1beta1/genesis.proto", fileDescriptor_015b3e8b7a7c65c5)
 }
 
 var fileDescriptor_015b3e8b7a7c65c5 = []byte{

@@ -40,6 +40,8 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	eveante "github.com/notional-labs/eve/app/ante"
+
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -145,6 +147,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+
+	ibcchanneltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 
 	// IBC transfer module: Enables IBC transfer of coins between accounts using the transfer port on an IBC channel.
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
@@ -634,7 +638,7 @@ func NewEveApp(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
-	app.setAnteHandler(encodingConfig.TxConfig)
+	app.setAnteHandler(appOpts, encodingConfig.TxConfig)
 	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
 	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
 	// defined as a chain, and have the same signature as antehandlers.
@@ -659,15 +663,34 @@ func NewEveApp(
 	return app
 }
 
-func (app *EveApp) setAnteHandler(txConfig client.TxConfig) {
-	anteHandler, err := ante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: txConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-			// TODO: ? GlobalFeeSubspace: app.Subspace(app.globalFeeSubspace),
+func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig client.TxConfig) {
+	var bypassMinFeeMsgTypes []string
+	//nolint: gosec
+	bypassMinFeeConfig := appOpts.Get("bypass-min-fee-msg-types")
+	if bypassMinFeeConfig != nil {
+		bypassMinFeeMsgTypes = cast.ToStringSlice(bypassMinFeeConfig)
+	} else {
+		// bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
+		bypassMinFeeMsgTypes = []string{
+			sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+			sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+			sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		}
+	}
+
+	anteHandler, err := eveante.NewAnteHandler(
+		eveante.HandlerOptions{
+			HandlerOptions: ante.HandlerOptions{
+				AccountKeeper:   app.AccountKeeper,
+				BankKeeper:      app.BankKeeper,
+				SignModeHandler: txConfig.SignModeHandler(),
+				FeegrantKeeper:  app.FeeGrantKeeper,
+				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+				// TODO: ? GlobalFeeSubspace: app.Subspace(app.globalFeeSubspace),
+			},
+			IBCkeeper:            app.IBCKeeper,
+			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 		},
 	)
 

@@ -14,7 +14,7 @@ func (mfd BypassMinFeeDecorator) getGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) 
 	if mfd.GlobalMinFee.Has(ctx, types.ParamStoreKeyMinGasPrices) {
 		mfd.GlobalMinFee.Get(ctx, types.ParamStoreKeyMinGasPrices, &globalMinGasPrices)
 	}
-	// global fee is empty set, set global fee to 0uatom
+	// global fee is empty set, set global fee to 0ueve
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices = DefaultZeroGlobalFee()
 	}

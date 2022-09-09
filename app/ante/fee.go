@@ -28,7 +28,7 @@ type BypassMinFeeDecorator struct {
 	GlobalMinFee         globalfee.ParamSource
 }
 
-const defaultZeroGlobalFeeDenom = "uatom"
+const defaultZeroGlobalFeeDenom = "ueve"
 
 func DefaultZeroGlobalFee() []sdk.DecCoin {
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(defaultZeroGlobalFeeDenom, sdk.NewDec(0))}

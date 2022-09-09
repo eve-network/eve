@@ -138,14 +138,18 @@ func initAppConfig() (string, interface{}) {
 		serverconfig.Config
 
 		WASM WASMConfig `mapstructure:"wasm"`
+
+		// BypassMinFeeMsgTypes defines custom message types the operator may set that
+		// will bypass minimum fee checks during CheckTx.
+		BypassMinFeeMsgTypes []string `mapstructure:"bypass-min-fee-msg-types"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.BaseConfig.AppDBBackend = "pebbledb"
-	srvCfg.MinGasPrices = "0ueve"
-	srvCfg.API.Enable = true // enable 1317 port (API / 'lcd' by default)
+	srvCfg.MinGasPrices = "25ueve" // TODO: what are we setting this at?
+	srvCfg.API.Enable = true       // enable 1317 port (API / 'lcd' by default)
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 	srvCfg.Rosetta.DenomToSuggest = "ueve"
@@ -160,12 +164,28 @@ func initAppConfig() (string, interface{}) {
 	}
 
 	customAppTemplate := serverconfig.DefaultConfigTemplate + `
+###############################################################################
+###                                CosmWasm                                ###
+###############################################################################
 [wasm]
 # This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
 query_gas_limit = 300000
 # This is the number of wasm vm instances we keep cached in memory for speed-up
 # Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
 lru_size = 0`
+
+	customAppTemplate += `
+
+###############################################################################
+###                        Custom Eve Configuration                        ###
+###############################################################################
+# bypass-min-fee-msg-types defines custom message types the operator may set that
+# will bypass minimum fee checks during CheckTx.
+#
+# Example:
+# ["/ibc.core.channel.v1.MsgRecvPacket", "/ibc.core.channel.v1.MsgAcknowledgement", ...]
+bypass-min-fee-msg-types = [{{ range .BypassMinFeeMsgTypes }}{{ printf "%q, " . }}{{end}}]
+`
 
 	return customAppTemplate, customAppConfig
 }

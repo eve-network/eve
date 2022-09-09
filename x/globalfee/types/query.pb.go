@@ -177,7 +177,7 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 
 func (c *queryClient) MinimumGasPrices(ctx context.Context, in *QueryMinimumGasPricesRequest, opts ...grpc.CallOption) (*QueryMinimumGasPricesResponse, error) {
 	out := new(QueryMinimumGasPricesResponse)
-	err := c.cc.Invoke(ctx, "/gaia.globalfee.v1beta1.Query/MinimumGasPrices", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/eve.globalfee.v1beta1.Query/MinimumGasPrices", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func _Query_MinimumGasPrices_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gaia.globalfee.v1beta1.Query/MinimumGasPrices",
+		FullMethod: "/eve.globalfee.v1beta1.Query/MinimumGasPrices",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).MinimumGasPrices(ctx, req.(*QueryMinimumGasPricesRequest))
@@ -220,7 +220,7 @@ func _Query_MinimumGasPrices_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 var _Query_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "gaia.globalfee.v1beta1.Query",
+	ServiceName: "eve.globalfee.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -229,7 +229,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "gaia/globalfee/v1beta1/query.proto",
+	Metadata: "eve/globalfee/v1beta1/query.proto",
 }
 
 func (m *QueryMinimumGasPricesRequest) Marshal() (dAtA []byte, err error) {
