@@ -128,9 +128,14 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	// Staking.
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	// "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	// Staking Fork (fixes writing to blocks)
+	"github.com/notional-labs/eve/x/staking"
+	evestaking "github.com/notional-labs/eve/x/staking"
+	historykeeper "github.com/notional-labs/eve/x/staking/keeper"
 
 	// Upgrades.
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
@@ -208,7 +213,7 @@ var (
 		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		staking.AppModuleBasic{},
+		evestaking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
@@ -227,6 +232,14 @@ var (
 		tokenfactorymodule.AppModuleBasic{},
 		nftmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		// eve forked modules (from emoney so TM works)
+		// inflation.AppModuleBasic{},
+		// liquidityprovider.AppModuleBasic{},
+		// issuer.AppModuleBasic{},
+		// authority.AppModule{},
+		// market.AppModule{},
+		// buyback.AppModule{},
+		// queries.AppModule{},
 	)
 
 	// module account permissions
@@ -271,6 +284,7 @@ type EveApp struct {
 	AccountKeeper    authkeeper.AccountKeeper
 	BankKeeper       bankkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
+	HistoryKeeper    historykeeper.HistoryKeeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
 	MintKeeper       mintkeeper.Keeper
@@ -339,7 +353,7 @@ func NewEveApp(
 		distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey, paramstypes.StoreKey,
 		ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey, authzkeeper.StoreKey, nftkeeper.StoreKey,
-		group.StoreKey, tokenfactorymoduletypes.StoreKey, wasm.StoreKey,
+		group.StoreKey, tokenfactorymoduletypes.StoreKey, wasm.StoreKey, historykeeper.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	// NOTE: The testingkey is just mounted for testing purposes. Actual applications should
@@ -406,6 +420,12 @@ func NewEveApp(
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
+
+	// ! TODO: does not work yet, needs v46 conversion
+	app.HistoryKeeper = historykeeper.NewHistoryKeeper(
+		appCodec, keys[historykeeper.StoreKey], app.StakingKeeper, db,
+	)
+
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
 		app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName,
@@ -545,7 +565,7 @@ func NewEveApp(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.HistoryKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
