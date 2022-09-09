@@ -663,6 +663,15 @@ func NewEveApp(
 	return app
 }
 
+func GetDefaultBypassFeeMessages() []string {
+	return []string{
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+	}
+}
+
 func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig client.TxConfig) {
 	var bypassMinFeeMsgTypes []string
 	//nolint: gosec
@@ -670,12 +679,7 @@ func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig clien
 	if bypassMinFeeConfig != nil {
 		bypassMinFeeMsgTypes = cast.ToStringSlice(bypassMinFeeConfig)
 	} else {
-		// bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
-		bypassMinFeeMsgTypes = []string{
-			sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
-			sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
-			sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
-		}
+		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
 	}
 
 	anteHandler, err := eveante.NewAnteHandler(
