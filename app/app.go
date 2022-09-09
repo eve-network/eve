@@ -155,6 +155,9 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
+	// Bindings
+	owasm "github.com/notional-labs/eve/wasmbinding"
+
 	// "github.com/notional-labs/tokenfactory/docs"
 	tokenfactorymodule "github.com/notional-labs/eve/x/tokenfactory"
 	tokenfactorymodulekeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
@@ -269,7 +272,7 @@ type EveApp struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bankkeeper.BaseKeeper // change to BaseKeeper bc osmosis wasm bindings
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
@@ -509,6 +512,11 @@ func NewEveApp(
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate"
+
+	// wasmOpts = append(owasm.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenfactoryKeeper), wasmOpts...)
+	wasmOpts = append(owasm.RegisterCustomPlugins(&app.BankKeeper, &app.TokenfactoryKeeper), wasmOpts...)
+	wasmOpts = append(owasm.RegisterStargateQueries(*bApp.GRPCQueryRouter(), appCodec), wasmOpts...)
+
 	wasmKeeper := wasm.NewKeeper(
 		appCodec, app.keys[wasm.StoreKey], app.GetSubspace(wasm.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
