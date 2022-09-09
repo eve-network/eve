@@ -635,10 +635,10 @@ func NewEveApp(
 	app.MountMemoryStores(memKeys)
 
 	// initialize BaseApp
+	app.setAnteHandler(appOpts, encodingConfig.TxConfig)
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
-	app.setAnteHandler(appOpts, encodingConfig.TxConfig)
 	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
 	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
 	// defined as a chain, and have the same signature as antehandlers.
@@ -675,13 +675,14 @@ func GetDefaultBypassFeeMessages() []string {
 func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig client.TxConfig) {
 	var bypassMinFeeMsgTypes []string
 	//nolint: gosec
-	bypassMinFeeConfig := appOpts.Get("bypass-min-fee-msg-types")
+	bypassMinFeeConfig := appOpts.Get(appparameters.BypassMinFeeMsgTypesKey)
 	if bypassMinFeeConfig != nil {
 		bypassMinFeeMsgTypes = cast.ToStringSlice(bypassMinFeeConfig)
 	} else {
 		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
 	}
 
+	// eve handle wraps the normal ante handler with our added GlobalFeee and BypassMinFee types
 	anteHandler, err := eveante.NewAnteHandler(
 		eveante.HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{

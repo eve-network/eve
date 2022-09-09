@@ -173,9 +173,7 @@ func initAppConfig() (string, interface{}) {
 query_gas_limit = 300000
 # This is the number of wasm vm instances we keep cached in memory for speed-up
 # Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
-lru_size = 0`
-
-	customAppTemplate += `
+lru_size = 0
 
 ###############################################################################
 ###                        Custom Eve Configuration                        ###
