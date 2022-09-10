@@ -1,3 +1,5 @@
+// Use this file/package for tests only
+
 package params
 
 import (

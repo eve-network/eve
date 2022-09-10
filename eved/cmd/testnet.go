@@ -34,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	eveappparams "github.com/notional-labs/eve/app/params"
 )
 
 var (
@@ -203,7 +204,9 @@ func initTestnetFiles(
 	nodeIDs := make([]string, args.numValidators)
 	valPubKeys := make([]cryptotypes.PubKey, args.numValidators)
 
-	simappConfig := srvconfig.DefaultConfig()
+	simappConfig := eveappparams.CustomAppConfig{
+		Config: *srvconfig.DefaultConfig(),
+	}
 	simappConfig.MinGasPrices = args.minGasPrices
 	simappConfig.API.Enable = true
 	simappConfig.Telemetry.Enabled = true
