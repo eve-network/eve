@@ -25,7 +25,7 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 
-	var denom = types.Denom{
+	denom := types.Denom{
 		Owner:              msg.NewOwner,
 		Name:               valFound.Name,
 		Denom:              msg.Denom,

@@ -115,13 +115,13 @@ func initTendermintConfig() *tmcfg.Config {
 	cfg.P2P.MaxNumOutboundPeers = 40
 
 	// block times
-	cfg.Consensus.TimeoutCommit = 2 * time.Second // 2s blocks, think more on it later
-	cfg.Consensus.SkipTimeoutCommit = true  // when we have 100% of signatures, block is done, don't wait for the TimeoutCommit
-	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second // when there aren't transactions, make blocks once per minute to keep the chain light 
-	cfg.Consensus.CreateEmptyBlocks = false // Don't make empty blocks
+	cfg.Consensus.TimeoutCommit = 2 * time.Second              // 2s blocks, think more on it later
+	cfg.Consensus.SkipTimeoutCommit = true                     // when we have 100% of signatures, block is done, don't wait for the TimeoutCommit
+	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second // when there aren't transactions, make blocks once per minute to keep the chain light
+	cfg.Consensus.CreateEmptyBlocks = false                    // Don't make empty blocks
 	//	cfg.Consensus.TimeoutPropose = 2 * time.Second  // <- was in emoney config, we need to ask exactly what it does
-	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond  // a p2p keepalive more or less
-	cfg.Storage.DiscardABCIResponses = true  // slace saving mechanism
+	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond // a p2p keepalive more or less
+	cfg.Storage.DiscardABCIResponses = true                       // slace saving mechanism
 
 	return cfg
 }

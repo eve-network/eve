@@ -31,7 +31,6 @@ func (k Keeper) DenomAll(c context.Context, req *types.QueryAllDenomRequest) (*t
 		denoms = append(denoms, denom)
 		return nil
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
