@@ -86,8 +86,15 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
+			d, err := time.ParseDuration("60s")
+			if err != nil {
+				panic(err)
+			}
+
 			customAppTemplate, customAppConfig := initAppConfig()
-			customTMConfig := initTendermintConfig()
+			customTMConfig := initTendermintConfig()               // fetch from below
+			customTMConfig.Consensus.CreateEmptyBlocksInterval = d // attempt to override
+			customTMConfig.Consensus.CreateEmptyBlocks = false     // attempt to override
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
@@ -108,11 +115,13 @@ func initTendermintConfig() *tmcfg.Config {
 	cfg.P2P.MaxNumOutboundPeers = 40
 
 	// block times
-	cfg.Consensus.TimeoutCommit = 500 * time.Millisecond
-	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second
+	//	cfg.Consensus.TimeoutCommit = 1 * time.Second
+	//	cfg.Consensus.SkipTimeoutCommit = true
 	cfg.Consensus.CreateEmptyBlocks = false
-	cfg.Consensus.TimeoutPropose = 2 * time.Second
+	//	cfg.Consensus.TimeoutPropose = 2 * time.Second
+	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second
 	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
+	//	cfg.Storage.DiscardABCIResponses = true
 
 	return cfg
 }
