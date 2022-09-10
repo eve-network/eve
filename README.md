@@ -1,6 +1,6 @@
 # eve
 
-Eve is a modern Cosmos-SDK blockchain.
+Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the art in cosmos.  You could call her a canary of sorts.
 
 ## Relationships to other chains and work
 
