@@ -1,25 +1,24 @@
-name: Go
+name: Testnet
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
   testnet:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
 
-    - name: Build
-      run: go install ./...
+      - name: Build
+        run: go install ./...
 
-    - name: testnet
-      run: eved testnet start --enable-logging
+      - name: testnet
+        run: eved testnet start --enable-logging
