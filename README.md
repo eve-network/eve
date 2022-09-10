@@ -13,6 +13,14 @@ Fact is, we want lots of this stuff for Juno.  Other chains want other pieces of
 
 Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos. 
 
+### Upstreaming
+
+In call cases, when stuff changes here and we find it nice, we'll feed it back to parent repos.
+
+### Downstreaming
+
+Likey stuff built and tested here feeds into Juno and a number of other chains.
+
 
 ## Team
 
