@@ -86,15 +86,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			d, err := time.ParseDuration("60s")
-			if err != nil {
-				panic(err)
-			}
-
 			customAppTemplate, customAppConfig := initAppConfig()
-			customTMConfig := initTendermintConfig()               // fetch from below
-			customTMConfig.Consensus.CreateEmptyBlocksInterval = d // attempt to override
-			customTMConfig.Consensus.CreateEmptyBlocks = false     // attempt to override
+			customTMConfig := initTendermintConfig() // fetch from below
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
