@@ -34,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/notional-labs/eve/app"
 	eveappparams "github.com/notional-labs/eve/app/params"
 )
 
@@ -205,10 +206,13 @@ func initTestnetFiles(
 	valPubKeys := make([]cryptotypes.PubKey, args.numValidators)
 
 	simappConfig := eveappparams.CustomAppConfig{
-		Config: *srvconfig.DefaultConfig(),
+		Config:               *srvconfig.DefaultConfig(),
+		BypassMinFeeMsgTypes: app.GetDefaultBypassFeeMessages(),
 	}
+	simappConfig.BypassMinFeeMsgTypes = append(simappConfig.BypassMinFeeMsgTypes, "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward")
 	simappConfig.MinGasPrices = args.minGasPrices
 	simappConfig.API.Enable = true
+	simappConfig.GRPC.Enable = true
 	simappConfig.Telemetry.Enabled = true
 	simappConfig.Telemetry.PrometheusRetentionTime = 60
 	simappConfig.Telemetry.EnableHostnameLabel = false
