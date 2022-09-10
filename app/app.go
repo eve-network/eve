@@ -673,12 +673,8 @@ func GetDefaultBypassFeeMessages() []string {
 }
 
 func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig client.TxConfig) {
-	var bypassMinFeeMsgTypes []string
-	//nolint: gosec
-	bypassMinFeeConfig := appOpts.Get(appparameters.BypassMinFeeMsgTypesKey)
-	if bypassMinFeeConfig != nil {
-		bypassMinFeeMsgTypes = cast.ToStringSlice(bypassMinFeeConfig)
-	} else {
+	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(appparameters.BypassMinFeeMsgTypesKey))
+	if bypassMinFeeMsgTypes == nil {
 		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
 	}
 

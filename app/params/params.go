@@ -4,5 +4,4 @@ package params
 const (
 	StakePerAccount           = "stake_per_account"
 	InitiallyBondedValidators = "initially_bonded_validators"
-	BypassMinFeeMsgTypesKey   = "bypass-min-fee-msg-types"
 )
