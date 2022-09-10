@@ -19,7 +19,6 @@ func (k Keeper) SetDenom(ctx sdk.Context, denom types.Denom) {
 func (k Keeper) GetDenom(
 	ctx sdk.Context,
 	denom string,
-
 ) (val types.Denom, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetKeyPrefix(types.DenomKeyPrefix))
 

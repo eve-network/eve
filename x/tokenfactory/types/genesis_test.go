@@ -21,7 +21,6 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			desc: "valid genesis state",
 			genState: &types.GenesisState{
-
 				DenomList: []types.Denom{
 					{
 						Denom: "0",

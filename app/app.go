@@ -698,7 +698,6 @@ func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig clien
 			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 		},
 	)
-
 	if err != nil {
 		panic(err)
 	}
