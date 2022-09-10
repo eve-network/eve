@@ -30,7 +30,6 @@ func NewKeeper(
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper,
 ) *Keeper {
 	return &Keeper{
-
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,

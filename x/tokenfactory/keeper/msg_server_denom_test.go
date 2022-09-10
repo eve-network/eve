@@ -22,7 +22,8 @@ func TestDenomMsgServerCreate(t *testing.T) {
 	wctx := sdk.WrapSDKContext(ctx)
 	owner := "A"
 	for i := 0; i < 5; i++ {
-		expected := &types.MsgCreateDenom{Owner: owner,
+		expected := &types.MsgCreateDenom{
+			Owner: owner,
 			Denom: strconv.Itoa(i),
 		}
 		_, err := srv.CreateDenom(wctx, expected)
@@ -45,20 +46,23 @@ func TestDenomMsgServerUpdate(t *testing.T) {
 	}{
 		{
 			desc: "Completed",
-			request: &types.MsgUpdateDenom{Owner: owner,
+			request: &types.MsgUpdateDenom{
+				Owner: owner,
 				Denom: strconv.Itoa(0),
 			},
 		},
 		{
 			desc: "Unauthorized",
-			request: &types.MsgUpdateDenom{Owner: "B",
+			request: &types.MsgUpdateDenom{
+				Owner: "B",
 				Denom: strconv.Itoa(0),
 			},
 			err: sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc: "KeyNotFound",
-			request: &types.MsgUpdateDenom{Owner: owner,
+			request: &types.MsgUpdateDenom{
+				Owner: owner,
 				Denom: strconv.Itoa(100000),
 			},
 			err: sdkerrors.ErrKeyNotFound,
@@ -68,7 +72,8 @@ func TestDenomMsgServerUpdate(t *testing.T) {
 			k, ctx := keepertest.TokenfactoryKeeper(t)
 			srv := keeper.NewMsgServerImpl(*k)
 			wctx := sdk.WrapSDKContext(ctx)
-			expected := &types.MsgCreateDenom{Owner: owner,
+			expected := &types.MsgCreateDenom{
+				Owner: owner,
 				Denom: strconv.Itoa(0),
 			}
 			_, err := srv.CreateDenom(wctx, expected)
