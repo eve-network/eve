@@ -24,6 +24,7 @@ const (
 	flagVestingStart = "vesting-start-time"
 	flagVestingEnd   = "vesting-end-time"
 	flagVestingAmt   = "vesting-amount"
+	flagAppendMode   = "append"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
@@ -35,6 +36,9 @@ func AddGenesisAccountCmd(defaultNodeHome string) *cobra.Command {
 the account address or key name and a list of initial coins. If a key name is given,
 the address will be looked up in the local Keybase. The list of initial tokens must
 contain valid denominations. Accounts may optionally be supplied with vesting parameters.
+
+If you wish to append this balance to an already existing account, you must use the "--append" flag.
+This will increase the total tokens a user owns and update the supply accordingly.
 `,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -130,38 +134,61 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				return fmt.Errorf("failed to get accounts from any: %w", err)
 			}
 
-			if accs.Contains(addr) {
-				return fmt.Errorf("cannot add account at existing address %s", addr)
-			}
-
-			// Add the new account to the set of genesis accounts and sanitize the
-			// accounts afterwards.
-			accs = append(accs, genAccount)
-			accs = authtypes.SanitizeGenesisAccounts(accs)
-
-			genAccs, err := authtypes.PackAccounts(accs)
-			if err != nil {
-				return fmt.Errorf("failed to convert accounts into any's: %w", err)
-			}
-			authGenState.Accounts = genAccs
-
-			authGenStateBz, err := clientCtx.Codec.MarshalJSON(&authGenState)
-			if err != nil {
-				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
-			}
-
-			appState[authtypes.ModuleName] = authGenStateBz
-
+			// load balances, then either append or set the new account up.
 			bankGenState := banktypes.GetGenesisStateFromAppState(clientCtx.Codec, appState)
-			bankGenState.Balances = append(bankGenState.Balances, balances)
+			if accs.Contains(addr) {
+				appendflag, _ := cmd.Flags().GetBool(flagAppendMode)
+				if !appendflag {
+					return fmt.Errorf("cannot add account at existing address %s (add '--append' to bypass this)", addr)
+				}
+
+				genesisB := banktypes.GetGenesisStateFromAppState(clientCtx.Codec, appState)
+				for idx, acc := range genesisB.Balances {
+					if acc.Address != addr.String() {
+						continue
+					}
+					// fmt.Printf("Adding %s to existing account %s with %s", coins, addr, acc.Coins)
+
+					// Create a new coins based on the accounts old coins + new coin appended
+					new_coins, err := sdk.ParseCoinsNormalized(acc.Coins.Add(coins...).String())
+					if err != nil {
+						return fmt.Errorf("failed to parse coins: %w", err)
+					}
+
+					// deletes the account from bank balances
+					bankGenState.Balances = append(bankGenState.Balances[:idx], bankGenState.Balances[idx+1:]...)
+					// append the updated account balance to bankGenState.Balances
+					bankGenState.Balances = append(bankGenState.Balances, banktypes.Balance{Address: addr.String(), Coins: new_coins.Sort()})
+					break
+				}
+			} else {
+				// Add the new account to the set of genesis accounts and sanitize the accounts afterwards.
+				accs = append(accs, genAccount)
+				accs = authtypes.SanitizeGenesisAccounts(accs)
+
+				genAccs, err := authtypes.PackAccounts(accs)
+				if err != nil {
+					return fmt.Errorf("failed to convert accounts into any's: %w", err)
+				}
+				authGenState.Accounts = genAccs
+
+				authGenStateBz, err := clientCtx.Codec.MarshalJSON(&authGenState)
+				if err != nil {
+					return fmt.Errorf("failed to marshal auth genesis state: %w", err)
+				}
+				appState[authtypes.ModuleName] = authGenStateBz
+
+				bankGenState.Balances = append(bankGenState.Balances, balances)
+			}
+
 			bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
+
 			bankGenState.Supply = bankGenState.Supply.Add(balances.Coins...)
 
 			bankGenStateBz, err := clientCtx.Codec.MarshalJSON(bankGenState)
 			if err != nil {
 				return fmt.Errorf("failed to marshal bank genesis state: %w", err)
 			}
-
 			appState[banktypes.ModuleName] = bankGenStateBz
 
 			appStateJSON, err := json.Marshal(appState)
@@ -179,6 +206,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 	cmd.Flags().String(flagVestingAmt, "", "amount of coins for vesting accounts")
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
 	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
+	cmd.Flags().Bool(flagAppendMode, false, "append the coins to an account already in the genesis.json file")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
