@@ -194,7 +194,6 @@ const nodeDirPerm = 0o755
 func initTestnetFiles(
 	clientCtx client.Context,
 	cmd *cobra.Command,
-	nodeConfig *tmconfig.Config,
 	mbm module.BasicManager,
 	genBalIterator banktypes.GenesisBalancesIterator,
 	args initArgs,
@@ -223,6 +222,7 @@ func initTestnetFiles(
 		genBalances []banktypes.Balance
 		genFiles    []string
 	)
+	nodeConfig := initTendermintConfig()
 
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	// generate private keys, node IDs, and initial transactions
