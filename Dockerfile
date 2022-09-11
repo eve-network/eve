@@ -1,5 +1,5 @@
-# docker build . -t notionallabs/eve:latest
-# docker run --rm -it notionallabs/eve /bin/sh
+# docker build . -t notional-labs/eve:latest
+# docker run --rm -it notional-labs/eve /bin/sh
 
 FROM archlinux
 

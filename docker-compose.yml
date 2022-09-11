@@ -1,13 +1,14 @@
 version: "3"
 
 services:
-  simdnode0:
-    container_name: simdnode0
-    image: "notionallabs/eve"
+  evenode1:
+    container_name: evenode1
+    image: "notional-labs/eve"
+    # build: .
     environment:
       - DEBUG=1
       - ID=0
-      - LOG=${LOG:-simd.log}
+      - LOG=${LOG:-eved.log}
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -16,34 +17,39 @@ services:
       - "26656-26657:26656-26657"
       - "1317:1317"
       - "9090:9090"
-      - "2345:2345"
-    volumes:
-      - ./.testnets:/data:Z
+      - "8080:8080"
+    volumes:      
+      - ./docker/.testnets/v1:/root/.eved/:rw      
+    command: eved start --home /root/.eved/ --moniker dockereve1 --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@192.168.11.3:26666"
+    # command: ls /root/.eved/config
     networks:
       localnet:
-        ipv4_address: 192.168.10.2
+        ipv4_address: 192.168.11.2
 
-  simdnode1:
-    container_name: simdnode1
-    image: "notionallabs/eve"
+  evenode2:
+    container_name: evenode2
+    image: "notional-labs/eve"
+    # build: .
     environment:
-      - DEBUG=0
-      - ID=1
-      - LOG=${LOG:-simd.log}
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
     cap_add:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
     ports:
-      - "26666-26667:26656-26657"
-      - "1318:1317"
-      - "9091:9090"
-      - "2346:2345"
-    volumes:
-      - ./.testnets:/data:Z
+      - "26666-26667:26666-26667"
+      - "1327:1317"
+      - "9101:9101"
+      - "9100:9100"        
+    volumes:      
+      - ./docker/.testnets/v2:/root/.eved/:rw 
+    command: eved start --home /root/.eved/ --moniker dockereve2 --address "tcp://0.0.0.0:26668" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@192.168.11.2:26656" # --api.address "tcp://0.0.0.0:1327"
+    # command: ls /root/.eved/config
     networks:
       localnet:
-        ipv4_address: 192.168.10.3
+        ipv4_address: 192.168.11.3
 
 networks:
   localnet:
@@ -51,4 +57,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.10.0/25
+        - subnet: 192.168.11.0/25
+          gateway: 192.168.11.1
