@@ -82,7 +82,7 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V1/config/genesis.json
 eved add-genesis-account eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn 100000000ueve --keyring-backend $KEYRING --home $V1
 eved add-genesis-account eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn 100000000ueve --keyring-backend $KEYRING --home $TESTNETS_SHARED_DIR # also add to main genesis
 
-eved gentx $KEY 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V1 --moniker $MONIKER1 --commission-rate=0.05 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id aaae33661a8286150ad54a512b04bbb96e72b68a --ip 127.0.0.1
+eved gentx $KEY 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V1 --moniker $MONIKER1 --commission-rate=0.10 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id aaae33661a8286150ad54a512b04bbb96e72b68a --ip 127.0.0.1
 
 # Key 2.
 mkdir -p $V2/config
@@ -91,7 +91,7 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 eved add-genesis-account eve1j4rtuq6zm5mmw9xcjmm7gymlj39tvwnt9h4sm2 100000000ueve --keyring-backend $KEYRING --home $V2
 eved add-genesis-account eve1j4rtuq6zm5mmw9xcjmm7gymlj39tvwnt9h4sm2 100000000ueve --keyring-backend $KEYRING --home $TESTNETS_SHARED_DIR
 
-eved gentx $KEY2 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V2 --moniker $MONIKER2 --commission-rate=0.05 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id bbbe33661a8286150ad54a512b04bbb96e72b68a  --ip 127.0.0.1 
+eved gentx $KEY2 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V2 --moniker $MONIKER2 --commission-rate=0.10 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id bbbe33661a8286150ad54a512b04bbb96e72b68a  --ip 127.0.0.1 
 
 # save gentxs back to the root dir
 mkdir -p $TESTNETS_SHARED_DIR/config/gentx
@@ -123,11 +123,7 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 
 # moniker 1 starts a node normally with default values
 echo -e "\nStarting the first node ($V1)"
-echo eved start --home $V1 --minimum-gas-prices=0ueve --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
-# screen -dmS n1 eved start --home $V1 --minimum-gas-prices=0ueve --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
+screen -dmS n1 eved start --home $V1 --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
 
 echo -e "\nStarting the second node ($V2)"
-# screen -dmS n2 eved start --home $V2 --minimum-gas-prices=0ueve --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "aaae33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26657"
-
-# we start in the docker containers here / via compose
-# eved start --pruning=nothing  --minimum-gas-prices=0ueve --moniker $MONIKER1 --home $V1
+screen -dmS n2 eved start --home $V2 --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "aaae33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26657"
