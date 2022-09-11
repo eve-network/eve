@@ -7,6 +7,7 @@ require (
 	github.com/CosmWasm/wasmd v0.29.0
 	github.com/CosmWasm/wasmvm v1.1.0
 	github.com/cosmos/cosmos-sdk v0.46.1
+	github.com/cosmos/gogoproto v1.4.1
 	github.com/cosmos/ibc-go/v5 v5.0.0-rc1
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
