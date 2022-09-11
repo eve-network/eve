@@ -44,8 +44,27 @@ update_test_genesis () {
     # update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
     cat $TESTNETS_SHARED_DIR/config/genesis.json | jq "$1" > $TESTNETS_SHARED_DIR/tmp_genesis.json && mv $TESTNETS_SHARED_DIR/tmp_genesis.json $TESTNETS_SHARED_DIR/config/genesis.json
 }
+
+# get current time in bash which matches teh ISO8601 format 2022-09-11T22:22:58.150405469Z
+seconds_in_the_future=`expr $(date +%S)` # 10 seconds in the future
+if [ $(date +%S) -gt 30 ]; then
+    # if it is gt gt 55, then do nothing
+    if [ $(date +%S) -lt 45 ]; then
+        seconds_in_the_future=`expr $(date +%S) + 10`
+    fi
+else 
+    seconds_in_the_future=`expr $seconds_in_the_future + 20`
+fi
+
+# the_time=$(date +%FT%H:%M:${seconds_in_the_future}.000000000Z --utc)
+the_time=$(date +%FT%H:%M:${seconds_in_the_future}Z --utc)
+echo "Setting genesis time to $the_time"
+# exit 0
+# exit 0
+
 # Set gas limit in genesis
 update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
+update_test_genesis `printf '.genesis_time="%s"' $the_time`
 update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
 # Change chain options to use EXP as the staking denom for craft
 update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ueve"'
@@ -62,7 +81,8 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V1/config/genesis.json
 
 eved add-genesis-account eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn 100000000ueve --keyring-backend $KEYRING --home $V1
 eved add-genesis-account eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn 100000000ueve --keyring-backend $KEYRING --home $TESTNETS_SHARED_DIR # also add to main genesis
-eved gentx $KEY 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --moniker $MONIKER1 -home $V1 --ip 127.0.0.1 #--node-id aaae33661a8286150ad54a512b04bbb96e72b68a -
+
+eved gentx $KEY 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V1 --moniker $MONIKER1 --commission-rate=0.05 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id aaae33661a8286150ad54a512b04bbb96e72b68a --ip 127.0.0.1
 
 # Key 2.
 mkdir -p $V2/config
@@ -70,10 +90,13 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 
 eved add-genesis-account eve1j4rtuq6zm5mmw9xcjmm7gymlj39tvwnt9h4sm2 100000000ueve --keyring-backend $KEYRING --home $V2
 eved add-genesis-account eve1j4rtuq6zm5mmw9xcjmm7gymlj39tvwnt9h4sm2 100000000ueve --keyring-backend $KEYRING --home $TESTNETS_SHARED_DIR
-eved gentx $KEY2 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V2 --moniker $MONIKER2 --ip 127.0.0.1 #--node-id bbbe33661a8286150ad54a512b04bbb96e72b68a 
+
+eved gentx $KEY2 1000000ueve --keyring-backend $KEYRING --chain-id $CHAINID --home $V2 --moniker $MONIKER2 --commission-rate=0.05 --commission-max-rate=1.0 --commission-max-change-rate=0.01 --min-self-delegation "1" #--node-id bbbe33661a8286150ad54a512b04bbb96e72b68a  --ip 127.0.0.1 
 
 # save gentxs back to the root dir
 mkdir -p $TESTNETS_SHARED_DIR/config/gentx
+mv $V1/config/gentx/*.json $V1/config/gentx/v1_node.json
+
 cp $V1/config/gentx/*.json $TESTNETS_SHARED_DIR/config/gentx
 cp $V2/config/gentx/*.json $TESTNETS_SHARED_DIR/config/gentx
 
@@ -100,10 +123,11 @@ cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 
 # moniker 1 starts a node normally with default values
 echo -e "\nStarting the first node ($V1)"
-screen -dmS node1 eved start --home $V1 --minimum-gas-prices=0ueve --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
+echo eved start --home $V1 --minimum-gas-prices=0ueve --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
+# screen -dmS n1 eved start --home $V1 --minimum-gas-prices=0ueve --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "bbbe33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26667"
 
 echo -e "\nStarting the second node ($V2)"
-screen -dmS node2 eved start --home $V2 --minimum-gas-prices=0ueve --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "aaae33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26657"
+# screen -dmS n2 eved start --home $V2 --minimum-gas-prices=0ueve --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "aaae33661a8286150ad54a512b04bbb96e72b68a@127.0.0.1:26657"
 
 # we start in the docker containers here / via compose
 # eved start --pruning=nothing  --minimum-gas-prices=0ueve --moniker $MONIKER1 --home $V1

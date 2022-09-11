@@ -16,4 +16,6 @@ COPY . .
 
 ENV PATH "$PATH:/root/go/bin"
 
+EXPOSE 26656 26657 1317 9090
+
 RUN make install

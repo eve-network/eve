@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  simdnode0:
+    container_name: simdnode0
+    image: "notionallabs/eve"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-simd.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26656-26657:26656-26657"
+      - "1317:1317"
+      - "9090:9090"
+      - "2345:2345"
+    volumes:
+      - ./.testnets:/data:Z
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.2
+
+  simdnode1:
+    container_name: simdnode1
+    image: "notionallabs/eve"
+    environment:
+      - DEBUG=0
+      - ID=1
+      - LOG=${LOG:-simd.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26666-26667:26656-26657"
+      - "1318:1317"
+      - "9091:9090"
+      - "2346:2345"
+    volumes:
+      - ./.testnets:/data:Z
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.3
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/25
