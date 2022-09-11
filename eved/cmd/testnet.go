@@ -205,7 +205,6 @@ func initTestnetFiles(
 		Config:               *srvconfig.DefaultConfig(),
 		BypassMinFeeMsgTypes: app.GetDefaultBypassFeeMessages(),
 	}
-	simappConfig.BypassMinFeeMsgTypes = append(simappConfig.BypassMinFeeMsgTypes, "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward")
 	simappConfig.MinGasPrices = args.minGasPrices
 	simappConfig.API.Enable = true
 	simappConfig.GRPC.Enable = true
