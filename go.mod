@@ -20,7 +20,7 @@ require (
 
 )
 
-require github.com/rogpeppe/go-internal v1.8.0 // indirect
+require github.com/rogpeppe/go-internal v1.8.1 // indirect
 
 require (
 	cloud.google.com/go v0.102.0 // indirect
@@ -152,9 +152,9 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
-	golang.org/x/net v0.0.0-20220726230323-06994584191e // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
-	golang.org/x/sys v0.0.0-20220727055044-e65921a090b8 // indirect
+	golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
@@ -169,7 +169,7 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220825131835-6bb783a13332
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220911011224-44c1674f13fc
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
