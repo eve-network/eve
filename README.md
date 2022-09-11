@@ -12,7 +12,7 @@ Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the 
 
 Fact is, we want lots of this stuff for Juno.  Other chains want other pieces of it.  There's no place where they're packaged together with a stability guarantee, though.
 
-Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos. 
+Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos via ibc.
 
 ### Upstreaming
 
