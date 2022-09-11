@@ -1,12 +1,39 @@
 # eve
 
-Eve is a modern Cosmos-SDK blockchain.
+Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the art in cosmos.  You could call her a canary of sorts.
+
+## Relationships to other chains and work
+
+* Osmosis-style epochs
+* Tgrade style global fees
+* e-money style variable block timing
+* suport for iqlusion style liquid staking
+
+Fact is, we want lots of this stuff for Juno.  Other chains want other pieces of it.  There's no place where they're packaged together with a stability guarantee, though.
+
+Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos. 
+
+### Upstreaming
+
+In call cases, when stuff changes here and we find it nice, we'll feed it back to parent repos.
+
+### Downstreaming
+
+Likey stuff built and tested here feeds into Juno and a number of other chains.
+
+
+## Team
+
+The individuals and groups in the git history are eve's team. 
+
+
+
 
 ## No Promises
 
 Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.
 
-## Note
+## Economic Information
 Anything described below can be modified by making a pull request.  
 
 * genesis:  ????????
@@ -15,18 +42,28 @@ Anything described below can be modified by making a pull request.
   * community tax set to 20% initially
   * 1 validator = 1 eve
   * 10% minimum commission
+  * 50 validators
 
   
   
+
 * Pebbledb by default
 * cosmwasm
 * token factory
 * variable length blocks made on demand with a 3-minute heartbeat
-* highly selective genesis validator set limited to contributors
-* 50 validators
+* genesis validator set limited to contributors
+
+## Use of Eve as a framework
+
+Numerous ideas in eve came about as a result of work on Craft Economy and Juno.  We were also inspired by recent moves to make the Osmosis epoch module importable-- it is better than the one in the SDK, but isn't importable at this time. Thus, Eve herself is becoming an sdk or framework for light, efficient CosmWasm Chains that natively support liquid staking.  
+
+Features developed in eve are designed to be importable directly from Eve's repository, and eve won't have her own SDK fork, though there may be a fork of wasmd. 
+
+To use eve as a framework to make your own chain, just fork eve. 
 
 ## Credits
 https://github.com/clockworkgr/tokenfactory  (v45 -> v46.1)
+WasmBindings - Fork of Osmosis's wasmbindings
 
 ## Imperative
 

@@ -11,7 +11,6 @@ import (
 
 func TestGenesis(t *testing.T) {
 	genesisState := types.GenesisState{
-
 		DenomList: []types.Denom{
 			{
 				Denom: "0",
