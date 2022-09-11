@@ -7,6 +7,7 @@ require (
 	github.com/CosmWasm/wasmd v0.29.0-rc0
 	github.com/CosmWasm/wasmvm v1.1.0
 	github.com/cosmos/cosmos-sdk v0.46.1
+	github.com/cosmos/gogoproto v1.4.1
 	github.com/cosmos/ibc-go/v5 v5.0.0-rc1
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
@@ -24,13 +25,16 @@ require (
 require github.com/rogpeppe/go-internal v1.8.1 // indirect
 
 require (
-	cloud.google.com/go v0.100.2 // indirect
-	cloud.google.com/go/compute v1.6.1 // indirect
-	cloud.google.com/go/storage v1.14.0 // indirect
+	cloud.google.com/go v0.102.0 // indirect
+	cloud.google.com/go/compute v1.7.0 // indirect
+	cloud.google.com/go/storage v1.22.1 // indirect
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	github.com/cosmos/cosmos-db v0.0.0-20220901120321-77d98dabb5d3 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
+	github.com/googleapis/go-type-adapters v1.0.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
@@ -161,7 +165,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
-	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb // indirect
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
@@ -172,6 +176,7 @@ require (
 )
 
 replace (
+	// https://github.com/CosmWasm/wasmd/pull/938
 	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220911011224-44c1674f13fc
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
