@@ -73,10 +73,10 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
 	// Distribution.
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distr "github.com/notional-labs/eve/x/distribution"
+	distrclient "github.com/notional-labs/eve/x/distribution/client"
+	distrkeeper "github.com/notional-labs/eve/x/distribution/keeper"
+	distrtypes "github.com/notional-labs/eve/x/distribution/types"
 
 	// Evidence.
 	"github.com/cosmos/cosmos-sdk/x/evidence"
@@ -89,8 +89,8 @@ import (
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 
 	// Genutil
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/notional-labs/eve/x/genutil"
+	genutiltypes "github.com/notional-labs/eve/x/genutil/types"
 
 	// Governance.
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -125,14 +125,14 @@ import (
 	appparameters "github.com/notional-labs/eve/app/params"
 
 	// Slashing.
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/notional-labs/eve/x/slashing"
+	slashingkeeper "github.com/notional-labs/eve/x/slashing/keeper"
+	slashingtypes "github.com/notional-labs/eve/x/slashing/types"
 
 	// Staking.
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/notional-labs/eve/x/staking"
+	stakingkeeper "github.com/notional-labs/eve/x/staking/keeper"
+	stakingtypes "github.com/notional-labs/eve/x/staking/types"
 
 	// Upgrades.
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
