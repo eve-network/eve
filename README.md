@@ -1,10 +1,11 @@
 # eve
 
-Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the art in cosmos.  You could call her a canary of sorts.
+Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the art in cosmos.  We feel that it will be of particular interest to contract authors who wish to try things that are dangerous or require an adversarial environment for testing.  Eve will be live-fire, so if you think your contract is too hot for Juno or Osmosis, or Neutron, or you wish to try out new features/higher speed, eve will do you well. 
 
 ## Relationships to other chains and work
 
 * Osmosis-style epochs
+* kusuama-style level of risk
 * Tgrade style global fees
 * e-money style variable block timing
 * suport for iqlusion style liquid staking
