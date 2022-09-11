@@ -20,8 +20,8 @@ if [ ${#SCRIPT_DIR} -gt 7 ]; then
   rm -rf $SCRIPT_DIR/.testnets
 fi
 
-V1=$SCRIPT_DIR/.testnets/v1
-V2=$SCRIPT_DIR/.testnets/v2
+V1=$SCRIPT_DIR/.testnets/v1 # /home/reece/Desktop/Programming/Go/eve/docker/.testnets/v1
+V2=$SCRIPT_DIR/.testnets/v2 # /home/reece/Desktop/Programming/Go/eve/docker/.testnets/v2
 
 # init chain from key 1, giving us a fresh new genesis with latests features
 eved init $MONIKER1 --chain-id $CHAINID --home $TESTNETS_SHARED_DIR
@@ -36,9 +36,6 @@ eved config keyring-backend $KEYRING
 eved config chain-id $CHAINID
 eved config output "json"
 
-
-# mkdir $V1 $V2
-
 # Function updates the config based on a jq argument as a string
 update_test_genesis () {
     # update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
@@ -47,13 +44,12 @@ update_test_genesis () {
 
 # get current time in bash which matches teh ISO8601 format 2022-09-11T22:22:58.150405469Z
 seconds_in_the_future=`expr $(date +%S)` # 10 seconds in the future
-if [ $(date +%S) -gt 30 ]; then
-    # if it is gt gt 55, then do nothing
+if [ $(date +%S) -gt 30 ]; then    
     if [ $(date +%S) -lt 45 ]; then
-        seconds_in_the_future=`expr $(date +%S) + 10`
+        seconds_in_the_future=`expr $(date +%S) + 5`
     fi
 else 
-    seconds_in_the_future=`expr $seconds_in_the_future + 20`
+    seconds_in_the_future=`expr $seconds_in_the_future + 5`
 fi
 
 # the_time=$(date +%FT%H:%M:${seconds_in_the_future}.000000000Z --utc)
@@ -73,7 +69,6 @@ update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.1
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ueve"'  
 update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ueve","amount": "1000000"}]' # 1 eve right now
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ueve","amount": "1000"}'
-
 
 # Key 1, copy genesis -> $V1, add gen account, gentx
 mkdir -p $V1/config
@@ -113,6 +108,10 @@ eved validate-genesis --home $TESTNETS_SHARED_DIR
 # upda the main dirs config toml which we want to persist across both chains values
 sed -i '/laddr = "tcp:\/\/127.0.0.1:26657"/c\laddr = "tcp:\/\/0.0.0.0:26657"' $TESTNETS_SHARED_DIR/config/config.toml
 sed -i 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["\*"\]/g' $TESTNETS_SHARED_DIR/config/config.toml
+
+# edit just V1 so it has a unique rosetta address
+sed -i 's/address = ":8080"/address = ":8079"/g' $V2/config/app.toml
+
 # copy to the other 2 dirs
 mkdir -p $V1/config/ $V2/config/
 cp -r $TESTNETS_SHARED_DIR/config/config.toml $V1/config/config.toml
@@ -123,6 +122,7 @@ cp -r $TESTNETS_SHARED_DIR/config/config.toml $V2/config/config.toml
 cp $TESTNETS_SHARED_DIR/config/genesis.json $V1/config/genesis.json
 cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 
+read -p "Press enter to continue"
 
 # goal is to do this via each docker container. I guess we could support screens too if someone wanted that
 # 6:04PM INF Error reconnecting to peer. Trying again addr={"id":"aaae33661a8286150ad54a512b04bbb96e72b68a","ip":"127.0.0.1","port":26657} err="auth failure: secret conn failed: proto: BytesValue: wiretype end group for non-group" module=p2p tries=0
