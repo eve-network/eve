@@ -177,7 +177,7 @@ func TestLimitSimulationGasDecorator(t *testing.T) {
 				return
 			}
 			ante := keeper.NewLimitSimulationGasDecorator(spec.customLimit)
-			ante.AnteHandle(ctx, nil, spec.simulation, nextAnte)
+			ante.AnteHandle(ctx, nil, spec.simulation, nextAnte) //nolint:errcheck
 		})
 	}
 }

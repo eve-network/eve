@@ -119,8 +119,8 @@ func TestHandleCreate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			data := setupTest(t)
 
-			h := data.module.Route().Handler()
-			q := data.module.LegacyQuerierHandler(nil)
+			h := data.module.Route().Handler()         //nolint:staticcheck
+			q := data.module.LegacyQuerierHandler(nil) //nolint:staticcheck
 
 			res, err := h(data.ctx, tc.msg)
 			if !tc.isValid {
@@ -151,8 +151,8 @@ func TestHandleInstantiate(t *testing.T) {
 	creator := sdk.AccAddress(bytes.Repeat([]byte{1}, address.Len))
 	data.faucet.Fund(data.ctx, creator, sdk.NewInt64Coin("denom", 100000))
 
-	h := data.module.Route().Handler()
-	q := data.module.LegacyQuerierHandler(nil)
+	h := data.module.Route().Handler()         //nolint:staticcheck
+	q := data.module.LegacyQuerierHandler(nil) //nolint:staticcheck
 
 	msg := &MsgStoreCode{
 		Sender:       creator.String(),
@@ -215,8 +215,8 @@ func TestHandleExecute(t *testing.T) {
 
 	fred := data.faucet.NewFundedRandomAccount(data.ctx, topUp...)
 
-	h := data.module.Route().Handler()
-	q := data.module.LegacyQuerierHandler(nil)
+	h := data.module.Route().Handler()         //nolint:staticcheck
+	q := data.module.LegacyQuerierHandler(nil) //nolint:staticcheck
 
 	msg := &MsgStoreCode{
 		Sender:       creator.String(),
@@ -357,7 +357,7 @@ func TestHandleExecuteEscrow(t *testing.T) {
 		Sender:       creator.String(),
 		WASMByteCode: testContract,
 	}
-	res, err := h(data.ctx, msg)
+	_, err := h(data.ctx, msg)
 	require.NoError(t, err)
 
 	_, _, bob := keyPubAddr()
@@ -374,7 +374,7 @@ func TestHandleExecuteEscrow(t *testing.T) {
 		Msg:    initMsgBz,
 		Funds:  deposit,
 	}
-	res, err = h(data.ctx, &initCmd)
+	res, err := h(data.ctx, &initCmd)
 	require.NoError(t, err)
 	contractBech32Addr := parseInitResponse(t, res.Data)
 	require.Equal(t, "cosmos1400ax8h2dxe8ch64sus5sczqdhwv28hpjkkaphpa83he4fhz6k4qcm9kul", contractBech32Addr)

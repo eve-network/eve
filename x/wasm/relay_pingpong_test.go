@@ -1,3 +1,4 @@
+//nolint:unused
 package wasm_test
 
 import (

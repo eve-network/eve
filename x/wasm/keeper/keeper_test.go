@@ -800,7 +800,7 @@ func TestExecute(t *testing.T) {
 
 	// unauthorized - trialCtx so we don't change state
 	trialCtx := ctx.WithMultiStore(ctx.MultiStore().CacheWrap().(sdk.MultiStore))
-	res, err := keepers.ContractKeeper.Execute(trialCtx, addr, creator, []byte(`{"release":{}}`), nil)
+	_, err = keepers.ContractKeeper.Execute(trialCtx, addr, creator, []byte(`{"release":{}}`), nil)
 	require.Error(t, err)
 	require.True(t, errors.Is(err, types.ErrExecuteFailed))
 	require.Equal(t, "Unauthorized: execute wasm contract failed", err.Error())
@@ -810,8 +810,8 @@ func TestExecute(t *testing.T) {
 	gasBefore := ctx.GasMeter().GasConsumed()
 	em := sdk.NewEventManager()
 	// when
-	res, err = keepers.ContractKeeper.Execute(ctx.WithEventManager(em), addr, fred, []byte(`{"release":{}}`), topUp)
-	diff := time.Now().Sub(start)
+	res, err := keepers.ContractKeeper.Execute(ctx.WithEventManager(em), addr, fred, []byte(`{"release":{}}`), topUp)
+	diff := time.Since(start)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -1014,7 +1014,7 @@ func TestExecuteWithCpuLoop(t *testing.T) {
 	}()
 
 	// this should throw out of gas exception (panic)
-	_, err = keepers.ContractKeeper.Execute(ctx, addr, fred, []byte(`{"cpu_loop":{}}`), nil)
+	_, _ = keepers.ContractKeeper.Execute(ctx, addr, fred, []byte(`{"cpu_loop":{}}`), nil)
 	require.True(t, false, "We must panic before this line")
 }
 
@@ -1056,7 +1056,7 @@ func TestExecuteWithStorageLoop(t *testing.T) {
 	}()
 
 	// this should throw out of gas exception (panic)
-	_, err = keepers.ContractKeeper.Execute(ctx, addr, fred, []byte(`{"storage_loop":{}}`), nil)
+	_, _ = keepers.ContractKeeper.Execute(ctx, addr, fred, []byte(`{"storage_loop":{}}`), nil)
 	require.True(t, false, "We must panic before this line")
 }
 

@@ -1605,7 +1605,7 @@ func (s *IntegrationTestSuite) TestBlockResults() {
 			break
 		}
 
-		s.network.WaitForNextBlock()
+		s.network.WaitForNextBlock() //nolint:errcheck
 	}
 }
 

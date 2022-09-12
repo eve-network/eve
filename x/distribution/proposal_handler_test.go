@@ -34,6 +34,7 @@ func TestProposalHandlerPassed(t *testing.T) {
 	// add coins to the module account
 	macc := app.DistrKeeper.GetDistributionAccount(ctx)
 	balances := app.BankKeeper.GetAllBalances(ctx, macc.GetAddress())
+	require.NotEmpty(t, balances)
 	require.NoError(t, testutil.FundModuleAccount(app.BankKeeper, ctx, macc.GetName(), amount))
 
 	app.AccountKeeper.SetModuleAccount(ctx, macc)

@@ -35,9 +35,9 @@ func (suite *KeeperTestSuite) TestGetTokenizeShareRecord() {
 		ModuleAccount: "test-module-account-3",
 		Validator:     "test-validator",
 	}
-	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord1)
-	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord2)
-	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord3)
+	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord1) //nolint:errcheck
+	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord2) //nolint:errcheck
+	app.StakingKeeper.AddTokenizeShareRecord(ctx, tokenizeShareRecord3) //nolint:errcheck
 
 	tokenizeShareRecord, err := app.StakingKeeper.GetTokenizeShareRecord(ctx, 2)
 	suite.NoError(err)

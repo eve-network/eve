@@ -132,7 +132,8 @@ func TestGenesisExportImport(t *testing.T) {
 	var importState wasmTypes.GenesisState
 	err = dstKeeper.cdc.UnmarshalJSON(exportedGenesis, &importState)
 	require.NoError(t, err)
-	InitGenesis(dstCtx, dstKeeper, importState, &StakingKeeperMock{}, TestHandler(contractKeeper))
+	_, err = InitGenesis(dstCtx, dstKeeper, importState, &StakingKeeperMock{}, TestHandler(contractKeeper))
+	require.NoError(t, err)
 
 	// compare whole DB
 	for j := range srcStoreKeys {

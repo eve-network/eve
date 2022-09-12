@@ -16,8 +16,8 @@ func TestInitGenesis(t *testing.T) {
 	creator := data.faucet.NewFundedRandomAccount(data.ctx, deposit.Add(deposit...)...)
 	fred := data.faucet.NewFundedRandomAccount(data.ctx, topUp...)
 
-	h := data.module.Route().Handler()
-	q := data.module.LegacyQuerierHandler(nil)
+	h := data.module.Route().Handler()         //nolint:staticcheck
+	q := data.module.LegacyQuerierHandler(nil) //nolint:staticcheck
 
 	msg := MsgStoreCode{
 		Sender:       creator.String(),

@@ -8,18 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	simapp "github.com/notional-labs/eve/app"
 	"github.com/notional-labs/eve/x/staking"
 	"github.com/notional-labs/eve/x/staking/teststaking"
 	"github.com/notional-labs/eve/x/staking/types"
 )
-
-func bootstrapGenesisTest(t *testing.T, numAddrs int) (*simapp.EveApp, sdk.Context, []sdk.AccAddress) {
-	_, app, ctx := getBaseSimappWithCustomKeeper(t)
-
-	addrDels, _ := generateAddresses(app, ctx, numAddrs, sdk.NewInt(10000))
-	return app, ctx, addrDels
-}
 
 func TestValidateGenesis(t *testing.T) {
 	genValidators1 := make([]types.Validator, 1, 5)
