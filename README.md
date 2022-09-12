@@ -64,6 +64,7 @@ To use eve as a framework to make your own chain, just fork eve.
 
 ## Credits
 https://github.com/clockworkgr/tokenfactory  (v45 -> v46.1)
+https://github.com/iqlusioninc/liquidity-staking-module
 WasmBindings - Fork of Osmosis's wasmbindings
 
 ## Imperative
