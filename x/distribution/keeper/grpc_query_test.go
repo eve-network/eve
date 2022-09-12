@@ -699,8 +699,8 @@ func (suite *KeeperTestSuite) TestGRPCTokenizeShareRecordReward() {
 	app.DistrKeeper.IncrementValidatorPeriod(ctx, val)
 
 	coins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, initial)}
-	app.MintKeeper.MintCoins(ctx, coins)
-	app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins)
+	app.MintKeeper.MintCoins(ctx, coins)                                                           //nolint:errcheck
+	app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins) //nolint:errcheck
 
 	// tokenize share amount
 	delTokens := sdk.NewInt(1000000)

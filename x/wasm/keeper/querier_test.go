@@ -43,7 +43,7 @@ func TestQueryAllContractState(t *testing.T) {
 		srcQuery            *types.QueryAllContractStateRequest
 		expModelContains    []types.Model
 		expModelContainsNot []types.Model
-		expErr              *sdkErrors.Error
+		expErr              *sdkErrors.Error //nolint:staticcheck
 	}{
 		"query all": {
 			srcQuery:         &types.QueryAllContractStateRequest{Address: contractAddr.String()},
@@ -218,7 +218,7 @@ func TestQueryRawContractState(t *testing.T) {
 	specs := map[string]struct {
 		srcQuery *types.QueryRawContractStateRequest
 		expData  []byte
-		expErr   *sdkErrors.Error
+		expErr   *sdkErrors.Error //nolint:staticcheck
 	}{
 		"query raw key": {
 			srcQuery: &types.QueryRawContractStateRequest{Address: contractAddr, QueryData: []byte("foo")},

@@ -13,7 +13,7 @@ func TestMigrateV1ToV2(t *testing.T) {
 	store.Set(keyLastInstanceID, sdk.Uint64ToBigEndian(100))
 
 	// when
-	NewMigrator(keepers.WasmKeeper).Migrate1to2(ctx)
+	NewMigrator(keepers.WasmKeeper).Migrate1to2(ctx) //nolint:errcheck
 
 	// then
 	assert.False(t, store.Has(keyLastInstanceID))

@@ -232,8 +232,8 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -257,10 +257,10 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("no-admin", "true")
-				flagSet.Set("admin", myWellFundedAccount)
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
+				flagSet.Set("admin", myWellFundedAccount)  //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -284,9 +284,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t))
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")                             //nolint:errcheck
+				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t)) //nolint:errcheck
+				flagSet.Set("no-admin", "true")                             //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -310,10 +310,10 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("amount", "100stake")
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("amount", "100stake")          //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -373,7 +373,7 @@ func TestExecuteContractCmd(t *testing.T) {
 	}
 	anyValidWasmFile, err := os.CreateTemp(t.TempDir(), "wasm")
 	require.NoError(t, err)
-	anyValidWasmFile.Write(wasmIdent)
+	anyValidWasmFile.Write(wasmIdent) //nolint:errcheck
 	require.NoError(t, anyValidWasmFile.Close())
 
 	specs := map[string]struct {

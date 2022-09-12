@@ -40,7 +40,7 @@ func TestMessageHandlerChainDispatch(t *testing.T) {
 	myMsg := wasmvmtypes.CosmosMsg{Custom: []byte(`{}`)}
 	specs := map[string]struct {
 		handlers  []Messenger
-		expErr    *sdkerrors.Error
+		expErr    *sdkerrors.Error //nolint:staticcheck
 		expEvents []sdk.Event
 	}{
 		"single handler": {
@@ -120,7 +120,7 @@ func TestSDKMessageHandlerDispatch(t *testing.T) {
 	specs := map[string]struct {
 		srcRoute         MessageRouter
 		srcEncoder       CustomEncoder
-		expErr           *sdkerrors.Error
+		expErr           *sdkerrors.Error //nolint:staticcheck
 		expMsgDispatched int
 	}{
 		"all good": {
@@ -255,7 +255,7 @@ func TestIBCRawPacketHandler(t *testing.T) {
 		chanKeeper    types.ChannelKeeper
 		capKeeper     types.CapabilityKeeper
 		expPacketSent channeltypes.Packet
-		expErr        *sdkerrors.Error
+		expErr        *sdkerrors.Error //nolint:staticcheck
 	}{
 		"all good": {
 			srcMsg: wasmvmtypes.SendPacketMsg{
