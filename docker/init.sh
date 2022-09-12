@@ -122,12 +122,11 @@ cp -r $TESTNETS_SHARED_DIR/config/config.toml $V2/config/config.toml
 cp $TESTNETS_SHARED_DIR/config/genesis.json $V1/config/genesis.json
 cp $TESTNETS_SHARED_DIR/config/genesis.json $V2/config/genesis.json
 
-read -p "Press enter to continue"
 
-# goal is to do this via each docker container. I guess we could support screens too if someone wanted that
-# 6:04PM INF Error reconnecting to peer. Trying again addr={"id":"aaae33661a8286150ad54a512b04bbb96e72b68a","ip":"127.0.0.1","port":26657} err="auth failure: secret conn failed: proto: BytesValue: wiretype end group for non-group" module=p2p tries=0
-echo -e "\nStarting the first node ($V1)"
-screen -dmS n1 eved start --home $V1 --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@127.0.0.1:26666"
+# Uncomment below to use screens n1 and n2 over 'docker-compose up'
+# echo -e "\nStarting the first node ($V1)"
+# screen -dmS n1 eved start --home $V1 --moniker $MONIKER1 --address "tcp://0.0.0.0:26658" --api.address "tcp://0.0.0.0:1317" --grpc-web.address "0.0.0.0:9091" --grpc.address "0.0.0.0:9090" --p2p.laddr "tcp://127.0.0.1:26656" --rpc.laddr "tcp://127.0.0.1:26657" --proxy_app "tcp://127.0.0.1:26658" --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@127.0.0.1:26666"
+# echo -e "\nStarting the second node ($V2)"
+# screen -dmS n2 eved start --home $V2 --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@127.0.0.1:26656"
 
-echo -e "\nStarting the second node ($V2)"
-screen -dmS n2 eved start --home $V2 --moniker $MONIKER2 --address "tcp://0.0.0.0:26668" --api.address "tcp://0.0.0.0:1327" --grpc-web.address "0.0.0.0:9101" --grpc.address "0.0.0.0:9100" --p2p.laddr "tcp://127.0.0.1:26666" --rpc.laddr "tcp://127.0.0.1:26667" --proxy_app "tcp://127.0.0.1:26668" --p2p.persistent_peers "017e3b0c9a050091cc2bc609af9fb861d3710215@127.0.0.1:26656"
+echo "Run 'docker-compose up' now to start the 2 containers"
