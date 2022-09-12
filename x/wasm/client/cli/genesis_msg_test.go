@@ -46,7 +46,7 @@ func TestGenesisStoreCodeCmd(t *testing.T) {
 	}
 	anyValidWasmFile, err := os.CreateTemp(t.TempDir(), "wasm")
 	require.NoError(t, err)
-	anyValidWasmFile.Write(wasmIdent)
+	anyValidWasmFile.Write(wasmIdent) //nolint:errcheck
 	require.NoError(t, anyValidWasmFile.Close())
 
 	specs := map[string]struct {
@@ -59,7 +59,7 @@ func TestGenesisStoreCodeCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{anyValidWasmFile.Name()})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t))
+				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t)) //nolint:errcheck
 			},
 		},
 		"all good with key name": {
@@ -67,7 +67,7 @@ func TestGenesisStoreCodeCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{anyValidWasmFile.Name()})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", defaultTestKeyName)
+				flagSet.Set("run-as", defaultTestKeyName) //nolint:errcheck
 			},
 		},
 		"with unknown actor key name should fail": {
@@ -75,7 +75,7 @@ func TestGenesisStoreCodeCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{anyValidWasmFile.Name()})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", "unknown key")
+				flagSet.Set("run-as", "unknown key") //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -113,7 +113,7 @@ func TestInstantiateContractCmd(t *testing.T) {
 	}
 	anyValidWasmFile, err := os.CreateTemp(t.TempDir(), "wasm")
 	require.NoError(t, err)
-	anyValidWasmFile.Write(wasmIdent)
+	anyValidWasmFile.Write(wasmIdent) //nolint:errcheck
 	require.NoError(t, anyValidWasmFile.Close())
 
 	specs := map[string]struct {
