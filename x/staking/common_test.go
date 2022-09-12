@@ -36,7 +36,7 @@ var (
 
 // getBaseSimappWithCustomKeeper Returns a simapp with custom StakingKeeper
 // to avoid messing with the hooks.
-func getBaseSimappWithCustomKeeper(t *testing.T) (*codec.LegacyAmino, *simapp.SimApp, sdk.Context) {
+func getBaseSimappWithCustomKeeper(t *testing.T) (*codec.LegacyAmino, *simapp.EveApp, sdk.Context) {
 	app := simapp.Setup(t, false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
@@ -55,7 +55,7 @@ func getBaseSimappWithCustomKeeper(t *testing.T) (*codec.LegacyAmino, *simapp.Si
 }
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
-func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int, accAmount sdk.Int) ([]sdk.AccAddress, []sdk.ValAddress) {
+func generateAddresses(app *simapp.EveApp, ctx sdk.Context, numAddrs int, accAmount sdk.Int) ([]sdk.AccAddress, []sdk.ValAddress) {
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, accAmount)
 	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
 

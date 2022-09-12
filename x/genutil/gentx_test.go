@@ -12,11 +12,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp/helpers"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	simapp "github.com/notional-labs/eve/app"
+	simappparams "github.com/notional-labs/eve/app/params"
 	"github.com/notional-labs/eve/x/genutil"
 	"github.com/notional-labs/eve/x/genutil/types"
 	stakingtypes "github.com/notional-labs/eve/x/staking/types"
