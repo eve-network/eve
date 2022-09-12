@@ -15,7 +15,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/rand"
 
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 var wasmIdent = []byte("\x00\x61\x73\x6D")

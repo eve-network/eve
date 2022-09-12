@@ -7,17 +7,17 @@ import (
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+	simappparams "github.com/notional-labs/eve/app/params"
 
-	"github.com/CosmWasm/wasmd/app/params"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/testdata"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/app/params"
+	wasmkeeper "github.com/notional-labs/eve/x/wasm/keeper"
+	"github.com/notional-labs/eve/x/wasm/keeper/testdata"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 // Simulation operation weights constants

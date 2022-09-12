@@ -20,8 +20,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper/wasmtesting"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 func TestEncoding(t *testing.T) {
@@ -571,7 +571,7 @@ func TestEncoding(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			var ctx sdk.Context
-			encoder := DefaultEncoders(encodingConfig.Marshaler, tc.transferPortSource)
+			encoder := DefaultEncoders(encodingConfig.Codec, tc.transferPortSource)
 			res, err := encoder.Encode(ctx, tc.sender, tc.srcContractIBCPort, tc.srcMsg)
 			if tc.isError {
 				require.Error(t, err)

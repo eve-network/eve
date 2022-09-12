@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/testdata"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper/testdata"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 // test handing of submessages, very closely related to the reflect_test
@@ -214,7 +214,7 @@ func TestDispatchSubMsgErrorHandling(t *testing.T) {
 		assert.NotEqual(t, contract, eventAddr)
 
 		var res types.MsgInstantiateContractResponse
-		keepers.EncodingConfig.Marshaler.MustUnmarshal(response.Ok.Data, &res)
+		keepers.EncodingConfig.Codec.MustUnmarshal(response.Ok.Data, &res)
 		assert.Equal(t, eventAddr, res.Address)
 	}
 

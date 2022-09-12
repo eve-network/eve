@@ -36,9 +36,9 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	params "github.com/notional-labs/eve/app/params"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm"
+	wasmkeeper "github.com/notional-labs/eve/x/wasm/keeper"
+	wasmtypes "github.com/notional-labs/eve/x/wasm/types"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

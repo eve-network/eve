@@ -30,8 +30,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 var wasmIdent = []byte("\x00\x61\x73\x6D")
@@ -638,7 +638,7 @@ func TestGetAllContracts(t *testing.T) {
 }
 
 func setupGenesis(t *testing.T, wasmGenesis types.GenesisState) string {
-	appCodec := keeper.MakeEncodingConfig(t).Marshaler
+	appCodec := keeper.MakeEncodingConfig(t).Codec
 	homeDir := t.TempDir()
 
 	require.NoError(t, os.Mkdir(path.Join(homeDir, "config"), 0o700))
@@ -671,7 +671,7 @@ func executeCmdWithContext(t *testing.T, homeDir string, cmd *cobra.Command) err
 	logger := log.NewNopLogger()
 	cfg, err := genutiltest.CreateDefaultTendermintConfig(homeDir)
 	require.NoError(t, err)
-	appCodec := keeper.MakeEncodingConfig(t).Marshaler
+	appCodec := keeper.MakeEncodingConfig(t).Codec
 	serverCtx := server.NewContext(viper.New(), cfg, logger)
 	clientCtx := client.Context{}.WithCodec(appCodec).WithHomeDir(homeDir)
 
@@ -696,7 +696,7 @@ func loadModuleState(t *testing.T, homeDir string) types.GenesisState {
 	require.NoError(t, err)
 	require.Contains(t, appState, types.ModuleName)
 
-	appCodec := keeper.MakeEncodingConfig(t).Marshaler
+	appCodec := keeper.MakeEncodingConfig(t).Codec
 	var moduleState types.GenesisState
 	require.NoError(t, appCodec.UnmarshalJSON(appState[types.ModuleName], &moduleState))
 	return moduleState

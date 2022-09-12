@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/testdata"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper/testdata"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 // ReflectInitMsg is {}
@@ -38,7 +38,7 @@ func mustParse(t *testing.T, data []byte, res interface{}) {
 const ReflectFeatures = "staking,mask,stargate,cosmwasm_1_1"
 
 func TestReflectContractSend(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)))
 	accKeeper, keeper, bankKeeper := keepers.AccountKeeper, keepers.ContractKeeper, keepers.BankKeeper
 
@@ -117,7 +117,7 @@ func TestReflectContractSend(t *testing.T) {
 }
 
 func TestReflectCustomMsg(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	accKeeper, keeper, bankKeeper := keepers.AccountKeeper, keepers.ContractKeeper, keepers.BankKeeper
 
@@ -208,7 +208,7 @@ func TestReflectCustomMsg(t *testing.T) {
 }
 
 func TestMaskReflectCustomQuery(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 
@@ -256,7 +256,7 @@ func TestMaskReflectCustomQuery(t *testing.T) {
 }
 
 func TestReflectStargateQuery(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 
@@ -299,7 +299,7 @@ func TestReflectStargateQuery(t *testing.T) {
 }
 
 func TestReflectTotalSupplyQuery(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 	// upload code
@@ -350,7 +350,7 @@ func TestReflectTotalSupplyQuery(t *testing.T) {
 }
 
 func TestReflectInvalidStargateQuery(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 
@@ -429,7 +429,7 @@ type reflectState struct {
 }
 
 func TestMaskReflectWasmQueries(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 
@@ -499,7 +499,7 @@ func TestMaskReflectWasmQueries(t *testing.T) {
 }
 
 func TestWasmRawQueryWithNil(t *testing.T) {
-	cdc := MakeEncodingConfig(t).Marshaler
+	cdc := MakeEncodingConfig(t).Codec
 	ctx, keepers := CreateTestInput(t, false, ReflectFeatures, WithMessageEncoders(reflectEncoders(cdc)), WithQueryPlugins(reflectPlugins()))
 	keeper := keepers.WasmKeeper
 

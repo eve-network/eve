@@ -28,8 +28,8 @@ import (
 	"github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper/wasmtesting"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 //go:embed testdata/hackatom.wasm

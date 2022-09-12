@@ -156,8 +156,8 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
 	// WASM
-	wasm "github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasm "github.com/notional-labs/eve/x/wasm"
+	wasmclient "github.com/notional-labs/eve/x/wasm/client"
 
 	// "github.com/notional-labs/tokenfactory/docs"
 	tokenfactorymodule "github.com/notional-labs/eve/x/tokenfactory"

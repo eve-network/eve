@@ -9,7 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/address"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/testdata"
+	"github.com/notional-labs/eve/x/wasm/keeper/testdata"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -23,8 +23,8 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 type testData struct {

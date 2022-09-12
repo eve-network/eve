@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	github.com/CosmWasm/wasmd v0.29.0-rc0
 	github.com/CosmWasm/wasmvm v1.1.0
 	github.com/cosmos/cosmos-sdk v0.46.1
 	github.com/cosmos/gogoproto v1.4.1
@@ -23,8 +22,6 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 
 )
-
-require github.com/cosmos/interchain-accounts v0.3.2 // indirect
 
 require (
 	cloud.google.com/go v0.102.0 // indirect
@@ -162,11 +159,8 @@ require (
 )
 
 replace (
-	// https://github.com/CosmWasm/wasmd/pull/938
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220911011224-44c1674f13fc
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/iqlusioninc/liquidity-staking-module => github.com/notional-labs/liquidity-staking-module v0.0.3-0.20220903210408-38ba22eebbef
 )

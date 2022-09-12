@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/golang/mock/gomock"
 	"github.com/notional-labs/eve/x/globalfee"
+	wasm "github.com/notional-labs/eve/x/wasm"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"

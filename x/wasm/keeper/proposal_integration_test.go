@@ -13,16 +13,16 @@ import (
 
 	wasmvm "github.com/CosmWasm/wasmvm"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
+	"github.com/notional-labs/eve/x/wasm/keeper/wasmtesting"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmWasm/wasmd/x/wasm/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 func TestStoreCodeProposal(t *testing.T) {

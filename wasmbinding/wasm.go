@@ -1,9 +1,9 @@
 package wasmbinding
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/notional-labs/eve/x/wasm"
+	wasmkeeper "github.com/notional-labs/eve/x/wasm/keeper"
 
 	tokenfactorykeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
 )

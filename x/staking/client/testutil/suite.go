@@ -20,7 +20,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
-	"github.com/iqlusioninc/liquidity-staking-module/testutil/network"
+	"github.com/notional-labs/eve/testutil/network"
 	"github.com/notional-labs/eve/x/staking/client/cli"
 	"github.com/notional-labs/eve/x/staking/types"
 )

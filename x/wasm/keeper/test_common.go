@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	"github.com/faddat/dig/app"
 
 	"github.com/cosmos/cosmos-sdk/types/address"
 
@@ -75,10 +76,10 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	wasmappparams "github.com/CosmWasm/wasmd/app/params"
+	wasmappparams "github.com/notional-labs/eve/app/params"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
-	"github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/notional-labs/eve/x/wasm/keeper/wasmtesting"
+	"github.com/notional-labs/eve/x/wasm/types"
 )
 
 var moduleBasics = module.NewBasicManager(
@@ -102,11 +103,11 @@ var moduleBasics = module.NewBasicManager(
 )
 
 func MakeTestCodec(t testing.TB) codec.Codec {
-	return MakeEncodingConfig(t).Marshaler
+	return MakeEncodingConfig(t).Codec
 }
 
 func MakeEncodingConfig(_ testing.TB) wasmappparams.EncodingConfig {
-	encodingConfig := wasmappparams.MakeEncodingConfig()
+	encodingConfig := app.MakeEncodingConfig()
 	amino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
@@ -245,7 +246,7 @@ func createTestInput(
 	ctx = types.WithTXCounter(ctx, 0)
 
 	encodingConfig := MakeEncodingConfig(t)
-	appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
+	appCodec, legacyAmino := encodingConfig.Codec, encodingConfig.Amino
 
 	paramsKeeper := paramskeeper.NewKeeper(
 		appCodec,

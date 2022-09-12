@@ -36,10 +36,9 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/version"
 
-	"github.com/CosmWasm/wasmd/app"
-	"github.com/CosmWasm/wasmd/app/params"
+	"github.com/notional-labs/eve/app"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/notional-labs/eve/x/wasm"
 )
 
 // TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI
@@ -51,7 +50,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           *app.WasmApp
+	App           *app.EveApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
@@ -113,7 +112,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string, opts ...wasm
 		Time:    coord.CurrentTime.UTC(),
 	}
 
-	txConfig := params.MakeEncodingConfig().TxConfig
+	txConfig := simapp.MakeEncodingConfig().TxConfig
 
 	// create an account to send transactions from
 	chain := &TestChain{

@@ -17,10 +17,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	wasmibctesting "github.com/CosmWasm/wasmd/x/wasm/ibctesting"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper/wasmtesting"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmibctesting "github.com/notional-labs/eve/x/wasm/ibctesting"
+	wasmkeeper "github.com/notional-labs/eve/x/wasm/keeper"
+	"github.com/notional-labs/eve/x/wasm/keeper/wasmtesting"
+	wasmtypes "github.com/notional-labs/eve/x/wasm/types"
 )
 
 const (
