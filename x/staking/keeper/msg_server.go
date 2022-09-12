@@ -109,8 +109,8 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	k.SetValidator(ctx, validator)
-	k.SetValidatorByConsAddr(ctx, validator)
-	k.SetNewValidatorByPowerIndex(ctx, validator)
+	k.SetValidatorByConsAddr(ctx, validator)      //nolint:errcheck
+	k.SetNewValidatorByPowerIndex(ctx, validator) //nolint:errcheck
 
 	// call the after-creation hook
 	if err := k.AfterValidatorCreated(ctx, validator.GetOperator()); err != nil {
@@ -647,7 +647,7 @@ func (k msgServer) TokenizeShares(goCtx context.Context, msg *types.MsgTokenizeS
 	}
 
 	// create reward ownership record
-	k.AddTokenizeShareRecord(ctx, record)
+	k.AddTokenizeShareRecord(ctx, record) //nolint:errcheck
 
 	// send coins to module account
 	err = k.bankKeeper.SendCoins(ctx, delegatorAddress, record.GetModuleAddress(), sdk.Coins{msg.Amount})
@@ -734,7 +734,7 @@ func (k msgServer) RedeemTokens(goCtx context.Context, msg *types.MsgRedeemToken
 	_, found = k.GetDelegation(ctx, record.GetModuleAddress(), valAddr)
 	if !found {
 		if k.hooks != nil {
-			k.hooks.BeforeTokenizeShareRecordRemoved(ctx, record.Id)
+			k.hooks.BeforeTokenizeShareRecordRemoved(ctx, record.Id) //nolint:errcheck
 		}
 
 		err = k.DeleteTokenizeShareRecord(ctx, record.Id)

@@ -172,7 +172,7 @@ func TestLimitSimulationGasDecorator(t *testing.T) {
 			if spec.expErr != nil {
 				require.PanicsWithValue(t, spec.expErr, func() {
 					ante := keeper.NewLimitSimulationGasDecorator(spec.customLimit)
-					ante.AnteHandle(ctx, nil, spec.simulation, nextAnte)
+					ante.AnteHandle(ctx, nil, spec.simulation, nextAnte) //nolint:errcheck
 				})
 				return
 			}

@@ -805,10 +805,10 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.EveApp, powers 
 
 	app.StakingKeeper.SetValidator(ctx, val1)
 	app.StakingKeeper.SetValidator(ctx, val2)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)
-	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val1)
-	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val2)
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)      //nolint:errcheck
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)      //nolint:errcheck
+	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val1) //nolint:errcheck
+	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val2) //nolint:errcheck
 
 	_, err := app.StakingKeeper.Delegate(ctx, addrs[0], app.StakingKeeper.TokensFromConsensusPower(ctx, powers[0]), sdkstaking.Unbonded, val1, true)
 	require.NoError(t, err)

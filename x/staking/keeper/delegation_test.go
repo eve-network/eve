@@ -119,7 +119,7 @@ func TestDelegation(t *testing.T) {
 	}
 
 	// delete a record
-	app.StakingKeeper.RemoveDelegation(ctx, bond2to3)
+	app.StakingKeeper.RemoveDelegation(ctx, bond2to3) //nolint:errcheck
 	_, found = app.StakingKeeper.GetDelegation(ctx, addrDels[1], valAddrs[2])
 	require.False(t, found)
 	resBonds = app.StakingKeeper.GetDelegatorDelegations(ctx, addrDels[1], 5)
@@ -131,8 +131,8 @@ func TestDelegation(t *testing.T) {
 	require.Equal(t, 2, len(resBonds))
 
 	// delete all the records from delegator 2
-	app.StakingKeeper.RemoveDelegation(ctx, bond2to1)
-	app.StakingKeeper.RemoveDelegation(ctx, bond2to2)
+	app.StakingKeeper.RemoveDelegation(ctx, bond2to1) //nolint:errcheck
+	app.StakingKeeper.RemoveDelegation(ctx, bond2to2) //nolint:errcheck
 	_, found = app.StakingKeeper.GetDelegation(ctx, addrDels[1], valAddrs[0])
 	require.False(t, found)
 	_, found = app.StakingKeeper.GetDelegation(ctx, addrDels[1], valAddrs[1])

@@ -34,7 +34,7 @@ func (k Keeper) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress,
 
 func (k Keeper) BeforeTokenizeShareRecordRemoved(ctx sdk.Context, recordId uint64) error {
 	if k.hooks != nil {
-		k.hooks.BeforeTokenizeShareRecordRemoved(ctx, recordId)
+		k.hooks.BeforeTokenizeShareRecordRemoved(ctx, recordId) //nolint:errcheck
 	}
 	return nil
 }
@@ -74,7 +74,7 @@ func (k Keeper) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccA
 // BeforeDelegationRemoved - call hook if registered
 func (k Keeper) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	if k.hooks != nil {
-		k.hooks.BeforeDelegationRemoved(ctx, delAddr, valAddr)
+		k.hooks.BeforeDelegationRemoved(ctx, delAddr, valAddr) //nolint:errcheck
 	}
 	return nil
 }

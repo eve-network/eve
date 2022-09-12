@@ -71,7 +71,7 @@ func TestGenesisExportImport(t *testing.T) {
 		codeID, checksum, err := contractKeeper.Create(srcCtx, creatorAddr, wasmCode, &codeInfo.InstantiateConfig)
 		require.NoError(t, err)
 		if pinned {
-			contractKeeper.PinCode(srcCtx, codeID)
+			contractKeeper.PinCode(srcCtx, codeID) //nolint:errcheck
 		}
 		if contractExtension {
 			anyTime := time.Now().UTC()
@@ -79,14 +79,14 @@ func TestGenesisExportImport(t *testing.T) {
 			f.NilChance(0).Fuzz(&nestedType)
 			myExtension, err := govtypesv1beta1.NewProposal(&nestedType, 1, anyTime, anyTime)
 			require.NoError(t, err)
-			contract.SetExtension(&myExtension)
+			contract.SetExtension(&myExtension) //nolint:errcheck
 		}
 
 		contract.CodeID = codeID
 		contractAddr := BuildContractAddress(checksum, creatorAddr, "testing")
 		wasmKeeper.storeContractInfo(srcCtx, contractAddr, &contract)
 		wasmKeeper.appendToContractHistory(srcCtx, contractAddr, history...)
-		wasmKeeper.importContractState(srcCtx, contractAddr, stateModels)
+		wasmKeeper.importContractState(srcCtx, contractAddr, stateModels) //nolint:errcheck
 	}
 	var wasmParams types.Params
 	f.NilChance(0).Fuzz(&wasmParams)

@@ -351,7 +351,7 @@ func TestHandleExecuteEscrow(t *testing.T) {
 	data.faucet.Fund(data.ctx, creator, sdk.NewInt64Coin("denom", 100000))
 	fred := data.faucet.NewFundedRandomAccount(data.ctx, topUp...)
 
-	h := data.module.Route().Handler()
+	h := data.module.Route().Handler() //nolint:staticcheck
 
 	msg := &MsgStoreCode{
 		Sender:       creator.String(),
@@ -550,7 +550,7 @@ func assertContractList(t *testing.T, q sdk.Querier, ctx sdk.Context, codeID uin
 	require.NoError(t, err)
 
 	hasAddrs := make([]string, len(res))
-	for i, r := range res {
+	for i, r := range res { //nolint:gosimple
 		hasAddrs[i] = r
 	}
 

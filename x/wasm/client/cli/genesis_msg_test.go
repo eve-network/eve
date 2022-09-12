@@ -142,9 +142,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -158,9 +158,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("admin", myWellFundedAccount)
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("admin", myWellFundedAccount)  //nolint:errcheck
 			},
 			expMsgCount: 2,
 		},
@@ -177,9 +177,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"100", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
 			},
 			expMsgCount: 2,
 		},
@@ -188,9 +188,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"2", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -206,9 +206,9 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")            //nolint:errcheck
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("no-admin", "true")            //nolint:errcheck
 			},
 			expError: true,
 		},

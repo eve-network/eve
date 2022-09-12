@@ -214,9 +214,9 @@ func TestTokenizeSharesAndRedeemTokens(t *testing.T) {
 
 			val2 := teststaking.NewValidator(t, addrVal2, pk2)
 			val2.Status = sdkstaking.Bonded
-			app.StakingKeeper.SetValidator(ctx, val2)
-			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val2)
-			app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)
+			app.StakingKeeper.SetValidator(ctx, val2)             //nolint:errcheck
+			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val2) //nolint:errcheck
+			app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)   //nolint:errcheck
 
 			delTokens := tc.delegationAmount
 			err := delegateCoinsFromAccount(ctx, app, addrAcc2, delTokens, val1)
