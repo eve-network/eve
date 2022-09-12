@@ -23,6 +23,11 @@ const (
 	DefaultWeightTextProposal           int = 5
 	DefaultWeightParamChangeProposal    int = 5
 
+	// wasm
+	DefaultWeightMsgStoreCode           int = 50
+	DefaultWeightMsgInstantiateContract int = 100
+	DefaultWeightMsgExecuteContract     int = 100
+
 	// feegrant
 	DefaultWeightGrantAllowance  int = 100
 	DefaultWeightRevokeAllowance int = 100
