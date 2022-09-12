@@ -337,10 +337,10 @@ func TestInstantiateContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{"1", `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("label", "testing")
-				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t))
-				flagSet.Set("amount", "10stake")
-				flagSet.Set("no-admin", "true")
+				flagSet.Set("label", "testing")                             //nolint:errcheck
+				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t)) //nolint:errcheck
+				flagSet.Set("amount", "10stake")                            //nolint:errcheck
+				flagSet.Set("no-admin", "true")                             //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -405,7 +405,7 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{myFirstContractAddress, `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", myWellFundedAccount)
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -432,7 +432,7 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{myFirstContractAddress, `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", myWellFundedAccount)
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
 			},
 			expMsgCount: 2,
 		},
@@ -441,7 +441,7 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{keeper.RandomBech32AccountAddress(t), `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", myWellFundedAccount)
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -468,7 +468,7 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{myFirstContractAddress, `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t))
+				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t)) //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -495,8 +495,8 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{myFirstContractAddress, `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", myWellFundedAccount)
-				flagSet.Set("amount", "100stake")
+				flagSet.Set("run-as", myWellFundedAccount) //nolint:errcheck
+				flagSet.Set("amount", "100stake")          //nolint:errcheck
 			},
 			expMsgCount: 1,
 		},
@@ -523,8 +523,8 @@ func TestExecuteContractCmd(t *testing.T) {
 			mutator: func(cmd *cobra.Command) {
 				cmd.SetArgs([]string{myFirstContractAddress, `{}`})
 				flagSet := cmd.Flags()
-				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t))
-				flagSet.Set("amount", "10stake")
+				flagSet.Set("run-as", keeper.RandomBech32AccountAddress(t)) //nolint:errcheck
+				flagSet.Set("amount", "10stake")                            //nolint:errcheck
 			},
 			expError: true,
 		},
@@ -679,8 +679,8 @@ func executeCmdWithContext(t *testing.T, homeDir string, cmd *cobra.Command) err
 	ctx = context.WithValue(ctx, client.ClientContextKey, &clientCtx)
 	ctx = context.WithValue(ctx, server.ServerContextKey, serverCtx)
 	flagSet := cmd.Flags()
-	flagSet.Set("home", homeDir)
-	flagSet.Set(flags.FlagKeyringBackend, keyring.BackendTest)
+	flagSet.Set("home", homeDir)                               // nolint:errcheck
+	flagSet.Set(flags.FlagKeyringBackend, keyring.BackendTest) // nolint:errcheck
 
 	mockIn := testutil.ApplyMockIODiscardOutErr(cmd)
 	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, homeDir, mockIn, clientCtx.Codec)

@@ -43,7 +43,7 @@ func bootstrapSlashTest(t *testing.T, power int64) (*simapp.EveApp, sdk.Context,
 		validator := teststaking.NewValidator(t, addrVals[i], PKs[i])
 		validator, _ = validator.AddTokensFromDel(amt)
 		validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
-		app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
+		app.StakingKeeper.SetValidatorByConsAddr(ctx, validator) //nolint:errcheck
 	}
 
 	return app, ctx, addrDels, addrVals

@@ -264,7 +264,7 @@ func (suite *GenTxTestSuite) TestDeliverGenTxs() {
 
 			if tc.expPass {
 				suite.Require().NotPanics(func() {
-					genutil.DeliverGenTxs( //nolint:staticcheck
+					genutil.DeliverGenTxs( //nolint:staticcheck,errcheck
 						suite.ctx, genTxs, suite.app.StakingKeeper, suite.app.BaseApp.DeliverTx,
 						suite.encodingConfig.TxConfig,
 					)

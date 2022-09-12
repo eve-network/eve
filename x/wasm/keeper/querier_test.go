@@ -169,7 +169,7 @@ func TestQuerySmartContractPanics(t *testing.T) {
 
 	specs := map[string]struct {
 		doInContract func()
-		expErr       *sdkErrors.Error
+		expErr       *sdkErrors.Error //nolint:staticcheck
 	}{
 		"out of gas": {
 			doInContract: func() {
@@ -612,7 +612,7 @@ func TestQueryPinnedCodes(t *testing.T) {
 	specs := map[string]struct {
 		srcQuery   *types.QueryPinnedCodesRequest
 		expCodeIDs []uint64
-		expErr     *sdkErrors.Error
+		expErr     *sdkErrors.Error //nolint:staticcheck
 	}{
 		"query all": {
 			srcQuery:   &types.QueryPinnedCodesRequest{},

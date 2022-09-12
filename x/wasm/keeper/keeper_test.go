@@ -145,7 +145,7 @@ func TestCreateWithParamPermissions(t *testing.T) {
 
 	specs := map[string]struct {
 		srcPermission types.AccessConfig
-		expError      *sdkerrors.Error
+		expError      *sdkerrors.Error //nolint:staticcheck
 	}{
 		"default": {
 			srcPermission: types.DefaultUploadAccess,
@@ -199,7 +199,7 @@ func TestEnforceValidPermissionsOnCreate(t *testing.T) {
 		// grantedPermission is set iff no error
 		grantedPermission types.AccessConfig
 		// expError is nil iff the request is allowed
-		expError *sdkerrors.Error
+		expError *sdkerrors.Error //nolint:staticcheck
 	}{
 		"override everybody": {
 			defaultPermssion:    types.AccessTypeEverybody,
@@ -498,7 +498,7 @@ func TestInstantiateWithPermissions(t *testing.T) {
 	specs := map[string]struct {
 		srcPermission types.AccessConfig
 		srcActor      sdk.AccAddress
-		expError      *sdkerrors.Error
+		expError      *sdkerrors.Error //nolint:staticcheck
 	}{
 		"default": {
 			srcPermission: types.DefaultUploadAccess,
@@ -1100,7 +1100,7 @@ func TestMigrate(t *testing.T) {
 		fromCodeID           uint64
 		toCodeID             uint64
 		migrateMsg           []byte
-		expErr               *sdkerrors.Error
+		expErr               *sdkerrors.Error //nolint:staticcheck
 		expVerifier          sdk.AccAddress
 		expIBCPort           bool
 		initMsg              []byte
@@ -1573,7 +1573,7 @@ func TestUpdateContractAdmin(t *testing.T) {
 		newAdmin             sdk.AccAddress
 		overrideContractAddr sdk.AccAddress
 		caller               sdk.AccAddress
-		expErr               *sdkerrors.Error
+		expErr               *sdkerrors.Error //nolint:staticcheck
 	}{
 		"all good with admin set": {
 			instAdmin: fred,
@@ -1642,7 +1642,7 @@ func TestClearContractAdmin(t *testing.T) {
 		instAdmin            sdk.AccAddress
 		overrideContractAddr sdk.AccAddress
 		caller               sdk.AccAddress
-		expErr               *sdkerrors.Error
+		expErr               *sdkerrors.Error //nolint:staticcheck
 	}{
 		"all good when called by proper admin": {
 			instAdmin: fred,

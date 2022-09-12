@@ -236,7 +236,7 @@ func TestSlashToZeroPowerRemoved(t *testing.T) {
 	validator, _ = validator.AddTokensFromDel(valTokens)
 	require.Equal(t, sdkstaking.Unbonded, validator.Status)
 	require.Equal(t, valTokens, validator.Tokens)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator) //nolint:errcheck
 	validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
 	require.Equal(t, valTokens, validator.Tokens, "\nvalidator %v\npool %v", validator, valTokens)
 
@@ -279,7 +279,7 @@ func TestValidatorBasics(t *testing.T) {
 
 	// set and retrieve a record
 	validators[0] = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validators[0], true)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, validators[0])
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, validators[0]) //nolint:errcheck
 	resVal, found := app.StakingKeeper.GetValidator(ctx, addrVals[0])
 	require.True(t, found)
 	assert.True(ValEq(t, validators[0], resVal))

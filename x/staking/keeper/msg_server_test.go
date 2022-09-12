@@ -208,9 +208,9 @@ func TestTokenizeSharesAndRedeemTokens(t *testing.T) {
 			// Create Validators and Delegation
 			val1 := teststaking.NewValidator(t, addrVal1, pk1)
 			val1.Status = sdkstaking.Bonded
-			app.StakingKeeper.SetValidator(ctx, val1)
-			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val1)
-			app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)
+			app.StakingKeeper.SetValidator(ctx, val1)             //nolint:errcheck
+			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val1) //nolint:errcheck
+			app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)   //nolint:errcheck
 
 			val2 := teststaking.NewValidator(t, addrVal2, pk2)
 			val2.Status = sdkstaking.Bonded
@@ -459,9 +459,9 @@ func TestExemptDelegation(t *testing.T) {
 			// Create Validators and Delegation
 			val1 := teststaking.NewValidator(t, addrVal1, pk1)
 			val1.Status = sdkstaking.Bonded
-			app.StakingKeeper.SetValidator(ctx, val1)
-			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val1)
-			app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)
+			app.StakingKeeper.SetValidator(ctx, val1)             //nolint:errcheck
+			app.StakingKeeper.SetValidatorByPowerIndex(ctx, val1) //nolint:errcheck
+			app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)   //nolint:errcheck
 
 			delTokens := tc.delegationAmount
 			if delTokens.IsPositive() {

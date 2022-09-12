@@ -77,7 +77,7 @@ func TestIBCQuerier(t *testing.T) {
 		wasmKeeper    *mockWasmQueryKeeper
 		channelKeeper *wasmtesting.MockChannelKeeper
 		expJsonResult string
-		expErr        *sdkerrors.Error
+		expErr        *sdkerrors.Error //nolint:staticcheck
 	}{
 		"query port id": {
 			srcQuery: &wasmvmtypes.IBCQuery{
