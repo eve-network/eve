@@ -12,7 +12,6 @@ import (
 // REF: https://github.com/cosmos/cosmos-sdk/issues/5450
 var (
 	// ErrEmptyValidatorAddr               = sdkerrors.Register(ModuleName, 2, "empty validator address")
-	// ErrNoValidatorFound                 = sdkerrors.Register(ModuleName, 3, "validator does not exist")
 	// ErrValidatorOwnerExists             = sdkerrors.Register(ModuleName, 4, "validator already exist for this operator address; must use new validator operator address")
 	// ErrValidatorPubKeyExists            = sdkerrors.Register(ModuleName, 5, "validator already exist for this pubkey; must use new validator pubkey")
 	// ErrValidatorPubKeyTypeNotSupported  = sdkerrors.Register(ModuleName, 6, "validator pubkey type is not supported")
@@ -50,6 +49,7 @@ var (
 	// ErrNoHistoricalInfo                 = sdkerrors.Register(ModuleName, 38, "no historical info found")
 	// ErrEmptyValidatorPubKey             = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	// ErrCommissionLTMinRate              = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
+	ErrNoValidatorFound                           = sdkerrors.Register(ModuleName, 3, "validator does not exist")
 	ErrNotEnoughBalance                           = sdkerrors.Register(ModuleName, 41, "not enough balance")
 	ErrTokenizeShareRecordNotExists               = sdkerrors.Register(ModuleName, 42, "tokenize share record not exists")
 	ErrTokenizeShareRecordAlreadyExists           = sdkerrors.Register(ModuleName, 43, "tokenize share record already exists")

@@ -11,12 +11,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	distributionkeeper "github.com/notional-labs/eve/x/distribution/keeper"
+	distributiontypes "github.com/notional-labs/eve/x/distribution/types"
+	"github.com/notional-labs/eve/x/staking"
+	stakingkeeper "github.com/notional-labs/eve/x/staking/keeper"
+	"github.com/notional-labs/eve/x/staking/types"
+	stakingtypes "github.com/notional-labs/eve/x/staking/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -669,11 +669,10 @@ func addValidator(t *testing.T, ctx sdk.Context, stakingKeeper stakingkeeper.Kee
 			MaxRate:       sdk.MustNewDecFromStr("0.2"),
 			MaxChangeRate: sdk.MustNewDecFromStr("0.01"),
 		},
-		MinSelfDelegation: sdk.OneInt(),
-		DelegatorAddress:  owner.String(),
-		ValidatorAddress:  addr.String(),
-		Pubkey:            pkAny,
-		Value:             value,
+		DelegatorAddress: owner.String(),
+		ValidatorAddress: addr.String(),
+		Pubkey:           pkAny,
+		Value:            value,
 	}
 
 	h := stakingkeeper.NewMsgServerImpl(stakingKeeper)
