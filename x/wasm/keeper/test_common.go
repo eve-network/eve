@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	"github.com/faddat/dig/app"
+	appParams "github.com/notional-labs/eve/app/params"
 
 	"github.com/cosmos/cosmos-sdk/types/address"
 
@@ -107,7 +107,7 @@ func MakeTestCodec(t testing.TB) codec.Codec {
 }
 
 func MakeEncodingConfig(_ testing.TB) wasmappparams.EncodingConfig {
-	encodingConfig := app.MakeEncodingConfig()
+	encodingConfig := appParams.MakeTestEncodingConfig()
 	amino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 

@@ -527,3 +527,9 @@ type EmptyAppOptions struct{}
 func (ao EmptyAppOptions) Get(o string) interface{} {
 	return nil
 }
+
+// SetupWithEmptyStore setup a wasmd app instance with empty DB
+func SetupWithEmptyStore(t testing.TB) *EveApp {
+	app, _ := setup(false, 0)
+	return app
+}
