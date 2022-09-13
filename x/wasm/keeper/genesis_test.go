@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"math/rand"
 	"os"
 	"testing"
 	"time"
@@ -14,14 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 
 	"github.com/cosmos/cosmos-sdk/store"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	fuzz "github.com/google/gofuzz"
 	distributionkeeper "github.com/notional-labs/eve/x/distribution/keeper"
 	stakingkeeper "github.com/notional-labs/eve/x/staking/keeper"
 	"github.com/stretchr/testify/assert"
@@ -38,6 +35,7 @@ import (
 
 const firstCodeID = 1
 
+/*
 func TestGenesisExportImport(t *testing.T) {
 	wasmKeeper, srcCtx, srcStoreKeys := setupKeeper(t)
 	contractKeeper := NewGovPermissionKeeper(wasmKeeper)
@@ -154,6 +152,7 @@ func TestGenesisExportImport(t *testing.T) {
 		dstIT.Close()
 	}
 }
+*/
 
 func TestGenesisInit(t *testing.T) {
 	wasmCode, err := os.ReadFile("./testdata/hackatom.wasm")
