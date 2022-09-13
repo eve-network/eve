@@ -3,7 +3,7 @@ version: '3'
 services:
   evenode0:
     container_name: evenode0
-    image: "eve-node"
+    image: "notional-labs/eve"
     environment:
       - DEBUG=1
       - ID=0
@@ -25,7 +25,7 @@ services:
 
   evenode1:
     container_name: evenode1
-    image: "eve-node"
+    image: "notional-labs/eve"
     environment:
       - DEBUG=1
       - ID=0
@@ -47,7 +47,7 @@ services:
 
   evenode2:
     container_name: evenode2
-    image: "eve-node"
+    image: "notional-labs/eve"
     environment:
       - DEBUG=1
       - ID=0
@@ -69,7 +69,7 @@ services:
 
   evenode3:
     container_name: evenode3
-    image: "eve-node"
+    image: "notional-labs/eve"
     environment:
       - DEBUG=1
       - ID=0

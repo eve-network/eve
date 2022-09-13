@@ -138,3 +138,47 @@ PACKAGES_UNIT=$(shell go list ./...)
 test: test-unit
 test-unit:
 	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_UNIT)
+
+###############################################################################
+###                                Localnet                                 ###
+###############################################################################
+
+# Build image for a local testnet
+localnet-build:
+	docker build -f Dockerfile -t eve-node .
+
+# Start a 4-node testnet locally
+localnet-start: localnet-clean
+	@if ! [ -f build/node0/eved/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/eve:Z eve-node -c "eved testnet --v 4 -o eve --chain-id eve-1 --keyring-backend=test --starting-ip-address 192.167.10.2"; fi
+	docker-compose up -d
+	bash scripts/add-keys.sh
+
+# Stop testnet
+localnet-stop:
+	docker-compose down
+
+# Clean testnet
+localnet-clean:
+	docker-compose down
+	sudo rm -rf build
+
+# Reset testnet
+localnet-unsafe-reset:
+	docker-compose down
+ifeq ($(OS),Windows_NT)
+	@docker run --rm -v $(CURDIR)\build\node0\eved:/eve\Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)\build\node1\eved:/eve\Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)\build\node2\eved:/eve\Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)\build\node3\eved:/eve\Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+else
+	@docker run --rm -v $(CURDIR)/build/node0/eved:/eve:Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)/build/node1/eved:/eve:Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)/build/node2/eved:/eve:Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+	@docker run --rm -v $(CURDIR)/build/node3/eved:/eve:Z eve/node "./eved tendermint unsafe-reset-all --home=/eve"
+endif
+
+# Clean testnet
+localnet-show-logstream:
+	docker-compose logs --tail=1000 -f
+
+.PHONY: localnet-build localnet-start localnet-stop
