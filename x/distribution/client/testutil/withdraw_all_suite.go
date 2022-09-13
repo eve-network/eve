@@ -10,7 +10,7 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
-	"github.com/iqlusioninc/liquidity-staking-module/testutil/network"
+	"github.com/notional-labs/eve/testutil/network"
 	"github.com/notional-labs/eve/x/distribution/client/cli"
 	stakingcli "github.com/notional-labs/eve/x/staking/client/cli"
 	"github.com/stretchr/testify/suite"
@@ -29,11 +29,10 @@ func (s *WithdrawAllTestSuite) SetupSuite() {
 	s.cfg = cfg
 
 	s.T().Log("setting up integration test suite")
-	network, err := network.New(s.T(), s.T().TempDir(), s.cfg)
-	s.Require().NoError(err)
+	network := network.New(s.T(), s.cfg)
 	s.network = network
 
-	_, err = s.network.WaitForHeight(1)
+	_, err := s.network.WaitForHeight(1)
 	s.Require().NoError(err)
 }
 

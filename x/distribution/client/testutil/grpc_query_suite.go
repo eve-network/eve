@@ -12,7 +12,7 @@ import (
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/iqlusioninc/liquidity-staking-module/testutil/network"
+	"github.com/notional-labs/eve/testutil/network"
 )
 
 type GRPCQueryTestSuite struct {
@@ -30,8 +30,7 @@ func (s *GRPCQueryTestSuite) SetupSuite() {
 	s.cfg = cfg
 
 	var err error
-	s.network, err = network.New(s.T(), s.T().TempDir(), cfg)
-	s.Require().NoError(err)
+	s.network = network.New(s.T(), cfg)
 
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
