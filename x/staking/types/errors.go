@@ -49,7 +49,6 @@ var (
 	// ErrNoHistoricalInfo                 = sdkerrors.Register(ModuleName, 38, "no historical info found")
 	// ErrEmptyValidatorPubKey             = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	// ErrCommissionLTMinRate              = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
-	ErrNoValidatorFound                           = sdkerrors.Register(ModuleName, 3, "validator does not exist")
 	ErrNotEnoughBalance                           = sdkerrors.Register(ModuleName, 41, "not enough balance")
 	ErrTokenizeShareRecordNotExists               = sdkerrors.Register(ModuleName, 42, "tokenize share record not exists")
 	ErrTokenizeShareRecordAlreadyExists           = sdkerrors.Register(ModuleName, 43, "tokenize share record already exists")
@@ -59,4 +58,5 @@ var (
 	ErrInsufficientExemptShares                   = sdkerrors.Register(ModuleName, 47, "insufficient exempt shares")
 	ErrRedelegationNotAllowedForExemptDelegation  = sdkerrors.Register(ModuleName, 48, "redelegation is not allowed for exempt delegation")
 	ErrExemptDelegationNotAllowedForTokenizeShare = sdkerrors.Register(ModuleName, 49, "exempt delegation is not allowed for tokenize share")
+	ErrNoValidatorFound                           = sdkerrors.Register(ModuleName, 50, "validator does not exist")
 )
