@@ -6,7 +6,7 @@ package testutil
 import (
 	"testing"
 
-	"github.com/iqlusioninc/liquidity-staking-module/testutil/network"
+	"github.com/notional-labs/eve/testutil/network"
 
 	"github.com/stretchr/testify/suite"
 )

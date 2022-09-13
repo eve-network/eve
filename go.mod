@@ -11,7 +11,6 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/iqlusioninc/liquidity-staking-module v1.0.0
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.5.0
@@ -21,6 +20,12 @@ require (
 	google.golang.org/protobuf v1.28.1
 	sigs.k8s.io/yaml v1.3.0
 
+)
+
+require (
+	github.com/onsi/ginkgo v1.16.4 // indirect
+	github.com/onsi/gomega v1.18.1 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 )
 
 require (
