@@ -517,7 +517,7 @@ func NewEveApp(
 
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
-	supportedFeatures := "iterator,staking,stargate"
+	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1"
 	wasmKeeper := wasm.NewKeeper(
 		appCodec, app.keys[wasm.StoreKey], app.GetSubspace(wasm.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
