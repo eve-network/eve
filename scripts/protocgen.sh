@@ -21,7 +21,7 @@ set -eo pipefail
 
 echo "Generating gogo proto code"
 cd proto
-proto_dirs=$(find ./cosmos -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+proto_dirs=$(find ./eve -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
   for file in $(find "${dir}" -maxdepth 1 -name '*.proto'); do
     if grep "option go_package" $file &> /dev/null ; then
@@ -33,10 +33,10 @@ done
 cd ..
 
 # generate codec/testdata proto code
-(cd testutil/testdata; buf generate)
+# (cd testutil/testdata; buf generate)
 
 # move proto files to the right places
-cp -r github.com/cosmos/cosmos-sdk/* ./
+cp -r github.com/notional-labs/eve/* ./
 rm -rf github.com
 
 go mod tidy -compat=1.18
