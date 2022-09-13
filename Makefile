@@ -4,7 +4,7 @@
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 ifeq ($(VERSION),)
-  VERSION := v0.0.0
+	VERSION := v0.0.0
 endif
 
 PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
@@ -19,26 +19,26 @@ LEDGER_ENABLED ?= true
 build_tags = netgo
 build_tags += pebbledb
 ifeq ($(LEDGER_ENABLED),true)
-  ifeq ($(OS),Windows_NT)
-    GCCEXE = $(shell where gcc.exe 2> NUL)
-    ifeq ($(GCCEXE),)
-      $(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
-    else
-      build_tags += ledger
-    endif
-  else
-    UNAME_S = $(shell uname -s)
-    ifeq ($(UNAME_S),OpenBSD)
-      $(warning OpenBSD detected, disabling ledger support (https://github.com/cosmos/cosmos-sdk/issues/1988))
-    else
-      GCC = $(shell command -v gcc 2> /dev/null)
-      ifeq ($(GCC),)
-        $(error gcc not installed for ledger support, please install or set LEDGER_ENABLED=false)
-      else
-        build_tags += ledger
-      endif
-    endif
-  endif
+	ifeq ($(OS),Windows_NT)
+	GCCEXE = $(shell where gcc.exe 2> NUL)
+	ifeq ($(GCCEXE),)
+	$(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
+	else
+	build_tags += ledger
+	endif
+	else
+	UNAME_S = $(shell uname -s)
+	ifeq ($(UNAME_S),OpenBSD)
+	$(warning OpenBSD detected, disabling ledger support (https://github.com/cosmos/cosmos-sdk/issues/1988))
+	else
+	GCC = $(shell command -v gcc 2> /dev/null)
+	ifeq ($(GCC),)
+	$(error gcc not installed for ledger support, please install or set LEDGER_ENABLED=false)
+	else
+	build_tags += ledger
+	endif
+	endif
+	endif
 endif
 
 build_tags += $(BUILD_TAGS)
@@ -57,10 +57,10 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=eved \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
-      
+	
 
 ifeq ($(LINK_STATICALLY),true)
-  ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+	ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
 endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
@@ -80,7 +80,6 @@ go.sum: go.mod
 
 build:
 	go build $(BUILD_FLAGS) -o ./build/eved ./eved
-
 
 # https://github.com/cosmos/ibc-go/blob/main/Makefile#L377
 ###############################################################################
@@ -129,3 +128,13 @@ proto-check-breaking:
 	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
 
 .PHONY: proto-all proto-gen proto-gen-any proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
+
+###############################################################################
+###                           Tests & Simulation                            ###
+###############################################################################
+
+PACKAGES_UNIT=$(shell go list ./...)
+
+test: test-unit
+test-unit:
+	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_UNIT)
