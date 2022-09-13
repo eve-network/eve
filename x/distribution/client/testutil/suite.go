@@ -12,9 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
+	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/notional-labs/eve/testutil/network"
 	"github.com/notional-labs/eve/x/distribution/client/cli"
 )
 
@@ -54,7 +54,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	genesisState[minttypes.ModuleName] = mintDataBz
 	s.cfg.GenesisState = genesisState
 
-	s.network = network.New(s.T(), s.cfg)
+	s.network, _ = network.New(s.T(), "", s.cfg)
 
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)

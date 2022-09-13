@@ -49,7 +49,7 @@ var (
 	// ErrNoHistoricalInfo                 = sdkerrors.Register(ModuleName, 38, "no historical info found")
 	// ErrEmptyValidatorPubKey             = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	// ErrCommissionLTMinRate              = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
-	ErrNotEnoughBalance                           = sdkerrors.Register(ModuleName, 41, "not enough balance")
+	ErrNotEnoughBalance                           = sdkerrors.Register(ModuleName, 51, "not enough balance")
 	ErrTokenizeShareRecordNotExists               = sdkerrors.Register(ModuleName, 42, "tokenize share record not exists")
 	ErrTokenizeShareRecordAlreadyExists           = sdkerrors.Register(ModuleName, 43, "tokenize share record already exists")
 	ErrNotTokenizeShareRecordOwner                = sdkerrors.Register(ModuleName, 44, "not tokenize share record owner")

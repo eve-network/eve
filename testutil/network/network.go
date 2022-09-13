@@ -1,14 +1,19 @@
 package network
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/pruning/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	"github.com/notional-labs/eve/app"
 
 	// "github.com/tendermint/spm/cosmoscmd"
-
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	tmdb "github.com/tendermint/tm-db"
 )
@@ -30,7 +35,7 @@ func New(t *testing.T, configs ...network.Config) *network.Network {
 	} else {
 		cfg = configs[0]
 	}
-	net, err := network.New(nil, "", cfg) // TODO:
+	net, err := network.New(t, "", cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,18 +65,18 @@ func DefaultConfig() network.Config {
 				// baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
 			)
 		},
-		// GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Marshaler),
-		// TimeoutCommit:   2 * time.Second,
-		// ChainID:         "chain-" + tmrand.NewRand().Str(6),
-		// NumValidators:   1,
-		// BondDenom:       sdk.DefaultBondDenom,
-		// MinGasPrices:    fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
-		// AccountTokens:   sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction),
-		// StakingTokens:   sdk.TokensFromConsensusPower(500, sdk.DefaultPowerReduction),
-		// BondedTokens:    sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
-		// PruningStrategy: types.PruningOptionNothing,
-		// CleanupDir:      true,
-		// SigningAlgo:     string(hd.Secp256k1Type),
-		// KeyringOptions:  []keyring.Option{},
+		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Codec),
+		TimeoutCommit:   2 * time.Second,
+		ChainID:         "eve",
+		NumValidators:   1,
+		BondDenom:       sdk.DefaultBondDenom,
+		MinGasPrices:    fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
+		AccountTokens:   sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction),
+		StakingTokens:   sdk.TokensFromConsensusPower(500, sdk.DefaultPowerReduction),
+		BondedTokens:    sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
+		PruningStrategy: types.PruningOptionNothing,
+		CleanupDir:      true,
+		SigningAlgo:     string(hd.Secp256k1Type),
+		KeyringOptions:  []keyring.Option{},
 	}
 }
