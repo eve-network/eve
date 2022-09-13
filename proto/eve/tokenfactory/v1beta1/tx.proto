@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package eve.tokenfactory.v1beta1;
 
 import "eve/tokenfactory/v1beta1/denom.proto";
@@ -27,12 +28,12 @@ message MsgCreateDenomResponse {}
 
 message MsgUpdateDenom {
   string owner = 1;
-  string denom = 2;  
+  string denom = 2;
   int32 maxSupply = 3;
   bool canChangeMaxSupply = 4;
 
   // metadata
-  string description = 5;  
+  string description = 5;
   string token_image = 6;
   string website = 7;
 }
@@ -45,8 +46,7 @@ message MsgMintAndSendTokens {
   string recipient = 4;
 }
 
-message MsgMintAndSendTokensResponse {
-}
+message MsgMintAndSendTokensResponse {}
 
 message MsgUpdateOwner {
   string owner = 1;
@@ -54,5 +54,4 @@ message MsgUpdateOwner {
   string newOwner = 3;
 }
 
-message MsgUpdateOwnerResponse {
-}
+message MsgUpdateOwnerResponse {}
