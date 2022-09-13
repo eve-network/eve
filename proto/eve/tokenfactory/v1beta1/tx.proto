@@ -4,13 +4,14 @@ package eve.tokenfactory.v1beta1;
 
 import "eve/tokenfactory/v1beta1/denom.proto";
 
-option go_package = "x/tokenfactory/types";
+option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
 
 // Msg defines the Msg service.
 service Msg {
   rpc CreateDenom(MsgCreateDenom) returns (MsgCreateDenomResponse);
   rpc UpdateDenom(MsgUpdateDenom) returns (MsgUpdateDenomResponse);
-  rpc MintAndSendTokens(MsgMintAndSendTokens) returns (MsgMintAndSendTokensResponse);
+  rpc MintAndSendTokens(MsgMintAndSendTokens)
+      returns (MsgMintAndSendTokensResponse);
   rpc UpdateOwner(MsgUpdateOwner) returns (MsgUpdateOwnerResponse);
 }
 

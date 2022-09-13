@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package liquidstaking.distribution.v1beta1;
+package eve.distribution.v1beta1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
@@ -12,27 +12,34 @@ option (gogoproto.equal_all) = true;
 service Msg {
   // SetWithdrawAddress defines a method to change the withdraw address
   // for a delegator (or validator self-delegation).
-  rpc SetWithdrawAddress(MsgSetWithdrawAddress) returns (MsgSetWithdrawAddressResponse);
+  rpc SetWithdrawAddress(MsgSetWithdrawAddress)
+      returns (MsgSetWithdrawAddressResponse);
 
   // WithdrawDelegatorReward defines a method to withdraw rewards of delegator
   // from a single validator.
-  rpc WithdrawDelegatorReward(MsgWithdrawDelegatorReward) returns (MsgWithdrawDelegatorRewardResponse);
+  rpc WithdrawDelegatorReward(MsgWithdrawDelegatorReward)
+      returns (MsgWithdrawDelegatorRewardResponse);
 
   // WithdrawValidatorCommission defines a method to withdraw the
   // full commission to the validator address.
-  rpc WithdrawValidatorCommission(MsgWithdrawValidatorCommission) returns (MsgWithdrawValidatorCommissionResponse);
+  rpc WithdrawValidatorCommission(MsgWithdrawValidatorCommission)
+      returns (MsgWithdrawValidatorCommissionResponse);
 
   // WithdrawTokenizeShareRecordReward defines a method to withdraw reward for
   // an owning TokenizeShareRecord
-  rpc WithdrawTokenizeShareRecordReward(MsgWithdrawTokenizeShareRecordReward) returns (MsgWithdrawTokenizeShareRecordRewardResponse);
+  rpc WithdrawTokenizeShareRecordReward(MsgWithdrawTokenizeShareRecordReward)
+      returns (MsgWithdrawTokenizeShareRecordRewardResponse);
 
   // WithdrawAllTokenizeShareRecordReward defines a method to withdraw reward
   // for all owning TokenizeShareRecord
-  rpc WithdrawAllTokenizeShareRecordReward(MsgWithdrawAllTokenizeShareRecordReward) returns (MsgWithdrawAllTokenizeShareRecordRewardResponse);
+  rpc WithdrawAllTokenizeShareRecordReward(
+      MsgWithdrawAllTokenizeShareRecordReward)
+      returns (MsgWithdrawAllTokenizeShareRecordRewardResponse);
 
   // FundCommunityPool defines a method to allow an account to directly
   // fund the community pool.
-  rpc FundCommunityPool(MsgFundCommunityPool) returns (MsgFundCommunityPoolResponse);
+  rpc FundCommunityPool(MsgFundCommunityPool)
+      returns (MsgFundCommunityPoolResponse);
 }
 
 // MsgSetWithdrawAddress sets the withdraw address for
@@ -41,8 +48,10 @@ message MsgSetWithdrawAddress {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string delegator_address = 1 [(gogoproto.moretags) = "yaml:\"delegator_address\""];
-  string withdraw_address = 2 [(gogoproto.moretags) = "yaml:\"withdraw_address\""];
+  string delegator_address = 1
+      [ (gogoproto.moretags) = "yaml:\"delegator_address\"" ];
+  string withdraw_address = 2
+      [ (gogoproto.moretags) = "yaml:\"withdraw_address\"" ];
 }
 
 // MsgSetWithdrawAddressResponse defines the Msg/SetWithdrawAddress response
@@ -55,8 +64,10 @@ message MsgWithdrawDelegatorReward {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string delegator_address = 1 [(gogoproto.moretags) = "yaml:\"delegator_address\""];
-  string validator_address = 2 [(gogoproto.moretags) = "yaml:\"validator_address\""];
+  string delegator_address = 1
+      [ (gogoproto.moretags) = "yaml:\"delegator_address\"" ];
+  string validator_address = 2
+      [ (gogoproto.moretags) = "yaml:\"validator_address\"" ];
 }
 
 // MsgWithdrawDelegatorRewardResponse defines the Msg/WithdrawDelegatorReward
@@ -69,7 +80,8 @@ message MsgWithdrawValidatorCommission {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string validator_address = 1 [(gogoproto.moretags) = "yaml:\"validator_address\""];
+  string validator_address = 1
+      [ (gogoproto.moretags) = "yaml:\"validator_address\"" ];
 }
 
 // MsgWithdrawValidatorCommissionResponse defines the
@@ -80,7 +92,7 @@ message MsgWithdrawTokenizeShareRecordReward {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string owner_address = 1 [(gogoproto.moretags) = "yaml:\"owner_address\""];
+  string owner_address = 1 [ (gogoproto.moretags) = "yaml:\"owner_address\"" ];
   uint64 record_id = 2;
 }
 
@@ -90,7 +102,7 @@ message MsgWithdrawAllTokenizeShareRecordReward {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string owner_address = 1 [(gogoproto.moretags) = "yaml:\"owner_address\""];
+  string owner_address = 1 [ (gogoproto.moretags) = "yaml:\"owner_address\"" ];
 }
 
 message MsgWithdrawAllTokenizeShareRecordRewardResponse {}

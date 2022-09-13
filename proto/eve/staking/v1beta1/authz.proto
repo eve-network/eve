@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package liquidstaking.staking.v1beta1;
+package eve.staking.v1beta1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
@@ -15,7 +15,8 @@ message StakeAuthorization {
   // max_tokens specifies the maximum amount of tokens can be delegate to a
   // validator. If it is empty, there is no spend limit and any amount of coins
   // can be delegated.
-  cosmos.base.v1beta1.Coin max_tokens = 1 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
+  cosmos.base.v1beta1.Coin max_tokens = 1
+      [ (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin" ];
   // validators is the oneof that represents either allow_list or deny_list
   oneof validators {
     // allow_list specifies list of validator addresses to whom grantee can
@@ -26,9 +27,7 @@ message StakeAuthorization {
     Validators deny_list = 3;
   }
   // Validators defines list of validator addresses.
-  message Validators {
-    repeated string address = 1;
-  }
+  message Validators { repeated string address = 1; }
   // authorization_type defines one of AuthorizationType.
   AuthorizationType authorization_type = 4;
 }

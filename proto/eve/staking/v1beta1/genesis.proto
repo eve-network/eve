@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package liquidstaking.staking.v1beta1;
+package eve.staking.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "staking/v1beta1/staking.proto";
@@ -10,7 +10,7 @@ option go_package = "github.com/notional-labs/eve/x/staking/types";
 // GenesisState defines the staking module's genesis state.
 message GenesisState {
   // params defines all the paramaters of related to deposit.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
   // last_total_power tracks the total amounts of bonded tokens recorded during
   // the previous end block.
@@ -28,10 +28,10 @@ message GenesisState {
   ];
 
   // delegations defines the validator set at genesis.
-  repeated Validator validators = 4 [(gogoproto.nullable) = false];
+  repeated Validator validators = 4 [ (gogoproto.nullable) = false ];
 
   // delegations defines the delegations active at genesis.
-  repeated Delegation delegations = 5 [(gogoproto.nullable) = false];
+  repeated Delegation delegations = 5 [ (gogoproto.nullable) = false ];
 
   // unbonding_delegations defines the unbonding delegations active at genesis.
   repeated UnbondingDelegation unbonding_delegations = 6 [
@@ -40,12 +40,13 @@ message GenesisState {
   ];
 
   // redelegations defines the redelegations active at genesis.
-  repeated Redelegation redelegations = 7 [(gogoproto.nullable) = false];
+  repeated Redelegation redelegations = 7 [ (gogoproto.nullable) = false ];
 
   bool exported = 8;
 
   // store tokenize share records to provide reward to record owners
-  repeated TokenizeShareRecord tokenize_share_records = 9 [(gogoproto.nullable) = false];
+  repeated TokenizeShareRecord tokenize_share_records = 9
+      [ (gogoproto.nullable) = false ];
 
   // last tokenize share record id, used for next share record id calculation
   uint64 last_tokenize_share_record_id = 10;

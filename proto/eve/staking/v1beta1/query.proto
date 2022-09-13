@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package liquidstaking.staking.v1beta1;
+package eve.staking.v1beta1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/base/v1beta1/coin.proto";
@@ -19,71 +19,84 @@ service Query {
 
   // Validator queries validator info for given validator address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/validators/{validator_addr}";
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/validators/{validator_addr}";
   }
 
   // ValidatorDelegations queries delegate info for given validator.
-  rpc ValidatorDelegations(QueryValidatorDelegationsRequest) returns (QueryValidatorDelegationsResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations";
+  rpc ValidatorDelegations(QueryValidatorDelegationsRequest)
+      returns (QueryValidatorDelegationsResponse) {
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations";
   }
 
   // ValidatorUnbondingDelegations queries unbonding delegations of a validator.
-  rpc ValidatorUnbondingDelegations(QueryValidatorUnbondingDelegationsRequest) returns (QueryValidatorUnbondingDelegationsResponse) {
-    option (google.api.http).get =
-      "/cosmos/staking/v1beta1/validators/"
-      "{validator_addr}/unbonding_delegations";
+  rpc ValidatorUnbondingDelegations(QueryValidatorUnbondingDelegationsRequest)
+      returns (QueryValidatorUnbondingDelegationsResponse) {
+    option (google.api.http).get = "/cosmos/staking/v1beta1/validators/"
+                                   "{validator_addr}/unbonding_delegations";
   }
 
   // Delegation queries delegate info for given validator delegator pair.
   rpc Delegation(QueryDelegationRequest) returns (QueryDelegationResponse) {
     option (google.api.http).get =
-      "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/"
-      "{delegator_addr}";
+        "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/"
+        "{delegator_addr}";
   }
 
   // UnbondingDelegation queries unbonding info for given validator delegator
   // pair.
-  rpc UnbondingDelegation(QueryUnbondingDelegationRequest) returns (QueryUnbondingDelegationResponse) {
+  rpc UnbondingDelegation(QueryUnbondingDelegationRequest)
+      returns (QueryUnbondingDelegationResponse) {
     option (google.api.http).get =
-      "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/"
-      "{delegator_addr}/unbonding_delegation";
+        "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/"
+        "{delegator_addr}/unbonding_delegation";
   }
 
   // DelegatorDelegations queries all delegations of a given delegator address.
-  rpc DelegatorDelegations(QueryDelegatorDelegationsRequest) returns (QueryDelegatorDelegationsResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/delegations/{delegator_addr}";
+  rpc DelegatorDelegations(QueryDelegatorDelegationsRequest)
+      returns (QueryDelegatorDelegationsResponse) {
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/delegations/{delegator_addr}";
   }
 
   // DelegatorUnbondingDelegations queries all unbonding delegations of a given
   // delegator address.
-  rpc DelegatorUnbondingDelegations(QueryDelegatorUnbondingDelegationsRequest) returns (QueryDelegatorUnbondingDelegationsResponse) {
-    option (google.api.http).get =
-      "/cosmos/staking/v1beta1/delegators/"
-      "{delegator_addr}/unbonding_delegations";
+  rpc DelegatorUnbondingDelegations(QueryDelegatorUnbondingDelegationsRequest)
+      returns (QueryDelegatorUnbondingDelegationsResponse) {
+    option (google.api.http).get = "/cosmos/staking/v1beta1/delegators/"
+                                   "{delegator_addr}/unbonding_delegations";
   }
 
   // Redelegations queries redelegations of given address.
-  rpc Redelegations(QueryRedelegationsRequest) returns (QueryRedelegationsResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/delegators/{delegator_addr}/redelegations";
+  rpc Redelegations(QueryRedelegationsRequest)
+      returns (QueryRedelegationsResponse) {
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/delegators/{delegator_addr}/redelegations";
   }
 
   // DelegatorValidators queries all validators info for given delegator
   // address.
-  rpc DelegatorValidators(QueryDelegatorValidatorsRequest) returns (QueryDelegatorValidatorsResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators";
+  rpc DelegatorValidators(QueryDelegatorValidatorsRequest)
+      returns (QueryDelegatorValidatorsResponse) {
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators";
   }
 
   // DelegatorValidator queries validator info for given delegator validator
   // pair.
-  rpc DelegatorValidator(QueryDelegatorValidatorRequest) returns (QueryDelegatorValidatorResponse) {
+  rpc DelegatorValidator(QueryDelegatorValidatorRequest)
+      returns (QueryDelegatorValidatorResponse) {
     option (google.api.http).get =
-      "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators/"
-      "{validator_addr}";
+        "/cosmos/staking/v1beta1/delegators/{delegator_addr}/validators/"
+        "{validator_addr}";
   }
 
   // HistoricalInfo queries the historical info for given height.
-  rpc HistoricalInfo(QueryHistoricalInfoRequest) returns (QueryHistoricalInfoResponse) {
-    option (google.api.http).get = "/cosmos/staking/v1beta1/historical_info/{height}";
+  rpc HistoricalInfo(QueryHistoricalInfoRequest)
+      returns (QueryHistoricalInfoResponse) {
+    option (google.api.http).get =
+        "/cosmos/staking/v1beta1/historical_info/{height}";
   }
 
   // Pool queries the pool info.
@@ -97,22 +110,28 @@ service Query {
   }
 
   // Query for individual tokenize share record information by share by id
-  rpc TokenizeShareRecordById(QueryTokenizeShareRecordByIdRequest) returns (QueryTokenizeShareRecordByIdResponse) {}
+  rpc TokenizeShareRecordById(QueryTokenizeShareRecordByIdRequest)
+      returns (QueryTokenizeShareRecordByIdResponse) {}
 
   // Query for individual tokenize share record information by share denom
-  rpc TokenizeShareRecordByDenom(QueryTokenizeShareRecordByDenomRequest) returns (QueryTokenizeShareRecordByDenomResponse) {}
+  rpc TokenizeShareRecordByDenom(QueryTokenizeShareRecordByDenomRequest)
+      returns (QueryTokenizeShareRecordByDenomResponse) {}
 
   // Query tokenize share records by address
-  rpc TokenizeShareRecordsOwned(QueryTokenizeShareRecordsOwnedRequest) returns (QueryTokenizeShareRecordsOwnedResponse) {}
+  rpc TokenizeShareRecordsOwned(QueryTokenizeShareRecordsOwnedRequest)
+      returns (QueryTokenizeShareRecordsOwnedResponse) {}
 
   // Query for all tokenize share records
-  rpc AllTokenizeShareRecords(QueryAllTokenizeShareRecordsRequest) returns (QueryAllTokenizeShareRecordsResponse) {}
+  rpc AllTokenizeShareRecords(QueryAllTokenizeShareRecordsRequest)
+      returns (QueryAllTokenizeShareRecordsResponse) {}
 
   // Query for last tokenize share record id
-  rpc LastTokenizeShareRecordId(QueryLastTokenizeShareRecordIdRequest) returns (QueryLastTokenizeShareRecordIdResponse) {}
+  rpc LastTokenizeShareRecordId(QueryLastTokenizeShareRecordIdRequest)
+      returns (QueryLastTokenizeShareRecordIdResponse) {}
 
   // Query for total tokenized staked assets
-  rpc TotalTokenizeSharedAssets(QueryTotalTokenizeSharedAssetsRequest) returns (QueryTotalTokenizeSharedAssetsResponse) {}
+  rpc TotalTokenizeSharedAssets(QueryTotalTokenizeSharedAssetsRequest)
+      returns (QueryTotalTokenizeSharedAssetsResponse) {}
 }
 
 // QueryValidatorsRequest is request type for Query/Validators RPC method.
@@ -127,7 +146,7 @@ message QueryValidatorsRequest {
 // QueryValidatorsResponse is response type for the Query/Validators RPC method
 message QueryValidatorsResponse {
   // validators contains all the queried validators.
-  repeated Validator validators = 1 [(gogoproto.nullable) = false];
+  repeated Validator validators = 1 [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -142,7 +161,7 @@ message QueryValidatorRequest {
 // QueryValidatorResponse is response type for the Query/Validator RPC method
 message QueryValidatorResponse {
   // validator defines the the validator info.
-  Validator validator = 1 [(gogoproto.nullable) = false];
+  Validator validator = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryValidatorDelegationsRequest is request type for the
@@ -180,7 +199,8 @@ message QueryValidatorUnbondingDelegationsRequest {
 // QueryValidatorUnbondingDelegationsResponse is response type for the
 // Query/ValidatorUnbondingDelegations RPC method.
 message QueryValidatorUnbondingDelegationsResponse {
-  repeated UnbondingDelegation unbonding_responses = 1 [(gogoproto.nullable) = false];
+  repeated UnbondingDelegation unbonding_responses = 1
+      [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -221,7 +241,7 @@ message QueryUnbondingDelegationRequest {
 // RPC method.
 message QueryUnbondingDelegationResponse {
   // unbond defines the unbonding information of a delegation.
-  UnbondingDelegation unbond = 1 [(gogoproto.nullable) = false];
+  UnbondingDelegation unbond = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryDelegatorDelegationsRequest is request type for the
@@ -241,7 +261,8 @@ message QueryDelegatorDelegationsRequest {
 // Query/DelegatorDelegations RPC method.
 message QueryDelegatorDelegationsResponse {
   // delegation_responses defines all the delegations' info of a delegator.
-  repeated DelegationResponse delegation_responses = 1 [(gogoproto.nullable) = false];
+  repeated DelegationResponse delegation_responses = 1
+      [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -263,7 +284,8 @@ message QueryDelegatorUnbondingDelegationsRequest {
 // QueryUnbondingDelegatorDelegationsResponse is response type for the
 // Query/UnbondingDelegatorDelegations RPC method.
 message QueryDelegatorUnbondingDelegationsResponse {
-  repeated UnbondingDelegation unbonding_responses = 1 [(gogoproto.nullable) = false];
+  repeated UnbondingDelegation unbonding_responses = 1
+      [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -291,7 +313,8 @@ message QueryRedelegationsRequest {
 // QueryRedelegationsResponse is response type for the Query/Redelegations RPC
 // method.
 message QueryRedelegationsResponse {
-  repeated RedelegationResponse redelegation_responses = 1 [(gogoproto.nullable) = false];
+  repeated RedelegationResponse redelegation_responses = 1
+      [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -314,7 +337,7 @@ message QueryDelegatorValidatorsRequest {
 // Query/DelegatorValidators RPC method.
 message QueryDelegatorValidatorsResponse {
   // validators defines the the validators' info of a delegator.
-  repeated Validator validators = 1 [(gogoproto.nullable) = false];
+  repeated Validator validators = 1 [ (gogoproto.nullable) = false ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -337,7 +360,7 @@ message QueryDelegatorValidatorRequest {
 // Query/DelegatorValidator RPC method.
 message QueryDelegatorValidatorResponse {
   // validator defines the the validator info.
-  Validator validator = 1 [(gogoproto.nullable) = false];
+  Validator validator = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryHistoricalInfoRequest is request type for the Query/HistoricalInfo RPC
@@ -360,7 +383,7 @@ message QueryPoolRequest {}
 // QueryPoolResponse is response type for the Query/Pool RPC method.
 message QueryPoolResponse {
   // pool defines the pool info.
-  Pool pool = 1 [(gogoproto.nullable) = false];
+  Pool pool = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -369,41 +392,33 @@ message QueryParamsRequest {}
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params holds all the parameters of this module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryTokenizeShareRecordByIdRequest {
-  uint64 id = 1;
-}
+message QueryTokenizeShareRecordByIdRequest { uint64 id = 1; }
 message QueryTokenizeShareRecordByIdResponse {
-  TokenizeShareRecord record = 1 [(gogoproto.nullable) = false];
+  TokenizeShareRecord record = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryTokenizeShareRecordByDenomRequest {
-  string denom = 1;
-}
+message QueryTokenizeShareRecordByDenomRequest { string denom = 1; }
 message QueryTokenizeShareRecordByDenomResponse {
-  TokenizeShareRecord record = 1 [(gogoproto.nullable) = false];
+  TokenizeShareRecord record = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryTokenizeShareRecordsOwnedRequest {
-  string owner = 1;
-}
+message QueryTokenizeShareRecordsOwnedRequest { string owner = 1; }
 message QueryTokenizeShareRecordsOwnedResponse {
-  repeated TokenizeShareRecord records = 1 [(gogoproto.nullable) = false];
+  repeated TokenizeShareRecord records = 1 [ (gogoproto.nullable) = false ];
 }
 
 message QueryAllTokenizeShareRecordsRequest {}
 message QueryAllTokenizeShareRecordsResponse {
-  repeated TokenizeShareRecord records = 1 [(gogoproto.nullable) = false];
+  repeated TokenizeShareRecord records = 1 [ (gogoproto.nullable) = false ];
 }
 
 message QueryLastTokenizeShareRecordIdRequest {}
-message QueryLastTokenizeShareRecordIdResponse {
-  uint64 id = 1;
-}
+message QueryLastTokenizeShareRecordIdResponse { uint64 id = 1; }
 
 message QueryTotalTokenizeSharedAssetsRequest {}
 message QueryTotalTokenizeSharedAssetsResponse {
-  cosmos.base.v1beta1.Coin value = 1 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin value = 1 [ (gogoproto.nullable) = false ];
 }

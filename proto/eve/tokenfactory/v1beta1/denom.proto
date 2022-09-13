@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package eve.tokenfactory.v1beta1;
 
-option go_package = "x/tokenfactory/types";
+option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
 
 message Denom {
   string name = 1;
