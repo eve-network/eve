@@ -1,15 +1,17 @@
 syntax = "proto3";
+
 package eve.tokenfactory.v1beta1;
 
 import "eve/tokenfactory/v1beta1/denom.proto";
 
-option go_package = "x/tokenfactory/types";
+option go_package = "github.com/notional-labs/eve/x/tokenfactory/types";
 
 // Msg defines the Msg service.
 service Msg {
   rpc CreateDenom(MsgCreateDenom) returns (MsgCreateDenomResponse);
   rpc UpdateDenom(MsgUpdateDenom) returns (MsgUpdateDenomResponse);
-  rpc MintAndSendTokens(MsgMintAndSendTokens) returns (MsgMintAndSendTokensResponse);
+  rpc MintAndSendTokens(MsgMintAndSendTokens)
+      returns (MsgMintAndSendTokensResponse);
   rpc UpdateOwner(MsgUpdateOwner) returns (MsgUpdateOwnerResponse);
 }
 
@@ -27,12 +29,12 @@ message MsgCreateDenomResponse {}
 
 message MsgUpdateDenom {
   string owner = 1;
-  string denom = 2;  
+  string denom = 2;
   int32 maxSupply = 3;
   bool canChangeMaxSupply = 4;
 
   // metadata
-  string description = 5;  
+  string description = 5;
   string token_image = 6;
   string website = 7;
 }
@@ -45,8 +47,7 @@ message MsgMintAndSendTokens {
   string recipient = 4;
 }
 
-message MsgMintAndSendTokensResponse {
-}
+message MsgMintAndSendTokensResponse {}
 
 message MsgUpdateOwner {
   string owner = 1;
@@ -54,5 +55,4 @@ message MsgUpdateOwner {
   string newOwner = 3;
 }
 
-message MsgUpdateOwnerResponse {
-}
+message MsgUpdateOwnerResponse {}
