@@ -123,6 +123,7 @@ func MakeEncodingConfig(_ testing.TB) wasmappparams.EncodingConfig {
 	return encodingConfig
 }
 
+// marked
 var TestingStakeParams = stakingtypes.Params{
 	UnbondingTime:     100,
 	MaxValidators:     10,
@@ -130,6 +131,7 @@ var TestingStakeParams = stakingtypes.Params{
 	HistoricalEntries: 10,
 	BondDenom:         "stake",
 	MinCommissionRate: sdk.NewDecWithPrec(10, 2),
+	ExemptionFactor:   sdk.NewDec(1),
 }
 
 type TestFaucet struct {
