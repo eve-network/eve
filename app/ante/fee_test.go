@@ -6,9 +6,9 @@ package ante_test
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
 // 	ibcchanneltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-// 	"github.com/notional-labs/eve/ante"
-// 	gaiaapp "github.com/notional-labs/eve/app"
-// 	globfeetypes "github.com/notional-labs/eve/x/globalfee/types"
+// 	"github.com/eve-network/eve/ante"
+// 	gaiaapp "github.com/eve-network/eve/app"
+// 	globfeetypes "github.com/eve-network/eve/x/globalfee/types"
 // )
 
 // // test global fees and min_gas_price with bypass msg types.

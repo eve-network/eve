@@ -17,7 +17,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/notional-labs/eve/x/globalfee/types"
+	"github.com/eve-network/eve/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {

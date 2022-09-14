@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/eve/osmoutils"
+	"github.com/eve-network/eve/osmoutils"
 )
 
 type EpochHooks interface {

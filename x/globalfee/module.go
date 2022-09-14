@@ -16,8 +16,8 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/notional-labs/eve/x/globalfee/client/cli"
-	"github.com/notional-labs/eve/x/globalfee/types"
+	"github.com/eve-network/eve/x/globalfee/client/cli"
+	"github.com/eve-network/eve/x/globalfee/types"
 )
 
 var (

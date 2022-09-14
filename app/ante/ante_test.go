@@ -16,10 +16,10 @@ package ante_test
 // 	tmrand "github.com/tendermint/tendermint/libs/rand"
 // 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-// 	app "github.com/notional-labs/eve/app"
-// 	gaiahelpers "github.com/notional-labs/eve/app/helpers"
-// 	"github.com/notional-labs/eve/x/globalfee"
-// 	globfeetypes "github.com/notional-labs/eve/x/globalfee/types"
+// 	app "github.com/eve-network/eve/app"
+// 	gaiahelpers "github.com/eve-network/eve/app/helpers"
+// 	"github.com/eve-network/eve/x/globalfee"
+// 	globfeetypes "github.com/eve-network/eve/x/globalfee/types"
 // )
 
 // type IntegrationTestSuite struct {

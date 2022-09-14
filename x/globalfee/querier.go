@@ -4,7 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/notional-labs/eve/x/globalfee/types"
+	"github.com/eve-network/eve/x/globalfee/types"
 )
 
 var _ types.QueryServer = &GrpcQuerier{}

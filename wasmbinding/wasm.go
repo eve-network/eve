@@ -5,7 +5,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	tokenfactorykeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
+	tokenfactorykeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
 )
 
 func RegisterCustomPlugins(
