@@ -16,9 +16,9 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/notional-labs/eve/x/tokenfactory/client/cli"
-	"github.com/notional-labs/eve/x/tokenfactory/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/client/cli"
+	"github.com/eve-network/eve/x/tokenfactory/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 var (

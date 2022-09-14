@@ -3,9 +3,9 @@ package tokenfactory_test
 import (
 	"testing"
 
-	keepertest "github.com/notional-labs/eve/testutil/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	keepertest "github.com/eve-network/eve/testutil/keeper"
+	"github.com/eve-network/eve/x/tokenfactory"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 )
 

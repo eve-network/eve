@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/notional-labs/eve/x/tokenfactory/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 // NewHandler ...

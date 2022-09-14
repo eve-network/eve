@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 // TODO: a lot of boilerplate code, need to move query -> its own function

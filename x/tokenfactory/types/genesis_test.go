@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 )
 

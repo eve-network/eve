@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/notional-labs/eve/x/epochs/types"
+	"github.com/eve-network/eve/x/epochs/types"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/notional-labs/eve/app/apptesting"
-	"github.com/notional-labs/eve/x/epochs/types"
+	"github.com/eve-network/eve/app/apptesting"
+	"github.com/eve-network/eve/x/epochs/types"
 )
 
 type KeeperTestSuite struct {

@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/notional-labs/eve/wasmbinding/bindings"
+	"github.com/eve-network/eve/wasmbinding/bindings"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.

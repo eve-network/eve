@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/notional-labs/eve/osmoutils"
+	"github.com/eve-network/eve/osmoutils"
 )
 
 func TestReverseSlice(t *testing.T) {

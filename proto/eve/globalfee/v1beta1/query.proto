@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/notional-labs/eve/x/globalfee/types";
+option go_package = "github.com/eve-network/eve/x/globalfee/types";
 
 // Query defines the gRPC querier service.
 service Query {

@@ -1,4 +1,4 @@
-module github.com/notional-labs/eve
+module github.com/eve-network/eve
 
 go 1.18
 
@@ -21,9 +21,9 @@ require (
 
 )
 
-require github.com/rogpeppe/go-internal v1.8.1 // indirect
 
 require (
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	cloud.google.com/go v0.102.0 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect

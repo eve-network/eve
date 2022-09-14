@@ -32,7 +32,7 @@ The individuals and groups in the git history are eve's team.
 
 ## No Promises
 
-Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.
+Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.  This includes the airdrop.  
 
 ## Economic Information
 Anything described below can be modified by making a pull request.  
