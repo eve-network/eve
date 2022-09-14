@@ -157,6 +157,7 @@ localnet-stop:
 localnet-clean:
 	docker-compose down
 	sudo rm -rf build
+	rm mnemonics.txt
 
 # Reset testnet
 localnet-unsafe-reset:
