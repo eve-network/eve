@@ -1,7 +1,7 @@
 package globalfee
 
 import (
-	"github.com/notional-labs/eve/x/globalfee/types"
+	"github.com/eve-network/eve/x/globalfee/types"
 )
 
 const (

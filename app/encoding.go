@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/cosmos/cosmos-sdk/std"
-	params "github.com/notional-labs/eve/app/params"
+	params "github.com/eve-network/eve/app/params"
 )
 
 // MakeTestEncodingConfig creates an EncodingConfig for testing. This function

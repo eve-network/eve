@@ -28,9 +28,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/notional-labs/eve/x/epochs/client/cli"
-	"github.com/notional-labs/eve/x/epochs/keeper"
-	"github.com/notional-labs/eve/x/epochs/types"
+	"github.com/eve-network/eve/x/epochs/client/cli"
+	"github.com/eve-network/eve/x/epochs/keeper"
+	"github.com/eve-network/eve/x/epochs/types"
 )
 
 var (

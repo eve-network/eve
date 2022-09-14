@@ -1,4 +1,4 @@
-module github.com/notional-labs/eve
+module github.com/eve-network/eve
 
 go 1.18
 

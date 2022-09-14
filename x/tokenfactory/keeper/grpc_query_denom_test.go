@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	keepertest "github.com/notional-labs/eve/testutil/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	keepertest "github.com/eve-network/eve/testutil/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 // Prevent strconv unused error

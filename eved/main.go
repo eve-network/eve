@@ -5,8 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/notional-labs/eve/app"
-	"github.com/notional-labs/eve/eved/cmd"
+	"github.com/eve-network/eve/app"
+	"github.com/eve-network/eve/eved/cmd"
 )
 
 func main() {

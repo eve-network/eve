@@ -40,7 +40,7 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	eveante "github.com/notional-labs/eve/app/ante"
+	eveante "github.com/eve-network/eve/app/ante"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
@@ -122,7 +122,7 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
 	// App Params.
-	appparameters "github.com/notional-labs/eve/app/params"
+	appparameters "github.com/eve-network/eve/app/params"
 
 	// Slashing.
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -160,12 +160,12 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// "github.com/notional-labs/tokenfactory/docs"
-	tokenfactorymodule "github.com/notional-labs/eve/x/tokenfactory"
-	tokenfactorymodulekeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
-	tokenfactorymoduletypes "github.com/notional-labs/eve/x/tokenfactory/types"
+	tokenfactorymodule "github.com/eve-network/eve/x/tokenfactory"
+	tokenfactorymodulekeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
+	tokenfactorymoduletypes "github.com/eve-network/eve/x/tokenfactory/types"
 
 	// GlobalFees (gaia)
-	"github.com/notional-labs/eve/x/globalfee"
+	"github.com/eve-network/eve/x/globalfee"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"

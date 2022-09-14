@@ -35,7 +35,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	params "github.com/notional-labs/eve/app/params"
+	params "github.com/eve-network/eve/app/params"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in

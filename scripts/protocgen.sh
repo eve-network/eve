@@ -36,7 +36,7 @@ cd ..
 # (cd testutil/testdata; buf generate)
 
 # move proto files to the right places
-cp -r github.com/notional-labs/eve/* ./
+cp -r github.com/eve-network/eve/* ./
 rm -rf github.com
 
 go mod tidy -compat=1.18
