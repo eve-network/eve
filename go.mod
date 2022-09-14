@@ -105,7 +105,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/iqlusioninc/liquidity-staking-module v1.0.0
+	github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220911154110-5031b101ee57
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
@@ -177,6 +177,7 @@ replace (
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/iqlusioninc/liquidity-staking-module => github.com/notional-labs/liquidity-staking-module v0.0.3-0.20220914034525-dc4e1ac50f83
 	// pebbledb - https://gist.github.com/faddat/673107b72eccdd869b242338dd17e9d9
 	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220731185452-136c7b65fb62
 )

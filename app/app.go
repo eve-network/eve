@@ -125,7 +125,7 @@ import (
 	appparameters "github.com/notional-labs/eve/app/params"
 
 	// Slashing.
-	"github.com/cosmos/cosmos-sdk/x/slashing"
+	"github.com/iqlusioninc/liquidity-staking-module/x/slashing"
 	slashingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/slashing/keeper"
 	slashingtypes "github.com/iqlusioninc/liquidity-staking-module/x/slashing/types"
 
@@ -424,9 +424,11 @@ func NewEveApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName,
 	)
+
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
+
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
