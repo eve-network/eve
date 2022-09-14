@@ -34,10 +34,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
+	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
 )
 
 func TestEveAppExportAndBlockedAddrs(t *testing.T) {
