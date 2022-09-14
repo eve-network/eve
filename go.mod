@@ -81,7 +81,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/flatbuffers v1.12.1 // indirect
+	github.com/google/flatbuffers v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
@@ -105,6 +105,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/iqlusioninc/liquidity-staking-module v1.0.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
