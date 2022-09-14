@@ -11,6 +11,7 @@ import (
 	"time"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	params "github.com/eve-network/eve/app/params"
 
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
@@ -37,7 +38,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingliqidtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
-	params "github.com/notional-labs/eve/app/params"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
