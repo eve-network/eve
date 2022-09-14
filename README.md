@@ -91,3 +91,11 @@ From eve will flow new designs and techniques that increase development velocity
 https://twitter.com/gadikian/status/1562019880257277952
 
 * TBD
+
+## Starting localnet
+
+```
+make install
+make localnet-build
+make localnet-start
+```

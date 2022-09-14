@@ -79,13 +79,9 @@ go.sum: go.mod
 		@go mod verify
 
 build:
-	go build $(BUILD_FLAGS) -o ./build/eved ./eved
+	go build $(BUILD_FLAGS) -o ./bin/eved ./eved
 
 # https://github.com/cosmos/ibc-go/blob/main/Makefile#L377
-###############################################################################
-###                                Protobuf                                 ###
-###############################################################################
-
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
@@ -149,7 +145,7 @@ localnet-build:
 
 # Start a 4-node testnet locally
 localnet-start: localnet-clean
-	@if ! [ -f build/node0/eved/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/eve:Z eve-node -c "eved testnet --v 4 -o eve --chain-id eve-1 --keyring-backend=test --starting-ip-address 192.167.10.2"; fi
+	@if ! [ -f build/node0/eved/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/eve:Z eve-node -c "eved testnet --v 4 -o eve --chain-id eve-1 --keyring-backend=test --starting-ip-address 192.168.11.2"; fi
 	docker-compose up -d
 	bash scripts/add-keys.sh
 

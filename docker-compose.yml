@@ -18,7 +18,7 @@ services:
     volumes:
       - ./build/node0:/eve:Z
     command:
-      - eved start --home /eve
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.2
@@ -40,7 +40,7 @@ services:
     volumes:
       - ./build/node1:/eve:Z
     command:
-      - eved start --home /eve
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.3
@@ -62,7 +62,7 @@ services:
     volumes:
       - ./build/node2:/eve:Z
     command:
-      - eved start --home /eve
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.4
@@ -84,7 +84,7 @@ services:
     volumes:
       - ./build/node3:/eve:Z
     command:
-      - eved start --home /eve
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.5
