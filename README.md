@@ -5,7 +5,7 @@ Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the 
 ## Relationships to other chains and work
 
 * Osmosis-style epochs
-* kusuama-style level of risk
+* kusama-style level of risk
 * Tgrade style global fees
 * e-money style variable block timing
 * suport for iqlusion style liquid staking
