@@ -172,7 +172,7 @@ replace (
 	// https://github.com/CosmWasm/wasmd/pull/938
 	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220911011224-44c1674f13fc
 	// cosmos-sdk -  https://github.com/eve-network/cosmos-sdk
-	github.com/cosmos/cosmos-sdk => github.com/eve-network/cosmos-sdk v0.46.2-0.20220914041419-9d609acabbca
+	github.com/cosmos/cosmos-sdk => github.com/eve-network/cosmos-sdk v0.46.2-0.20220914044906-6510a48facc2
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
