@@ -32,7 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/notional-labs/eve/app/helpers"
+	"github.com/eve-network/eve/app/helpers"
 )
 
 // Get flags every time the simulator is run

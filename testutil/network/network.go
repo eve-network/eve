@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"github.com/notional-labs/eve/app"
+	"github.com/eve-network/eve/app"
 
 	// "github.com/tendermint/spm/cosmoscmd"
 

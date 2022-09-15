@@ -134,12 +134,11 @@ This will increase the total tokens a user owns and update the supply accordingl
 				return fmt.Errorf("failed to get accounts from any: %w", err)
 			}
 
-			// load balances, then either append or set the new account up.
 			bankGenState := banktypes.GetGenesisStateFromAppState(clientCtx.Codec, appState)
 			if accs.Contains(addr) {
 				appendflag, _ := cmd.Flags().GetBool(flagAppendMode)
 				if !appendflag {
-					return fmt.Errorf("cannot add account at existing address %s (add '--append' to bypass this)", addr)
+					return fmt.Errorf("cannot add account at existing address %s", addr)
 				}
 
 				genesisB := banktypes.GetGenesisStateFromAppState(clientCtx.Codec, appState)
@@ -147,15 +146,9 @@ This will increase the total tokens a user owns and update the supply accordingl
 					if acc.Address != addr.String() {
 						continue
 					}
-					// fmt.Printf("Adding %s to existing account %s with %s", coins, addr, acc.Coins)
 
-					// Create a new coins based on the accounts old coins + new coin appended
-					new_coins, err := sdk.ParseCoinsNormalized(acc.Coins.Add(coins...).String())
-					if err != nil {
-						return fmt.Errorf("failed to parse coins: %w", err)
-					}
-
-					bankGenState.Balances[idx] = banktypes.Balance{Address: addr.String(), Coins: new_coins.Sort()}
+					updatedCoins := acc.Coins.Add(coins...)
+					bankGenState.Balances[idx] = banktypes.Balance{Address: addr.String(), Coins: updatedCoins.Sort()}
 					break
 				}
 			} else {

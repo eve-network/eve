@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/eve/x/epochs/types"
+	"github.com/eve-network/eve/x/epochs/types"
 )
 
 // InitGenesis sets epoch info from genesis

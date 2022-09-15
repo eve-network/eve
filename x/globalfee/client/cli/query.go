@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/notional-labs/eve/x/globalfee/types"
+	"github.com/eve-network/eve/x/globalfee/types"
 )
 
 func GetQueryCmd() *cobra.Command {

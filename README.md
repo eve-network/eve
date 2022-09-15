@@ -5,7 +5,7 @@ Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the 
 ## Relationships to other chains and work
 
 * Osmosis-style epochs
-* kusuama-style level of risk
+* kusama-style level of risk
 * Tgrade style global fees
 * e-money style variable block timing
 * suport for iqlusion style liquid staking
@@ -32,7 +32,7 @@ The individuals and groups in the git history are eve's team.
 
 ## No Promises
 
-Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.
+Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.  This includes the airdrop.  
 
 ## Economic Information
 Anything described below can be modified by making a pull request.  

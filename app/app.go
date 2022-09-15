@@ -40,7 +40,7 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	eveante "github.com/notional-labs/eve/app/ante"
+	eveante "github.com/eve-network/eve/app/ante"
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
@@ -73,10 +73,10 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
 	// Distribution.
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distr "github.com/iqlusioninc/liquidity-staking-module/x/distribution"
+	distrclient "github.com/iqlusioninc/liquidity-staking-module/x/distribution/client"
+	distrkeeper "github.com/iqlusioninc/liquidity-staking-module/x/distribution/keeper"
+	distrtypes "github.com/iqlusioninc/liquidity-staking-module/x/distribution/types"
 
 	// Evidence.
 	"github.com/cosmos/cosmos-sdk/x/evidence"
@@ -122,17 +122,17 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
 	// App Params.
-	appparameters "github.com/notional-labs/eve/app/params"
+	appparameters "github.com/eve-network/eve/app/params"
 
 	// Slashing.
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/iqlusioninc/liquidity-staking-module/x/slashing"
+	slashingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/slashing/keeper"
+	slashingtypes "github.com/iqlusioninc/liquidity-staking-module/x/slashing/types"
 
 	// Staking.
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
+	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 
 	// Upgrades.
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
@@ -160,12 +160,12 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// "github.com/notional-labs/tokenfactory/docs"
-	tokenfactorymodule "github.com/notional-labs/eve/x/tokenfactory"
-	tokenfactorymodulekeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
-	tokenfactorymoduletypes "github.com/notional-labs/eve/x/tokenfactory/types"
+	tokenfactorymodule "github.com/eve-network/eve/x/tokenfactory"
+	tokenfactorymodulekeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
+	tokenfactorymoduletypes "github.com/eve-network/eve/x/tokenfactory/types"
 
 	// GlobalFees (gaia)
-	"github.com/notional-labs/eve/x/globalfee"
+	"github.com/eve-network/eve/x/globalfee"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -424,9 +424,11 @@ func NewEveApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName,
 	)
+
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
+
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)

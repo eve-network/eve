@@ -9,10 +9,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/notional-labs/eve/wasmbinding/bindings"
+	"github.com/eve-network/eve/wasmbinding/bindings"
 
-	tokenfactorykeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/notional-labs/eve/x/tokenfactory/types"
+	tokenfactorykeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages

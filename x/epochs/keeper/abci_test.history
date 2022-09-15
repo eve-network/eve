@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	simapp "github.com/notional-labs/eve/app"
-	"github.com/notional-labs/eve/x/epochs/types"
+	simapp "github.com/eve-network/eve/app"
+	"github.com/eve-network/eve/x/epochs/types"
 
 	"golang.org/x/exp/maps"
 
-	"github.com/notional-labs/eve/osmoutils"
+	"github.com/eve-network/eve/osmoutils"
 )
 
 // This test is responsible for testing how epochs increment based off

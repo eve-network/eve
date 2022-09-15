@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/notional-labs/eve/x/globalfee"
+	"github.com/eve-network/eve/x/globalfee"
 )
 
 const maxBypassMinFeeMsgGasUsage = uint64(200_000)
