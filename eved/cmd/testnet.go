@@ -37,8 +37,8 @@ import (
 	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/notional-labs/eve/app"
-	"github.com/notional-labs/eve/app/params"
+	"github.com/eve-network/eve/app"
+	"github.com/eve-network/eve/app/params"
 )
 
 var (
