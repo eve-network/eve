@@ -1,10 +1,9 @@
-version: "3"
+version: '3'
 
 services:
-  evenode1:
-    container_name: evenode1
-    image: "notional-labs/eve"
-    # build: .
+  evenode0:
+    container_name: evenode0
+    image: "eve-node"
     environment:
       - DEBUG=1
       - ID=0
@@ -14,23 +13,19 @@ services:
     security_opt:
       - seccomp:unconfined
     ports:
-      - "26657:26657"
-      - "26656:26656"      
+      - "26656-26657:26656-26657"
       - "1317:1317"
-      - "9090:9090"
-      - "8080:8080"
-    volumes:      
-      - ./docker/.testnets/v1:/root/.eved/:rw      
-    command: eved start --home /root/.eved/ --moniker dockereve1 --p2p.persistent_peers "c209ee97b631df98923cadd9667bd61d879e2e1a@evenode2:26666"
-    # command: ls /root/.eved/config
+    volumes:
+      - ./build/node0:/eve:Z
+    command:
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.2
 
-  evenode2:
-    container_name: evenode2
-    image: "notional-labs/eve"
-    # build: .
+  evenode1:
+    container_name: evenode1
+    image: "eve-node"
     environment:
       - DEBUG=1
       - ID=0
@@ -40,18 +35,59 @@ services:
     security_opt:
       - seccomp:unconfined
     ports:
-      - "26667:26667"
-      - "26666:26666"
-      - "1327:1317"
-      - "9101:9101"
-      - "9100:9100"        
-    volumes:      
-      - ./docker/.testnets/v2:/root/.eved/:rw 
-    command: eved start --home /root/.eved/ --moniker dockereve2 --address "tcp://evenode2:26668" --grpc-web.address "evenode2:9101" --grpc.address "evenode2:9100" --p2p.laddr "tcp://evenode2:26666" --rpc.laddr "tcp://evenode2:26667" --proxy_app "tcp://evenode2:26668" --p2p.persistent_peers "c209ee97b631df98923cadd9667bd61d879e2e1a@evenode1:26656" # --api.address "tcp://0.0.0.0:1327"
-    # command: ls /root/.eved/config
+      - "26659-26660:26656-26657"
+      - "1318:1317"
+    volumes:
+      - ./build/node1:/eve:Z
+    command:
+      - eved start --home /eve/eved
     networks:
       localnet:
         ipv4_address: 192.168.11.3
+
+  evenode2:
+    container_name: evenode2
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26661-26662:26656-26657"
+      - "1319:1317"
+    volumes:
+      - ./build/node2:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.4
+
+  evenode3:
+    container_name: evenode3
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26663-26664:26656-26657"
+      - "1320:1317"
+    volumes:
+      - ./build/node3:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.5
 
 networks:
   localnet:
