@@ -1,3 +1,4 @@
 .vscode
 build/
 .testnets/
+mnemonics.txt

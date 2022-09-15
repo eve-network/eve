@@ -149,6 +149,11 @@ localnet-start: localnet-clean
 	docker-compose up -d
 	bash scripts/add-keys.sh
 
+# Clean testnet
+localnet-clean:
+	docker-compose down
+	sudo rm -rf build
+
 # Stop testnet
 localnet-stop:
 	docker-compose down
