@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/eve-network/eve/x/globalfee"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -33,10 +34,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
+	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
 )
 
 func TestEveAppExportAndBlockedAddrs(t *testing.T) {
@@ -194,6 +195,7 @@ func TestRunMigrations(t *testing.T) {
 					"wasm":         wasm.AppModule{}.ConsensusVersion(),
 					"ibc":          ibc.AppModule{}.ConsensusVersion(),
 					"transfer":     transfer.AppModule{}.ConsensusVersion(),
+					"globalfee":    globalfee.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {

@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAndSendTokens) (*types.MsgMintAndSendTokensResponse, error) {
@@ -45,7 +45,7 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 		return nil, err
 	}
 
-	var denom = types.Denom{
+	denom := types.Denom{
 		Owner:              valFound.Owner,
 		Name:               valFound.Name,
 		Denom:              valFound.Denom,

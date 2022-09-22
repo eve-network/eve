@@ -1,0 +1,99 @@
+version: '3'
+
+services:
+  evenode0:
+    container_name: evenode0
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26656-26657:26656-26657"
+      - "1317:1317"
+    volumes:
+      - ./build/node0:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.2
+
+  evenode1:
+    container_name: evenode1
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26659-26660:26656-26657"
+      - "1318:1317"
+    volumes:
+      - ./build/node1:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.3
+
+  evenode2:
+    container_name: evenode2
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26661-26662:26656-26657"
+      - "1319:1317"
+    volumes:
+      - ./build/node2:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.4
+
+  evenode3:
+    container_name: evenode3
+    image: "eve-node"
+    environment:
+      - DEBUG=1
+      - ID=0
+      - LOG=${LOG:-eved.log}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "26663-26664:26656-26657"
+      - "1320:1317"
+    volumes:
+      - ./build/node3:/eve:Z
+    command:
+      - eved start --home /eve/eved
+    networks:
+      localnet:
+        ipv4_address: 192.168.11.5
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.11.0/25
+          gateway: 192.168.11.1

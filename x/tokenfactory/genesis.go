@@ -2,8 +2,8 @@ package tokenfactory
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/notional-labs/eve/x/tokenfactory/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 // InitGenesis initializes the capability module's state from a provided genesis

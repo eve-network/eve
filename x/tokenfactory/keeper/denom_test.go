@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	keepertest "github.com/notional-labs/eve/testutil/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/keeper"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	keepertest "github.com/eve-network/eve/testutil/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/keeper"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,6 +35,7 @@ func TestDenomGet(t *testing.T) {
 		require.Equal(t, item, rst)
 	}
 }
+
 func TestDenomGetAll(t *testing.T) {
 	keeper, ctx := keepertest.TokenfactoryKeeper(t)
 	items := createNDenom(keeper, ctx, 10)

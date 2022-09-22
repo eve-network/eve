@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/notional-labs/eve/app/helpers"
+	"github.com/eve-network/eve/app/helpers"
 )
 
 // SetupSimulation creates the config, db (levelDB), temporary directory and logger for

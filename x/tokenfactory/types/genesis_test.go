@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,7 +21,6 @@ func TestGenesisState_Validate(t *testing.T) {
 		{
 			desc: "valid genesis state",
 			genState: &types.GenesisState{
-
 				DenomList: []types.Denom{
 					{
 						Denom: "0",

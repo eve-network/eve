@@ -15,7 +15,6 @@ func NewMsgCreateDenom(
 	precision int32,
 	maxSupply int32,
 	canChangeMaxSupply bool,
-
 ) *MsgCreateDenom {
 	return &MsgCreateDenom{
 		Owner:              owner,

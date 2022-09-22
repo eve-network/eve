@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/eve/wasmbinding/bindings"
-	tokenfactorykeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
+	"github.com/eve-network/eve/wasmbinding/bindings"
+	tokenfactorykeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
 )
 
 type QueryPlugin struct {

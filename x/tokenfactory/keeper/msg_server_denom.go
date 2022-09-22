@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/notional-labs/eve/x/tokenfactory/types"
+	"github.com/eve-network/eve/x/tokenfactory/types"
 )
 
 func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
@@ -20,7 +20,7 @@ func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Denom already exists")
 	}
 
-	var denom = types.Denom{
+	denom := types.Denom{
 		Owner:              msg.Owner,
 		Name:               msg.Name,
 		Denom:              msg.Denom,
@@ -61,7 +61,7 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
 	}
 
-	var denom = types.Denom{
+	denom := types.Denom{
 		Owner:              msg.Owner,
 		Name:               valFound.Name,
 		Denom:              msg.Denom,

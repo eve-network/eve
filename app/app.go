@@ -40,6 +40,8 @@ import (
 	// Auth
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	eveante "github.com/eve-network/eve/app/ante"
+
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -71,10 +73,10 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
 	// Distribution.
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distr "github.com/iqlusioninc/liquidity-staking-module/x/distribution"
+	distrclient "github.com/iqlusioninc/liquidity-staking-module/x/distribution/client"
+	distrkeeper "github.com/iqlusioninc/liquidity-staking-module/x/distribution/keeper"
+	distrtypes "github.com/iqlusioninc/liquidity-staking-module/x/distribution/types"
 
 	// Evidence.
 	"github.com/cosmos/cosmos-sdk/x/evidence"
@@ -120,17 +122,17 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 
 	// App Params.
-	appparameters "github.com/notional-labs/eve/app/params"
+	appparameters "github.com/eve-network/eve/app/params"
 
 	// Slashing.
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/iqlusioninc/liquidity-staking-module/x/slashing"
+	slashingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/slashing/keeper"
+	slashingtypes "github.com/iqlusioninc/liquidity-staking-module/x/slashing/types"
 
 	// Staking.
-	// "github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
+	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 
 	// Staking Fork (fixes writing to blocks)
 	"github.com/notional-labs/eve/x/staking"
@@ -151,6 +153,8 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
 
+	ibcchanneltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+
 	// IBC transfer module: Enables IBC transfer of coins between accounts using the transfer port on an IBC channel.
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
@@ -161,9 +165,12 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
 	// "github.com/notional-labs/tokenfactory/docs"
-	tokenfactorymodule "github.com/notional-labs/eve/x/tokenfactory"
-	tokenfactorymodulekeeper "github.com/notional-labs/eve/x/tokenfactory/keeper"
-	tokenfactorymoduletypes "github.com/notional-labs/eve/x/tokenfactory/types"
+	tokenfactorymodule "github.com/eve-network/eve/x/tokenfactory"
+	tokenfactorymodulekeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
+	tokenfactorymoduletypes "github.com/eve-network/eve/x/tokenfactory/types"
+
+	// GlobalFees (gaia)
+	"github.com/eve-network/eve/x/globalfee"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -226,6 +233,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
+		transfer.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		groupmodule.AppModuleBasic{},
 		vesting.AppModuleBasic{},
@@ -240,6 +248,7 @@ var (
 		// market.AppModule{},
 		// buyback.AppModule{},
 		// queries.AppModule{},
+		globalfee.AppModule{},
 	)
 
 	// module account permissions
@@ -435,9 +444,11 @@ func NewEveApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName,
 	)
+
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
+
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
@@ -570,11 +581,13 @@ func NewEveApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		app.TransferModule,
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		tokenfactorymodule.NewAppModule(appCodec, app.TokenfactoryKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -588,14 +601,15 @@ func NewEveApp(
 		ibctransfertypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, govtypes.ModuleName,
 		crisistypes.ModuleName, genutiltypes.ModuleName, authz.ModuleName, feegrant.ModuleName,
 		nft.ModuleName, group.ModuleName, paramstypes.ModuleName, vestingtypes.ModuleName, tokenfactorymoduletypes.ModuleName,
-		wasm.ModuleName,
+		wasm.ModuleName, globalfee.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, capabilitytypes.ModuleName,
 		authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		ibchost.ModuleName, minttypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
 		authz.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName,
-		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName, tokenfactorymoduletypes.ModuleName, wasm.ModuleName,
+		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName, tokenfactorymoduletypes.ModuleName,
+		wasm.ModuleName, globalfee.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -609,7 +623,8 @@ func NewEveApp(
 		stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName,
 		crisistypes.ModuleName, ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
 		authz.ModuleName, ibctransfertypes.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName,
-		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName, tokenfactorymoduletypes.ModuleName, wasm.ModuleName,
+		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName, tokenfactorymoduletypes.ModuleName,
+		wasm.ModuleName, globalfee.ModuleName,
 	) // wasm after ibc transferwasm.ModuleName,
 
 	// Uncomment if you want to set a custom migration order here.
@@ -644,10 +659,10 @@ func NewEveApp(
 	app.MountMemoryStores(memKeys)
 
 	// initialize BaseApp
+	app.setAnteHandler(appOpts, encodingConfig.TxConfig)
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
-	app.setAnteHandler(encodingConfig.TxConfig)
 	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
 	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
 	// defined as a chain, and have the same signature as antehandlers.
@@ -672,17 +687,37 @@ func NewEveApp(
 	return app
 }
 
-func (app *EveApp) setAnteHandler(txConfig client.TxConfig) {
-	anteHandler, err := ante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: txConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+func GetDefaultBypassFeeMessages() []string {
+	return []string{
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+	}
+}
+
+func (app *EveApp) setAnteHandler(appOpts servertypes.AppOptions, txConfig client.TxConfig) {
+	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(appparameters.BypassMinFeeMsgTypesKey))
+	if bypassMinFeeMsgTypes == nil {
+		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
+	}
+
+	// eve handle wraps the normal ante handler with our added GlobalFeee and BypassMinFee types
+	anteHandler, err := eveante.NewAnteHandler(
+		eveante.HandlerOptions{
+			HandlerOptions: ante.HandlerOptions{
+				AccountKeeper:   app.AccountKeeper,
+				BankKeeper:      app.BankKeeper,
+				SignModeHandler: txConfig.SignModeHandler(),
+				FeegrantKeeper:  app.FeeGrantKeeper,
+				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+				// TODO: ? GlobalFeeSubspace: app.Subspace(app.globalFeeSubspace),
+			},
+			IBCkeeper:            app.IBCKeeper,
+			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 		},
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -863,6 +898,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorymoduletypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }

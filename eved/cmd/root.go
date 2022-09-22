@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/notional-labs/eve/app"
+	"github.com/eve-network/eve/app"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	tmcfg "github.com/tendermint/tendermint/config"
@@ -34,7 +34,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	params "github.com/notional-labs/eve/app/params"
+	params "github.com/eve-network/eve/app/params"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -87,7 +87,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
-			customTMConfig := initTendermintConfig()
+			customTMConfig := initTendermintConfig() // fetch from below
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
@@ -108,14 +108,13 @@ func initTendermintConfig() *tmcfg.Config {
 	cfg.P2P.MaxNumOutboundPeers = 40
 
 	// block times
-	cfg.Consensus.TimeoutCommit = 2 * time.Second // 2s blocks, think more on it later
-	cfg.Consensus.SkipTimeoutCommit = true
-	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second
-	cfg.Consensus.CreateEmptyBlocks = false
-	cfg.Consensus.TimeoutPropose = 2 * time.Second
-	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond
-
-	cfg.Storage.DiscardABCIResponses = true
+	cfg.Consensus.TimeoutCommit = 2 * time.Second              // 2s blocks, think more on it later
+	cfg.Consensus.SkipTimeoutCommit = true                     // when we have 100% of signatures, block is done, don't wait for the TimeoutCommit
+	cfg.Consensus.CreateEmptyBlocksInterval = 60 * time.Second // when there aren't transactions, make blocks once per minute to keep the chain light
+	cfg.Consensus.CreateEmptyBlocks = false                    // Don't make empty blocks
+	//	cfg.Consensus.TimeoutPropose = 2 * time.Second  // <- was in emoney config, we need to ask exactly what it does
+	cfg.Consensus.PeerGossipSleepDuration = 25 * time.Millisecond // a p2p keepalive more or less
+	cfg.Storage.DiscardABCIResponses = true                       // slace saving mechanism
 
 	return cfg
 }
@@ -138,14 +137,18 @@ func initAppConfig() (string, interface{}) {
 		serverconfig.Config
 
 		WASM WASMConfig `mapstructure:"wasm"`
+
+		// BypassMinFeeMsgTypes defines custom message types the operator may set that
+		// will bypass minimum fee checks during CheckTx.
+		BypassMinFeeMsgTypes []string `mapstructure:"bypass-min-fee-msg-types"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.BaseConfig.AppDBBackend = "pebbledb"
-	srvCfg.MinGasPrices = "0ueve"
-	srvCfg.API.Enable = true // enable 1317 port (API / 'lcd' by default)
+	srvCfg.MinGasPrices = "25ueve" // TODO: what are we setting this at?
+	srvCfg.API.Enable = true       // enable 1317 port (API / 'lcd' by default)
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 	srvCfg.Rosetta.DenomToSuggest = "ueve"
@@ -157,15 +160,30 @@ func initAppConfig() (string, interface{}) {
 			LruSize:       1,
 			QueryGasLimit: 300000,
 		},
+		BypassMinFeeMsgTypes: app.GetDefaultBypassFeeMessages(),
 	}
 
 	customAppTemplate := serverconfig.DefaultConfigTemplate + `
+###############################################################################
+###                                CosmWasm                                ###
+###############################################################################
 [wasm]
 # This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
 query_gas_limit = 300000
 # This is the number of wasm vm instances we keep cached in memory for speed-up
 # Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
-lru_size = 0`
+lru_size = 0
+
+###############################################################################
+###                        Custom Eve Configuration                        ###
+###############################################################################
+# bypass-min-fee-msg-types defines custom message types the operator may set that
+# will bypass minimum fee checks during CheckTx.
+#
+# Example:
+# ["/ibc.core.channel.v1.MsgRecvPacket", "/ibc.core.channel.v1.MsgAcknowledgement", ...]
+bypass-min-fee-msg-types = [{{ range .BypassMinFeeMsgTypes }}{{ printf "%q, " . }}{{end}}]
+`
 
 	return customAppTemplate, customAppConfig
 }
@@ -182,7 +200,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
-		NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
+		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
 	)
