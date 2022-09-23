@@ -10,9 +10,24 @@ Eve is a modern Cosmos-SDK blockchain intended to push forward the state of the 
 * e-money style variable block timing
 * suport for iqlusion style liquid staking
 
+Other intended features:
+* Extensive TESTING SUITE
+* Airdrop utilities
+
 Fact is, we want lots of this stuff for Juno.  Other chains want other pieces of it.  There's no place where they're packaged together with a stability guarantee, though.
 
-Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos. 
+Our success condition here is that anyone can fork eve, and get stable code that's compatible with the rest of cosmos.
+
+#### What is done:
+* Osmosis-style epochs - DONE
+* Kusama-style risk - DONE
+* Tgrade global fees - DONE
+* iqlusion style liquid staking - DONE
+
+#### NOT DONE YET!
+* e-money style variable block
+* TESTING SUITE (lets be careful plz!)
+
 
 ### Upstreaming
 
