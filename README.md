@@ -31,7 +31,7 @@ Our success condition here is that anyone can fork eve, and get stable code that
 
 ### Upstreaming
 
-In call cases, when stuff changes here and we find it nice, we'll feed it back to parent repos.
+In all cases, when stuff changes here and we find it nice, we'll feed it back to parent repos.
 
 ### Downstreaming
 
