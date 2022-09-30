@@ -2,3 +2,4 @@
 build/
 .testnets/
 mnemonics.txt
+data/
