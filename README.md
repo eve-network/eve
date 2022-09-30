@@ -28,6 +28,9 @@ Our success condition here is that anyone can fork eve, and get stable code that
 * e-money style variable block
 * TESTING SUITE (lets be careful plz!)
 
+### TypeScript SDK
+
+Use the [eve TS SDK](https://www.npmjs.com/package/eve-network) for client-side development
 
 ### Upstreaming
 
