@@ -4,11 +4,11 @@ go 1.18
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	github.com/CosmWasm/wasmd v0.29.0
+	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
 	github.com/CosmWasm/wasmvm v1.1.1
-	github.com/cosmos/cosmos-sdk v0.46.2
+	github.com/cosmos/cosmos-sdk v0.46.1
 	github.com/cosmos/gogoproto v1.4.2
-	github.com/cosmos/ibc-go/v5 v5.0.0
+	github.com/cosmos/ibc-go/v5 v5.0.0-rc1
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -17,13 +17,8 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
-	google.golang.org/grpc v1.49.0
+	google.golang.org/grpc v1.50.0
 
-)
-
-require (
-	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
-	github.com/manifoldco/promptui v0.9.0 // indirect
 )
 
 require (
@@ -108,7 +103,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32
+	github.com/iqlusioninc/liquidity-staking-module v1.0.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
