@@ -6,7 +6,6 @@ import (
 
 	"github.com/eve-network/eve/x/oracle/types"
 	"github.com/stretchr/testify/require"
-	core "github.com/terra-money/core/types"
 
 	"time"
 
@@ -111,9 +110,9 @@ var (
 		sdk.ValAddress(pubKeys[4].Address()),
 	}
 
-	InitTokens = sdk.TokensFromConsensusPower(200, sdk.DefaultPowerReduction)
-	InitCoins  = sdk.NewCoins(sdk.NewCoin(core.MicroLunaDenom, InitTokens))
-
+	InitTokens         = sdk.TokensFromConsensusPower(200, sdk.DefaultPowerReduction)
+	InitCoins          = sdk.NewCoins(sdk.NewCoin(testdenom, InitTokens))
+	testdenom          = "testdenom"
 	OracleDecPrecision = 8
 )
 
@@ -172,10 +171,10 @@ func CreateTestInput(t *testing.T) TestInput {
 	}
 
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, keyParams, tKeyParams)
-	accountKeeper := authkeeper.NewAccountKeeper(appCodec, keyAcc, paramsKeeper.Subspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms)
+	accountKeeper := authkeeper.NewAccountKeeper(appCodec, keyAcc, paramsKeeper.Subspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix)
 	bankKeeper := bankkeeper.NewBaseKeeper(appCodec, keyBank, accountKeeper, paramsKeeper.Subspace(banktypes.ModuleName), blackListAddrs)
 
-	totalSupply := sdk.NewCoins(sdk.NewCoin(core.MicroLunaDenom, InitTokens.MulRaw(int64(len(Addrs)*10))))
+	totalSupply := sdk.NewCoins(sdk.NewCoin(testdenom, InitTokens.MulRaw(int64(len(Addrs)*10))))
 	bankKeeper.MintCoins(ctx, faucetAccountName, totalSupply)
 
 	stakingKeeper := stakingkeeper.NewKeeper(
@@ -187,14 +186,14 @@ func CreateTestInput(t *testing.T) TestInput {
 	)
 
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = core.MicroLunaDenom
+	stakingParams.BondDenom = testdenom
 	stakingKeeper.SetParams(ctx, stakingParams)
 
 	distrKeeper := distrkeeper.NewKeeper(
 		appCodec,
 		keyDistr, paramsKeeper.Subspace(distrtypes.ModuleName),
 		accountKeeper, bankKeeper, stakingKeeper,
-		authtypes.FeeCollectorName, blackListAddrs)
+		authtypes.FeeCollectorName)
 
 	distrKeeper.SetFeePool(ctx, distrtypes.InitialFeePool())
 	distrParams := distrtypes.DefaultParams()
@@ -210,7 +209,7 @@ func CreateTestInput(t *testing.T) TestInput {
 	distrAcc := authtypes.NewEmptyModuleAccount(distrtypes.ModuleName)
 	oracleAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter)
 
-	bankKeeper.SendCoinsFromModuleToModule(ctx, faucetAccountName, stakingtypes.NotBondedPoolName, sdk.NewCoins(sdk.NewCoin(core.MicroLunaDenom, InitTokens.MulRaw(int64(len(Addrs))))))
+	bankKeeper.SendCoinsFromModuleToModule(ctx, faucetAccountName, stakingtypes.NotBondedPoolName, sdk.NewCoins(sdk.NewCoin(testdenom, InitTokens.MulRaw(int64(len(Addrs))))))
 
 	accountKeeper.SetModuleAccount(ctx, feeCollectorAcc)
 	accountKeeper.SetModuleAccount(ctx, bondPool)
@@ -249,7 +248,7 @@ func CreateTestInput(t *testing.T) TestInput {
 func NewTestMsgCreateValidator(address sdk.ValAddress, pubKey cryptotypes.PubKey, amt sdk.Int) *stakingtypes.MsgCreateValidator {
 	commission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 	msg, _ := stakingtypes.NewMsgCreateValidator(
-		address, pubKey, sdk.NewCoin(core.MicroLunaDenom, amt),
+		address, pubKey, sdk.NewCoin(testdenom, amt),
 		stakingtypes.Description{}, commission, sdk.OneInt(),
 	)
 

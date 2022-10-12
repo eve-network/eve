@@ -7,25 +7,26 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/eve-network/eve/x/oracle/types"
-	core "github.com/terra-money/core/types"
 )
 
 // Test a reward giving mechanism
 func TestRewardBallotWinners(t *testing.T) {
+	testdenom = "testdenom"
+
 	// initial setup
 	input := CreateTestInput(t)
 	addr, val := ValAddrs[0], ValPubKeys[0]
 	addr1, val1 := ValAddrs[1], ValPubKeys[1]
 	amt := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
-	sh := staking.NewHandler(input.StakingKeeper)
+	sh := stakingkeeper.NewMsgServerImpl(input.StakingKeeper)
 	ctx := input.Ctx
 
 	// Validator created
-	_, err := sh(ctx, NewTestMsgCreateValidator(addr, val, amt))
+	_, err := sh.CreateValidator(ctx, NewTestMsgCreateValidator(addr, val, amt))
 	require.NoError(t, err)
-	_, err = sh(ctx, NewTestMsgCreateValidator(addr1, val1, amt))
+	_, err = sh.CreateValidator(ctx, NewTestMsgCreateValidator(addr1, val1, amt))
 	require.NoError(t, err)
 	staking.EndBlocker(ctx, input.StakingKeeper)
 
@@ -49,7 +50,7 @@ func TestRewardBallotWinners(t *testing.T) {
 	}
 
 	// Prepare reward pool
-	givingAmt := sdk.NewCoins(sdk.NewInt64Coin(core.MicroLunaDenom, 30000000), sdk.NewInt64Coin(core.MicroUSDDenom, 40000000))
+	givingAmt := sdk.NewCoins(sdk.NewInt64Coin(testdenom, 30000000), sdk.NewInt64Coin(types.MicroUSDDenom, 40000000))
 	acc := input.AccountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	err = FundAccount(input, acc.GetAddress(), givingAmt)
 	require.NoError(t, err)
@@ -66,15 +67,15 @@ func TestRewardBallotWinners(t *testing.T) {
 	input.OracleKeeper.RewardBallotWinners(ctx, (int64)(input.OracleKeeper.VotePeriod(input.Ctx)), (int64)(input.OracleKeeper.RewardDistributionWindow(input.Ctx)), voteTargets, claims)
 	outstandingRewardsDec := input.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, addr)
 	outstandingRewards, _ := outstandingRewardsDec.TruncateDecimal()
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(core.MicroLunaDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
-		outstandingRewards.AmountOf(core.MicroLunaDenom))
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(core.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
-		outstandingRewards.AmountOf(core.MicroUSDDenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(testdenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
+		outstandingRewards.AmountOf(testdenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
+		outstandingRewards.AmountOf(types.MicroUSDDenom))
 
 	outstandingRewardsDec1 := input.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, addr1)
 	outstandingRewards1, _ := outstandingRewardsDec1.TruncateDecimal()
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(core.MicroLunaDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
-		outstandingRewards1.AmountOf(core.MicroLunaDenom))
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(core.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
-		outstandingRewards1.AmountOf(core.MicroUSDDenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(testdenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
+		outstandingRewards1.AmountOf(testdenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
+		outstandingRewards1.AmountOf(types.MicroUSDDenom))
 }

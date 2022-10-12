@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/eve-network/eve/x/oracle/types"
-	core "github.com/terra-money/core/types"
 )
 
 func TestQueryParams(t *testing.T) {
@@ -30,7 +29,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroSDRDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
 
 	// empty request
 	_, err := querier.ExchangeRate(ctx, nil)
@@ -38,7 +37,7 @@ func TestQueryExchangeRate(t *testing.T) {
 
 	// Query to grpc
 	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{
-		Denom: core.MicroSDRDenom,
+		Denom: types.MicroSDRDenom,
 	})
 	require.NoError(t, err)
 	require.Equal(t, rate, res.ExchangeRate)
@@ -70,15 +69,15 @@ func TestQueryExchangeRates(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroSDRDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroUSDDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroUSDDenom, rate)
 
 	res, err := querier.ExchangeRates(ctx, &types.QueryExchangeRatesRequest{})
 	require.NoError(t, err)
 
 	require.Equal(t, sdk.DecCoins{
-		sdk.NewDecCoinFromDec(core.MicroSDRDenom, rate),
-		sdk.NewDecCoinFromDec(core.MicroUSDDenom, rate),
+		sdk.NewDecCoinFromDec(types.MicroSDRDenom, rate),
+		sdk.NewDecCoinFromDec(types.MicroUSDDenom, rate),
 	}, res.ExchangeRates)
 }
 
@@ -88,17 +87,17 @@ func TestQueryActives(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroSDRDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroKRWDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, core.MicroUSDDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroKRWDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroUSDDenom, rate)
 
 	res, err := querier.Actives(ctx, &types.QueryActivesRequest{})
 	require.NoError(t, err)
 
 	targetDenoms := []string{
-		core.MicroKRWDenom,
-		core.MicroSDRDenom,
-		core.MicroUSDDenom,
+		types.MicroKRWDenom,
+		types.MicroSDRDenom,
+		types.MicroUSDDenom,
 	}
 
 	require.Equal(t, targetDenoms, res.Actives)
@@ -256,10 +255,10 @@ func TestQueryTobinTaxes(t *testing.T) {
 	input.OracleKeeper.ClearTobinTaxes(input.Ctx)
 
 	tobinTaxes := types.DenomList{{
-		Name:     core.MicroKRWDenom,
+		Name:     types.MicroKRWDenom,
 		TobinTax: sdk.OneDec(),
 	}, {
-		Name:     core.MicroSDRDenom,
+		Name:     types.MicroSDRDenom,
 		TobinTax: sdk.NewDecWithPrec(123, 2),
 	}}
 	for _, item := range tobinTaxes {
@@ -276,7 +275,7 @@ func TestQueryTobinTax(t *testing.T) {
 	ctx := sdk.WrapSDKContext(input.Ctx)
 	querier := NewQuerier(input.OracleKeeper)
 
-	denom := types.Denom{Name: core.MicroKRWDenom, TobinTax: sdk.OneDec()}
+	denom := types.Denom{Name: types.MicroKRWDenom, TobinTax: sdk.OneDec()}
 	input.OracleKeeper.SetTobinTax(input.Ctx, denom.Name, denom.TobinTax)
 
 	// empty request
@@ -284,7 +283,7 @@ func TestQueryTobinTax(t *testing.T) {
 	require.Error(t, err)
 
 	res, err := querier.TobinTax(ctx, &types.QueryTobinTaxRequest{
-		Denom: core.MicroKRWDenom,
+		Denom: types.MicroKRWDenom,
 	})
 	require.NoError(t, err)
 
