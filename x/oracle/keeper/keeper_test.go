@@ -23,18 +23,18 @@ func TestExchangeRate(t *testing.T) {
 	krwExchangeRate := sdk.NewDecWithPrec(2838, int64(OracleDecPrecision)).MulInt64(types.MicroUnit)
 
 	// Set & get rates
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroCNYDenom, cnyExchangeRate)
-	rate, err := input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.MicroCNYDenom)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomD, cnyExchangeRate)
+	rate, err := input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.TestDenomD)
 	require.NoError(t, err)
 	require.Equal(t, cnyExchangeRate, rate)
 
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroGBPDenom, gbpExchangeRate)
-	rate, err = input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.MicroGBPDenom)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomG, gbpExchangeRate)
+	rate, err = input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.TestDenomG)
 	require.NoError(t, err)
 	require.Equal(t, gbpExchangeRate, rate)
 
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroKRWDenom, krwExchangeRate)
-	rate, err = input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.MicroKRWDenom)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomC, krwExchangeRate)
+	rate, err = input.OracleKeeper.GetDenomExchangeRate(input.Ctx, types.TestDenomC)
 	require.NoError(t, err)
 	require.Equal(t, krwExchangeRate, rate)
 
@@ -56,17 +56,17 @@ func TestIterateExchangeRates(t *testing.T) {
 	krwExchangeRate := sdk.NewDecWithPrec(2838, int64(OracleDecPrecision)).MulInt64(types.MicroUnit)
 
 	// Set & get rates
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroCNYDenom, cnyExchangeRate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroGBPDenom, gbpExchangeRate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroKRWDenom, krwExchangeRate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomD, cnyExchangeRate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomG, gbpExchangeRate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomC, krwExchangeRate)
 
 	input.OracleKeeper.IterateExchangeRates(input.Ctx, func(denom string, rate sdk.Dec) (stop bool) {
 		switch denom {
-		case types.MicroCNYDenom:
+		case types.TestDenomD:
 			require.Equal(t, cnyExchangeRate, rate)
-		case types.MicroGBPDenom:
+		case types.TestDenomG:
 			require.Equal(t, gbpExchangeRate, rate)
-		case types.MicroKRWDenom:
+		case types.TestDenomC:
 			require.Equal(t, krwExchangeRate, rate)
 		}
 		return false
@@ -77,14 +77,14 @@ func TestIterateExchangeRates(t *testing.T) {
 func TestRewardPool(t *testing.T) {
 	input := CreateTestInput(t)
 
-	fees := sdk.NewCoins(sdk.NewCoin(types.MicroSDRDenom, sdk.NewInt(1000)))
+	fees := sdk.NewCoins(sdk.NewCoin(types.TestDenomB, sdk.NewInt(1000)))
 	acc := input.AccountKeeper.GetModuleAccount(input.Ctx, types.ModuleName)
 	err := FundAccount(input, acc.GetAddress(), fees)
 	if err != nil {
 		panic(err) // never occurs
 	}
 
-	KFees := input.OracleKeeper.GetRewardPool(input.Ctx, types.MicroSDRDenom)
+	KFees := input.OracleKeeper.GetRewardPool(input.Ctx, types.TestDenomB)
 	require.Equal(t, fees[0], KFees)
 }
 
@@ -105,8 +105,8 @@ func TestParams(t *testing.T) {
 	slashWindow := uint64(1000)
 	minValidPerWindow := sdk.NewDecWithPrec(1, 4)
 	whitelist := types.DenomList{
-		{Name: types.MicroSDRDenom, TobinTax: types.DefaultTobinTax},
-		{Name: types.MicroKRWDenom, TobinTax: types.DefaultTobinTax},
+		{Name: types.TestDenomB, TobinTax: types.DefaultTobinTax},
+		{Name: types.TestDenomC, TobinTax: types.DefaultTobinTax},
 	}
 
 	// Should really test validateParams, but skipping because obvious
@@ -302,10 +302,10 @@ func TestTobinTaxGetSet(t *testing.T) {
 	input := CreateTestInput(t)
 
 	tobinTaxes := map[string]sdk.Dec{
-		types.MicroSDRDenom: sdk.NewDec(1),
-		types.MicroUSDDenom: sdk.NewDecWithPrec(1, 3),
-		types.MicroKRWDenom: sdk.NewDecWithPrec(123, 3),
-		types.MicroMNTDenom: sdk.NewDecWithPrec(1423, 4),
+		types.TestDenomB: sdk.NewDec(1),
+		types.TestDenomA: sdk.NewDecWithPrec(1, 3),
+		types.TestDenomC: sdk.NewDecWithPrec(123, 3),
+		types.TestDenomE: sdk.NewDecWithPrec(1423, 4),
 	}
 
 	for denom, tobinTax := range tobinTaxes {

@@ -18,7 +18,7 @@ func TestMsgServer_FeederDelegation(t *testing.T) {
 	input, msgServer := setup(t)
 
 	salt := "1"
-	hash := types.GetAggregateVoteHash(salt, randomExchangeRate.String()+types.MicroSDRDenom, ValAddrs[0])
+	hash := types.GetAggregateVoteHash(salt, randomExchangeRate.String()+types.TestDenomB, ValAddrs[0])
 
 	// Case 1: empty message
 	delegateFeedConsentMsg := types.MsgDelegateFeedConsent{}
@@ -36,12 +36,12 @@ func TestMsgServer_FeederDelegation(t *testing.T) {
 	require.Error(t, err)
 
 	// Case 2.2: Normal Vote - without delegation
-	voteMsg := types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.MicroSDRDenom, Addrs[0], ValAddrs[0])
+	voteMsg := types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.TestDenomB, Addrs[0], ValAddrs[0])
 	_, err = msgServer.AggregateExchangeRateVote(sdk.WrapSDKContext(input.Ctx.WithBlockHeight(1)), voteMsg)
 	require.NoError(t, err)
 
 	// Case 2.3: Normal Vote - with delegation fails
-	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.MicroSDRDenom, Addrs[1], ValAddrs[0])
+	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.TestDenomB, Addrs[1], ValAddrs[0])
 	_, err = msgServer.AggregateExchangeRateVote(sdk.WrapSDKContext(input.Ctx.WithBlockHeight(1)), voteMsg)
 	require.Error(t, err)
 
@@ -61,12 +61,12 @@ func TestMsgServer_FeederDelegation(t *testing.T) {
 	require.NoError(t, err)
 
 	// Case 4.3: Normal Vote - without delegation fails
-	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.MicroSDRDenom, Addrs[2], ValAddrs[0])
+	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.TestDenomB, Addrs[2], ValAddrs[0])
 	_, err = msgServer.AggregateExchangeRateVote(sdk.WrapSDKContext(input.Ctx.WithBlockHeight(1)), voteMsg)
 	require.Error(t, err)
 
 	// Case 4.4: Normal Vote - with delegation succeeds
-	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.MicroSDRDenom, Addrs[1], ValAddrs[0])
+	voteMsg = types.NewMsgAggregateExchangeRateVote(salt, randomExchangeRate.String()+types.TestDenomB, Addrs[1], ValAddrs[0])
 	_, err = msgServer.AggregateExchangeRateVote(sdk.WrapSDKContext(input.Ctx.WithBlockHeight(1)), voteMsg)
 	require.NoError(t, err)
 }
@@ -75,10 +75,10 @@ func TestMsgServer_AggregatePrevoteVote(t *testing.T) {
 	input, msgServer := setup(t)
 
 	salt := "1"
-	exchangeRatesStr := fmt.Sprintf("1000.23%s,0.29%s,0.27%s", types.MicroKRWDenom, types.MicroUSDDenom, types.MicroSDRDenom)
-	otherExchangeRateStr := fmt.Sprintf("1000.12%s,0.29%s,0.27%s", types.MicroKRWDenom, types.MicroUSDDenom, types.MicroUSDDenom)
-	unintendedExchageRateStr := fmt.Sprintf("1000.23%s,0.29%s,0.27%s", types.MicroKRWDenom, types.MicroUSDDenom, types.MicroCNYDenom)
-	invalidExchangeRateStr := fmt.Sprintf("1000.23%s,0.29%s,0.27", types.MicroKRWDenom, types.MicroUSDDenom)
+	exchangeRatesStr := fmt.Sprintf("1000.23%s,0.29%s,0.27%s", types.TestDenomC, types.TestDenomA, types.TestDenomB)
+	otherExchangeRateStr := fmt.Sprintf("1000.12%s,0.29%s,0.27%s", types.TestDenomC, types.TestDenomA, types.TestDenomA)
+	unintendedExchageRateStr := fmt.Sprintf("1000.23%s,0.29%s,0.27%s", types.TestDenomC, types.TestDenomA, types.TestDenomD)
+	invalidExchangeRateStr := fmt.Sprintf("1000.23%s,0.29%s,0.27", types.TestDenomC, types.TestDenomA)
 
 	hash := types.GetAggregateVoteHash(salt, exchangeRatesStr, ValAddrs[0])
 

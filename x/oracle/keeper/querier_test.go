@@ -29,7 +29,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomB, rate)
 
 	// empty request
 	_, err := querier.ExchangeRate(ctx, nil)
@@ -37,7 +37,7 @@ func TestQueryExchangeRate(t *testing.T) {
 
 	// Query to grpc
 	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{
-		Denom: types.MicroSDRDenom,
+		Denom: types.TestDenomB,
 	})
 	require.NoError(t, err)
 	require.Equal(t, rate, res.ExchangeRate)
@@ -69,15 +69,15 @@ func TestQueryExchangeRates(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroUSDDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomB, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomG, rate)
 
 	res, err := querier.ExchangeRates(ctx, &types.QueryExchangeRatesRequest{})
 	require.NoError(t, err)
 
 	require.Equal(t, sdk.DecCoins{
-		sdk.NewDecCoinFromDec(types.MicroSDRDenom, rate),
-		sdk.NewDecCoinFromDec(types.MicroUSDDenom, rate),
+		sdk.NewDecCoinFromDec(types.TestDenomB, rate),
+		sdk.NewDecCoinFromDec(types.TestDenomG, rate),
 	}, res.ExchangeRates)
 }
 
@@ -87,17 +87,17 @@ func TestQueryActives(t *testing.T) {
 	querier := NewQuerier(input.OracleKeeper)
 
 	rate := sdk.NewDec(1700)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroSDRDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroKRWDenom, rate)
-	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.MicroUSDDenom, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomB, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomC, rate)
+	input.OracleKeeper.SetDenomExchangeRate(input.Ctx, types.TestDenomA, rate)
 
 	res, err := querier.Actives(ctx, &types.QueryActivesRequest{})
 	require.NoError(t, err)
 
 	targetDenoms := []string{
-		types.MicroKRWDenom,
-		types.MicroSDRDenom,
-		types.MicroUSDDenom,
+		types.TestDenomC,
+		types.TestDenomB,
+		types.TestDenomA,
 	}
 
 	require.Equal(t, targetDenoms, res.Actives)
@@ -255,10 +255,10 @@ func TestQueryTobinTaxes(t *testing.T) {
 	input.OracleKeeper.ClearTobinTaxes(input.Ctx)
 
 	tobinTaxes := types.DenomList{{
-		Name:     types.MicroKRWDenom,
+		Name:     types.TestDenomC,
 		TobinTax: sdk.OneDec(),
 	}, {
-		Name:     types.MicroSDRDenom,
+		Name:     types.TestDenomB,
 		TobinTax: sdk.NewDecWithPrec(123, 2),
 	}}
 	for _, item := range tobinTaxes {
@@ -275,7 +275,7 @@ func TestQueryTobinTax(t *testing.T) {
 	ctx := sdk.WrapSDKContext(input.Ctx)
 	querier := NewQuerier(input.OracleKeeper)
 
-	denom := types.Denom{Name: types.MicroKRWDenom, TobinTax: sdk.OneDec()}
+	denom := types.Denom{Name: types.TestDenomC, TobinTax: sdk.OneDec()}
 	input.OracleKeeper.SetTobinTax(input.Ctx, denom.Name, denom.TobinTax)
 
 	// empty request
@@ -283,7 +283,7 @@ func TestQueryTobinTax(t *testing.T) {
 	require.Error(t, err)
 
 	res, err := querier.TobinTax(ctx, &types.QueryTobinTaxRequest{
-		Denom: types.MicroKRWDenom,
+		Denom: types.TestDenomC,
 	})
 	require.NoError(t, err)
 

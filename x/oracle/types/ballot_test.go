@@ -30,21 +30,21 @@ func TestToMap(t *testing.T) {
 			{
 
 				Voter:        sdk.ValAddress(secp256k1.GenPrivKey().PubKey().Address()),
-				Denom:        types.MicroKRWDenom,
+				Denom:        types.TestDenomC,
 				ExchangeRate: sdk.NewDec(1600),
 				Power:        100,
 			},
 			{
 
 				Voter:        sdk.ValAddress(secp256k1.GenPrivKey().PubKey().Address()),
-				Denom:        types.MicroKRWDenom,
+				Denom:        types.TestDenomC,
 				ExchangeRate: sdk.ZeroDec(),
 				Power:        100,
 			},
 			{
 
 				Voter:        sdk.ValAddress(secp256k1.GenPrivKey().PubKey().Address()),
-				Denom:        types.MicroKRWDenom,
+				Denom:        types.TestDenomC,
 				ExchangeRate: sdk.NewDec(1500),
 				Power:        100,
 			},
@@ -94,15 +94,15 @@ func TestToCrossRate(t *testing.T) {
 	for _, data := range data {
 		valAddr := sdk.ValAddress(secp256k1.GenPrivKey().PubKey().Address())
 		if !data.base.IsZero() {
-			pbBase = append(pbBase, types.NewVoteForTally(data.base, types.MicroKRWDenom, valAddr, 100))
+			pbBase = append(pbBase, types.NewVoteForTally(data.base, types.TestDenomC, valAddr, 100))
 		}
 
-		pbQuote = append(pbQuote, types.NewVoteForTally(data.quote, types.MicroKRWDenom, valAddr, 100))
+		pbQuote = append(pbQuote, types.NewVoteForTally(data.quote, types.TestDenomC, valAddr, 100))
 
 		if !data.base.IsZero() && !data.quote.IsZero() {
-			cb = append(cb, types.NewVoteForTally(data.base.Quo(data.quote), types.MicroKRWDenom, valAddr, 100))
+			cb = append(cb, types.NewVoteForTally(data.base.Quo(data.quote), types.TestDenomC, valAddr, 100))
 		} else {
-			cb = append(cb, types.NewVoteForTally(sdk.ZeroDec(), types.MicroKRWDenom, valAddr, 0))
+			cb = append(cb, types.NewVoteForTally(sdk.ZeroDec(), types.TestDenomC, valAddr, 0))
 		}
 	}
 
@@ -137,7 +137,7 @@ func TestPBPower(t *testing.T) {
 		power := sk.Validator(ctx, valAccAddrs[i]).GetConsensusPower(sdk.DefaultPowerReduction)
 		vote := types.NewVoteForTally(
 			sdk.ZeroDec(),
-			types.MicroSDRDenom,
+			types.TestDenomB,
 			valAccAddrs[i],
 			power,
 		)
@@ -156,7 +156,7 @@ func TestPBPower(t *testing.T) {
 	faceValAddr := sdk.ValAddress(pubKey.Address())
 	fakeVote := types.NewVoteForTally(
 		sdk.OneDec(),
-		types.MicroSDRDenom,
+		types.TestDenomB,
 		faceValAddr,
 		0,
 	)
@@ -227,7 +227,7 @@ func TestPBWeightedMedian(t *testing.T) {
 
 			vote := types.NewVoteForTally(
 				sdk.NewDec(int64(input)),
-				types.MicroSDRDenom,
+				types.TestDenomB,
 				valAddr,
 				power,
 			)
@@ -294,7 +294,7 @@ func TestPBStandardDeviation(t *testing.T) {
 
 			vote := types.NewVoteForTally(
 				sdk.NewDecWithPrec(int64(input*base), int64(types.OracleDecPrecision)),
-				types.MicroSDRDenom,
+				types.TestDenomB,
 				valAddr,
 				power,
 			)
@@ -313,12 +313,12 @@ func TestPBStandardDeviationOverflow(t *testing.T) {
 
 	pb := types.ExchangeRateBallot{types.NewVoteForTally(
 		sdk.ZeroDec(),
-		types.MicroSDRDenom,
+		types.TestDenomB,
 		valAddr,
 		2,
 	), types.NewVoteForTally(
 		exchangeRate,
-		types.MicroSDRDenom,
+		types.TestDenomB,
 		valAddr,
 		1,
 	)}

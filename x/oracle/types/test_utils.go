@@ -14,6 +14,20 @@ import (
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 )
 
+//nolint
+const (
+	TestDenomA = "eve"
+	TestDenomB = "denomB"
+	TestDenomC = "denomC"
+	TestDenomD = "denomD"
+	TestDenomE = "denomE"
+	TestDenomF = "denomF"
+	TestDenomG = "denomG"
+	TestDenomH = "denomH"
+	TestDenomI = "denomI"
+	MicroUnit  = int64(1e6)
+)
+
 // OracleDecPrecision nolint
 const OracleDecPrecision = 8
 

@@ -18,19 +18,6 @@ const (
 	BlocksPerYear   = BlocksPerDay * 365
 )
 
-const (
-	MicroUSDDenom = "uatom"
-	MicroKRWDenom = "ukrw"
-	MicroSDRDenom = "usdr"
-	MicroCNYDenom = "ucny"
-	MicroJPYDenom = "ujpy"
-	MicroEURDenom = "ueur"
-	MicroGBPDenom = "ugbp"
-	MicroMNTDenom = "umnt"
-
-	MicroUnit = int64(1e6)
-)
-
 // Parameter keys
 var (
 	KeyVotePeriod               = []byte("VotePeriod")
@@ -56,10 +43,10 @@ var (
 	DefaultRewardBand    = sdk.NewDecWithPrec(2, 2)  // 2% (-1, 1)
 	DefaultTobinTax      = sdk.NewDecWithPrec(25, 4) // 0.25%
 	DefaultWhitelist     = DenomList{
-		{Name: MicroKRWDenom, TobinTax: DefaultTobinTax},
-		{Name: MicroSDRDenom, TobinTax: DefaultTobinTax},
-		{Name: MicroUSDDenom, TobinTax: DefaultTobinTax},
-		{Name: MicroMNTDenom, TobinTax: DefaultTobinTax.MulInt64(8)}}
+		{Name: TestDenomC, TobinTax: DefaultTobinTax},
+		{Name: TestDenomB, TobinTax: DefaultTobinTax},
+		{Name: TestDenomA, TobinTax: DefaultTobinTax},
+		{Name: TestDenomE, TobinTax: DefaultTobinTax.MulInt64(8)}}
 	DefaultSlashFraction     = sdk.NewDecWithPrec(1, 4) // 0.01%
 	DefaultMinValidPerWindow = sdk.NewDecWithPrec(5, 2) // 5%
 )

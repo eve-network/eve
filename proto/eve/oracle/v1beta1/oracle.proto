@@ -69,7 +69,7 @@ message AggregateExchangeRatePrevote {
 }
 
 // MsgAggregateExchangeRateVote - struct for voting on
-// the exchange rates of Luna denominated in various eve assets.
+// the exchange rates of USD denominated in various eve assets.
 message AggregateExchangeRateVote {
   option (gogoproto.equal)            = false;
   option (gogoproto.goproto_getters)  = false;

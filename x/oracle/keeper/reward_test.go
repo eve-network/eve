@@ -50,7 +50,7 @@ func TestRewardBallotWinners(t *testing.T) {
 	}
 
 	// Prepare reward pool
-	givingAmt := sdk.NewCoins(sdk.NewInt64Coin(testdenom, 30000000), sdk.NewInt64Coin(types.MicroUSDDenom, 40000000))
+	givingAmt := sdk.NewCoins(sdk.NewInt64Coin(testdenom, 30000000), sdk.NewInt64Coin(types.TestDenomA, 40000000))
 	acc := input.AccountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	err = FundAccount(input, acc.GetAddress(), givingAmt)
 	require.NoError(t, err)
@@ -69,13 +69,13 @@ func TestRewardBallotWinners(t *testing.T) {
 	outstandingRewards, _ := outstandingRewardsDec.TruncateDecimal()
 	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(testdenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
 		outstandingRewards.AmountOf(testdenom))
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
-		outstandingRewards.AmountOf(types.MicroUSDDenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.TestDenomA)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).TruncateInt(),
+		outstandingRewards.AmountOf(types.TestDenomA))
 
 	outstandingRewardsDec1 := input.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, addr1)
 	outstandingRewards1, _ := outstandingRewardsDec1.TruncateDecimal()
 	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(testdenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
 		outstandingRewards1.AmountOf(testdenom))
-	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.MicroUSDDenom)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
-		outstandingRewards1.AmountOf(types.MicroUSDDenom))
+	require.Equal(t, sdk.NewDecFromInt(givingAmt.AmountOf(types.TestDenomA)).QuoInt64(votePeriodsPerWindow).QuoInt64(3).MulInt64(2).TruncateInt(),
+		outstandingRewards1.AmountOf(types.TestDenomA))
 }
