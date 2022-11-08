@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/eve-network/eve/x/globalfee"
+	"github.com/cosmos/gaia/v8/x/globalfee"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"

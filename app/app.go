@@ -159,13 +159,8 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 
-	// "github.com/notional-labs/tokenfactory/docs"
-	tokenfactorymodule "github.com/eve-network/eve/x/tokenfactory"
-	tokenfactorymodulekeeper "github.com/eve-network/eve/x/tokenfactory/keeper"
-	tokenfactorymoduletypes "github.com/eve-network/eve/x/tokenfactory/types"
-
-	// GlobalFees (gaia)
-	"github.com/eve-network/eve/x/globalfee"
+	// GlobalFees
+	"github.com/cosmos/gaia/v8/x/globalfee"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -232,7 +227,6 @@ var (
 		authzmodule.AppModuleBasic{},
 		groupmodule.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		tokenfactorymodule.AppModuleBasic{},
 		nftmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		globalfee.AppModule{},
@@ -240,16 +234,15 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:         nil,
-		distrtypes.ModuleName:              nil,
-		minttypes.ModuleName:               {authtypes.Minter},
-		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:                {authtypes.Burner},
-		nft.ModuleName:                     nil,
-		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
-		tokenfactorymoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
-		wasm.ModuleName:                    {authtypes.Burner},
+		authtypes.FeeCollectorName:     nil,
+		distrtypes.ModuleName:          nil,
+		minttypes.ModuleName:           {authtypes.Minter},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:            {authtypes.Burner},
+		nft.ModuleName:                 nil,
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		wasm.ModuleName:                {authtypes.Burner},
 	}
 )
 
@@ -297,8 +290,6 @@ type EveApp struct {
 	TransferKeeper   ibctransferkeeper.Keeper
 	WasmKeeper       wasm.Keeper
 	TransferModule   transfer.AppModule
-
-	TokenfactoryKeeper tokenfactorymodulekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -348,7 +339,7 @@ func NewEveApp(
 		distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey, paramstypes.StoreKey,
 		ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey, authzkeeper.StoreKey, nftkeeper.StoreKey,
-		group.StoreKey, tokenfactorymoduletypes.StoreKey, wasm.StoreKey,
+		group.StoreKey, wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	// NOTE: The testingkey is just mounted for testing purposes. Actual applications should
@@ -497,15 +488,6 @@ func NewEveApp(
 		),
 	)
 
-	app.TokenfactoryKeeper = *tokenfactorymodulekeeper.NewKeeper(
-		appCodec,
-		keys[tokenfactorymoduletypes.StoreKey],
-		keys[tokenfactorymoduletypes.MemStoreKey],
-
-		app.AccountKeeper,
-		app.BankKeeper,
-	)
-
 	// set the governance module account as the authority for conducting upgrades
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
@@ -564,7 +546,6 @@ func NewEveApp(
 		app.TransferModule,
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		tokenfactorymodule.NewAppModule(appCodec, app.TokenfactoryKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
@@ -580,7 +561,7 @@ func NewEveApp(
 		slashingtypes.ModuleName, evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 		ibctransfertypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, govtypes.ModuleName,
 		crisistypes.ModuleName, genutiltypes.ModuleName, authz.ModuleName, feegrant.ModuleName,
-		nft.ModuleName, group.ModuleName, paramstypes.ModuleName, vestingtypes.ModuleName, tokenfactorymoduletypes.ModuleName,
+		nft.ModuleName, group.ModuleName, paramstypes.ModuleName, vestingtypes.ModuleName,
 		wasm.ModuleName, globalfee.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
@@ -588,7 +569,7 @@ func NewEveApp(
 		authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		ibchost.ModuleName, minttypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
 		authz.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName,
-		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName, tokenfactorymoduletypes.ModuleName,
+		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName,
 		wasm.ModuleName, globalfee.ModuleName,
 	)
 
@@ -603,7 +584,7 @@ func NewEveApp(
 		stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName,
 		crisistypes.ModuleName, ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
 		authz.ModuleName, ibctransfertypes.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName,
-		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName, tokenfactorymoduletypes.ModuleName,
+		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName,
 		wasm.ModuleName, globalfee.ModuleName,
 	) // wasm after ibc transferwasm.ModuleName,
 
@@ -877,7 +858,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
-	paramsKeeper.Subspace(tokenfactorymoduletypes.ModuleName)
 	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
