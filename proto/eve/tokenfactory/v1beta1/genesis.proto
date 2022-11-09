@@ -8,5 +8,5 @@ option go_package = "x/tokenfactory/types";
 
 // GenesisState defines the tokenfactory module's genesis state.
 message GenesisState {
-    repeated Denom denomList = 1 [(gogoproto.nullable) = false];  
+  repeated Denom denomList = 1 [ (gogoproto.nullable) = false ];
 }

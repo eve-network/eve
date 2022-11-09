@@ -11,8 +11,7 @@ option go_package = "github.com/eve-network/eve/x/globalfee/types";
 service Query {
   rpc MinimumGasPrices(QueryMinimumGasPricesRequest)
       returns (QueryMinimumGasPricesResponse) {
-    option (google.api.http).get =
-        "/eve/globalfee/v1beta1/minimum_gas_prices";
+    option (google.api.http).get = "/eve/globalfee/v1beta1/minimum_gas_prices";
   }
 }
 
