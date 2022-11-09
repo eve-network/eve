@@ -667,6 +667,8 @@ github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mq
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
 github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32 h1:uuzjQk/dBUCghUAxl3KNCj7iDylBLao6TnRK1xO/exQ=
 github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32/go.mod h1:56yrn9/cmuDbUn8BJ9XNXyuYw0ZbqUN11I3bl0Tb/7Y=
+github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220923193544-9f2b692521b9 h1:jDHiWzi6AC4mQBfj0H68AhCxT5A+BZiSqbRASsfcTcY=
+github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220923193544-9f2b692521b9/go.mod h1:cnK7iTwNSHH8ntlh6eqsbL2gVa+PExVS2Sa7/f3itmI=
 github.com/iris-contrib/blackfriday v2.0.0+incompatible/go.mod h1:UzZ2bDEoaSGPbkg6SAB4att1aAwTmVIx/5gCVqeyUdI=
 github.com/iris-contrib/go.uuid v2.0.0+incompatible/go.mod h1:iz2lgM/1UnEf1kP0L/+fafWORmlnuysV2EMP8MW+qe0=
 github.com/iris-contrib/i18n v0.0.0-20171121225848-987a633949d0/go.mod h1:pMCz62A0xJL6I+umB2YTlFRwWXaDFA0jy+5HzGiJjqI=

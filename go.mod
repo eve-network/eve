@@ -8,7 +8,7 @@ require (
 	cosmossdk.io/math v1.0.0-beta.3
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.29.2
-	github.com/cosmos/cosmos-sdk v0.46.4	
+	github.com/cosmos/cosmos-sdk v0.46.4
 	github.com/cosmos/ibc-go/v5 v5.0.1
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
@@ -108,7 +108,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
-	github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32
+	github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220923193544-9f2b692521b9
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
