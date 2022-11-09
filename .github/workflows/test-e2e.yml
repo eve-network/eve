@@ -58,5 +58,5 @@ jobs:
         name: Build e2e image
         run: make docker-build-debug
       -
-        name: Test e2e and Upgrade
+        name: Test e2e
         run: make test-e2e-ci

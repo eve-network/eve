@@ -13,7 +13,6 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -165,14 +164,17 @@ func updateModuleGenesis[V proto.Message](appGenState map[string]json.RawMessage
 
 func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.Duration, forkHeight int) error {
 	// initialize a genesis file
+	var addr sdk.AccAddress
 	configDir := chain.nodes[0].configDir()
 	for _, val := range chain.nodes {
 		if chain.chainMeta.Id == ChainAID {
-			if err := addAccount(configDir, "", InitBalanceStrA, val.keyInfo.GetAddress(), forkHeight); err != nil {
+			addr, _ = val.keyInfo.GetAddress()
+			if err := addAccount(configDir, "", InitBalanceStrA, addr, forkHeight); err != nil {
 				return err
 			}
 		} else if chain.chainMeta.Id == ChainBID {
-			if err := addAccount(configDir, "", InitBalanceStrB, val.keyInfo.GetAddress(), forkHeight); err != nil {
+			addr, _ = val.keyInfo.GetAddress()
+			if err := addAccount(configDir, "", InitBalanceStrB, addr, forkHeight); err != nil {
 				return err
 			}
 		}
@@ -216,10 +218,10 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
-	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypes.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
-	if err != nil {
-		return err
-	}
+	// err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypesv1.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
+	// if err != nil {
+	// 	return err
+	// }
 
 	err = updateModuleGenesis(appGenState, genutiltypes.ModuleName, &genutiltypes.GenesisState{}, updateGenUtilGenesis(chain))
 	if err != nil {
@@ -277,12 +279,12 @@ func updateCrisisGenesis(crisisGenState *crisistypes.GenesisState) {
 	crisisGenState.ConstantFee.Denom = BaseDenom
 }
 
-func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypes.GenesisState) {
-	return func(govGenState *govtypes.GenesisState) {
-		govGenState.VotingParams.VotingPeriod = votingPeriod
-		govGenState.DepositParams.MinDeposit = tenM
-	}
-}
+// func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypes.GenesisState) {
+// 	return func(govGenState *govtypesv1.GenesisState) {
+// 		govGenState.VotingParams.VotingPeriod = votingPeriod
+// 		govGenState.DepositParams.MinDeposit = tenM
+// 	}
+// }
 
 func updateGenUtilGenesis(c *internalChain) func(*genutiltypes.GenesisState) {
 	return func(genUtilGenState *genutiltypes.GenesisState) {

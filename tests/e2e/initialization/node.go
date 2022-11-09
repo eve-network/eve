@@ -74,6 +74,7 @@ func (n *internalNode) configDir() string {
 }
 
 func (n *internalNode) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, error) {
+	var addr sdk.AccAddress
 	description := stakingtypes.NewDescription(n.moniker, "", "", "", "")
 	commissionRates := stakingtypes.CommissionRates{
 		Rate:          sdk.MustNewDecFromStr("0.1"),
@@ -88,9 +89,9 @@ func (n *internalNode) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, error)
 	if err != nil {
 		return nil, err
 	}
-
+	addr, _ = n.keyInfo.GetAddress()
 	return stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(n.keyInfo.GetAddress()),
+		sdk.ValAddress(addr),
 		valPubKey,
 		amount,
 		description,
@@ -186,7 +187,7 @@ func (n *internalNode) createKeyFromMnemonic(name, mnemonic string) error {
 		return err
 	}
 
-	n.keyInfo = info
+	n.keyInfo = *info
 	n.mnemonic = mnemonic
 	n.privateKey = privKey
 
@@ -203,12 +204,16 @@ func (n *internalNode) createKey(name string) error {
 }
 
 func (n *internalNode) export() *Node {
+	var publicAddr sdk.AccAddress
+	var publicKey cryptotypes.PubKey
+	publicAddr, _ = n.keyInfo.GetAddress()
+	publicKey, _ = n.keyInfo.GetPubKey()
 	return &Node{
 		Name:          n.moniker,
 		ConfigDir:     n.configDir(),
 		Mnemonic:      n.mnemonic,
-		PublicAddress: n.keyInfo.GetAddress().String(),
-		PublicKey:     n.keyInfo.GetPubKey().Address().String(),
+		PublicAddress: publicAddr.String(),
+		PublicKey:     publicKey.Address().String(),
 		PeerId:        n.peerId,
 		IsValidator:   n.isValidator,
 	}
@@ -368,8 +373,10 @@ func (n *internalNode) signMsg(msgs ...sdk.Msg) (*sdktx.Tx, error) {
 	// Note: This line is not needed for SIGN_MODE_LEGACY_AMINO, but putting it
 	// also doesn't affect its generated sign bytes, so for code's simplicity
 	// sake, we put it here.
+	var publicKey cryptotypes.PubKey
+	publicKey, _ = n.keyInfo.GetPubKey()
 	sig := txsigning.SignatureV2{
-		PubKey: n.keyInfo.GetPubKey(),
+		PubKey: publicKey,
 		Data: &txsigning.SingleSignatureData{
 			SignMode:  txsigning.SignMode_SIGN_MODE_DIRECT,
 			Signature: nil,
@@ -394,9 +401,9 @@ func (n *internalNode) signMsg(msgs ...sdk.Msg) (*sdktx.Tx, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	publicKey, _ = n.keyInfo.GetPubKey()
 	sig = txsigning.SignatureV2{
-		PubKey: n.keyInfo.GetPubKey(),
+		PubKey: publicKey,
 		Data: &txsigning.SingleSignatureData{
 			SignMode:  txsigning.SignMode_SIGN_MODE_DIRECT,
 			Signature: sigBytes,

@@ -15,28 +15,19 @@ import (
 )
 
 const (
-	// Environment variable name to skip the upgrade tests
-	// skipUpgradeEnv = "EVE_E2E_SKIP_UPGRADE"
 	// Environment variable name to skip the IBC tests
 	skipIBCEnv = "EVE_E2E_SKIP_IBC"
 	// Environment variable name to skip state sync testing
 	skipStateSyncEnv = "EVE_E2E_SKIP_STATE_SYNC"
-	// Environment variable name to determine if this upgrade is a fork
-	// forkHeightEnv = "EVE_E2E_FORK_HEIGHT"
 	// Environment variable name to skip cleaning up Docker resources in teardown
 	skipCleanupEnv = "EVE_E2E_SKIP_CLEANUP"
-	// Environment variable name to determine what version we are upgrading to
-	// upgradeVersionEnv = "EVE_E2E_UPGRADE_VERSION"
 )
 
 type IntegrationTestSuite struct {
 	suite.Suite
-
 	configurer    configurer.Configurer
-	skipUpgrade   bool
 	skipIBC       bool
 	skipStateSync bool
-	forkHeight    int
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
