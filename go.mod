@@ -2,11 +2,13 @@ module github.com/eve-network/eve
 
 go 1.18
 
+replace github.com/CosmWasm/token-factory => github.com/notional-labs/token-factory v0.0.4
+
 require (
 	cosmossdk.io/math v1.0.0-beta.3
+	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.29.2
-	github.com/cosmos/cosmos-sdk v0.46.4
-	github.com/cosmos/gaia/v8 v8.0.0-rc
+	github.com/cosmos/cosmos-sdk v0.46.4	
 	github.com/cosmos/ibc-go/v5 v5.0.1
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
@@ -17,9 +19,8 @@ require (
 	github.com/spf13/viper v1.14.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
+	// github.com/cosmos/gaia/v8 v8.0.0-rc // future for GlobalFee
 )
-
-require github.com/cosmos/gogoproto v1.4.2 // indirect
 
 require (
 	cloud.google.com/go v0.104.0 // indirect
@@ -57,6 +58,7 @@ require (
 	github.com/cosmos/btcutil v1.0.4 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
+	github.com/cosmos/gogoproto v1.4.2 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
@@ -175,7 +177,7 @@ require (
 
 replace (
 	// https://github.com/CosmWasm/wasmd/pull/938
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.29.0-sdk46.0.20221108144812-0abadd1ee929
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.29.0-sdk46
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1

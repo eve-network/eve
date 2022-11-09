@@ -845,8 +845,10 @@ github.com/neilotoole/errgroup v0.1.6/go.mod h1:Q2nLGf+594h0CLBs/Mbg6qOr7GtqDK7C
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/notional-labs/tm-db v0.6.7-0.20220731185452-136c7b65fb62 h1:e2cOwTEwwkRvvmjO1uBNQCDnl1HUL/Uc4ifhsogGiDw=
 github.com/notional-labs/tm-db v0.6.7-0.20220731185452-136c7b65fb62/go.mod h1:rz+FLZR5PszFXaSH0O3jlwDfNXwOd5U7HJP5X6f+05A=
-github.com/notional-labs/wasmd v0.29.0-sdk46.0.20221108144812-0abadd1ee929 h1:Tgu5BSU7ustNsCBc1Ast65DWN2vJqcc38Wop7VMgJKg=
-github.com/notional-labs/wasmd v0.29.0-sdk46.0.20221108144812-0abadd1ee929/go.mod h1:g6GbIycw/5OxZs3hfaZqG5x4ZqA2YEjSRFRMQybal48=
+github.com/notional-labs/token-factory v0.0.4 h1:LMdu4nayqCNavGEypZTEPsxRk+oetZMvTrGFuic2Z8I=
+github.com/notional-labs/token-factory v0.0.4/go.mod h1:9tDt/+skqG1q/kQZqL9ZEqRYbQriWEnVLQbcd5If24c=
+github.com/notional-labs/wasmd v0.29.0-sdk46 h1:KaGpIdDOdDbWoHp0ZUzIdSGgUqe03Mach4zpEAznXls=
+github.com/notional-labs/wasmd v0.29.0-sdk46/go.mod h1:NbER19ksI5bZOJUta8lN4wrkVYBKD9VzOFjoCgL4P3o=
 github.com/nxadm/tail v1.4.4 h1:DQuhQpB1tVlglWS2hLQ5OV6B5r8aGxSrPc5Qo6uTN78=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=
@@ -863,8 +865,8 @@ github.com/onsi/ginkgo v1.14.0/go.mod h1:iSB4RoI2tjJc9BBv4NKIKWKya62Rps+oPG/Lv9k
 github.com/onsi/gomega v1.4.1/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5uiA=
 github.com/onsi/gomega v1.4.3/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7JYyY=
-github.com/onsi/gomega v1.10.1 h1:o0+MgICZLuZ7xjH7Vx6zS/zcu93/BEp1VwkIW1mEXCE=
 github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1ybHNo=
+github.com/onsi/gomega v1.20.0 h1:8W0cWlwFkflGPLltQvLRB7ZVD5HuP6ng320w2IS245Q=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 h1:rc3tiVYb5z54aKaDfakKn0dDjIyPpTtszkjuMzyt7ec=

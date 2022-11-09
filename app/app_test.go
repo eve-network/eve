@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/CosmWasm/token-factory/x/tokenfactory"
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/cosmos/gaia/v8/x/globalfee"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -195,7 +195,8 @@ func TestRunMigrations(t *testing.T) {
 					"wasm":         wasm.AppModule{}.ConsensusVersion(),
 					"ibc":          ibc.AppModule{}.ConsensusVersion(),
 					"transfer":     transfer.AppModule{}.ConsensusVersion(),
-					"globalfee":    globalfee.AppModule{}.ConsensusVersion(),
+					"tokenfactory": tokenfactory.AppModule{}.ConsensusVersion(),
+					// "globalfee":    globalfee.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
