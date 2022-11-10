@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/eve-network/eve/x/claim"
 	"github.com/eve-network/eve/x/globalfee"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -192,6 +193,7 @@ func TestRunMigrations(t *testing.T) {
 					"crisis":       crisis.AppModule{}.ConsensusVersion(),
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
 					"capability":   capability.AppModule{}.ConsensusVersion(),
+					"claim":        claim.AppModule{}.ConsensusVersion(),
 					"wasm":         wasm.AppModule{}.ConsensusVersion(),
 					"ibc":          ibc.AppModule{}.ConsensusVersion(),
 					"transfer":     transfer.AppModule{}.ConsensusVersion(),
