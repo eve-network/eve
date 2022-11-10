@@ -534,16 +534,20 @@ func NewEveApp(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
 
-	// The last arguments can contain custom message handlers, and custom query handlers,
-	// if we want to allow any custom callbacks
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(bindings.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenFactoryKeeper), wasmOpts...)
-
 	// custom messages
 	registry := encoder.NewEncoderRegistry()
 	registry.RegisterEncoder(claimtypes.ModuleName, claimwasm.Encoder)
 
-	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(registry)...)
+	wasmOptsCustomClaimEncoder := wasmbinding.RegisterCustomPlugins(registry)
+	wasmOpts = append(wasmOpts, wasmOptsCustomClaimEncoder...)
+
+	// custom msg tokenfactory
+	wasmOptsCustomTf := bindings.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenFactoryKeeper)
+	wasmOpts = append(wasmOpts, wasmOptsCustomTf...)
+
+	// The last arguments can contain custom message handlers, and custom query handlers,
+	// if we want to allow any custom callbacks
+	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
 
 	wasmKeeper := wasm.NewKeeper(
 		appCodec, app.keys[wasm.StoreKey], app.GetSubspace(wasm.ModuleName),
