@@ -22,7 +22,8 @@ func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 	suite.NoError(err)
 	suite.Equal(types.ClaimRecord{}, claim)
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 
 	balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	suite.Equal(sdk.Coins{}, balances)
@@ -66,12 +67,14 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	// Now, it is before starting air drop, so this value should return the empty coins
 	suite.True(coins.Empty())
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now, it is before starting air drop, so claim module should not send the balances to the user after delegate.
 	suite.True(balances.Empty())
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx.WithBlockTime(airdropStartTime), addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx.WithBlockTime(airdropStartTime), addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now, it is the time for air drop, so claim module should send the balances to the user after delegate.
 	suite.Equal(claimRecords[0].InitialClaimableAmount.AmountOf(types.DefaultClaimDenom).Quo(sdk.NewInt(int64(len(types.Action_value)))), balances.AmountOf(types.DefaultClaimDenom))
@@ -114,7 +117,8 @@ func (suite *KeeperTestSuite) TestAirdropDisabled() {
 	// Now, it is before starting air drop, so this value should return the empty coins
 	suite.True(coins.Empty())
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now, it is before starting air drop, so claim module should not send the balances to the user after delegate.
 	suite.True(balances.Empty())
@@ -132,7 +136,8 @@ func (suite *KeeperTestSuite) TestAirdropDisabled() {
 		DurationOfDecay:    time.Hour * 4,
 	})
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now airdrop is enabled but a potential misconfiguraion on start time
 	suite.True(balances.Empty())
@@ -151,7 +156,8 @@ func (suite *KeeperTestSuite) TestAirdropDisabled() {
 		DurationOfDecay:    time.Hour * 4,
 	})
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now airdrop is enabled  and date is not empty but block time still behid
 	suite.True(balances.Empty())
@@ -162,7 +168,8 @@ func (suite *KeeperTestSuite) TestAirdropDisabled() {
 	suite.True(balances.Empty())
 
 	// add extra 2 hours
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx.WithBlockTime(airdropStartTime.Add(time.Hour*2)), addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx.WithBlockTime(airdropStartTime.Add(time.Hour*2)), addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	balances = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	// Now, it is the time for air drop, so claim module should send the balances to the user after delegate.
 	suite.Equal(claimRecords[0].InitialClaimableAmount.AmountOf(types.DefaultClaimDenom).Quo(sdk.NewInt(int64(len(types.Action_value)))), balances.AmountOf(types.DefaultClaimDenom))
@@ -190,7 +197,8 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(coins1, claimRecords[0].InitialClaimableAmount)
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	claim, err := suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addr1)
 	suite.NoError(err)
 	suite.True(claim.ActionCompleted[types.ActionDelegateStake])
@@ -198,7 +206,8 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 	claimedCoins := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	suite.Require().Equal(claimedCoins.AmountOf(types.DefaultClaimDenom), claimRecords[0].InitialClaimableAmount.AmountOf(types.DefaultClaimDenom).Quo(sdk.NewInt(5)))
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	claim, err = suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addr1)
 	suite.NoError(err)
 	suite.True(claim.ActionCompleted[types.ActionDelegateStake])
@@ -239,7 +248,8 @@ func (suite *KeeperTestSuite) TestNotRunningGenesisBlock() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(coins1, claimRecords[0].InitialClaimableAmount)
 
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	err = suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addr1, sdk.ValAddress(addr1))
+	suite.NoError(err)
 	claim, err := suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addr1)
 	suite.NoError(err)
 	suite.False(claim.ActionCompleted[types.ActionDelegateStake])
@@ -301,7 +311,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(addr1), pub1, stakingtypes.Description{})
 	suite.Require().NoError(err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	suite.NoError(err)
 
 	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, sdk.DefaultPowerReduction))
 	delAmount := sdk.TokensFromConsensusPower(1, sdk.DefaultPowerReduction)
