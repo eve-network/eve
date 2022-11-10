@@ -8,7 +8,6 @@ KEYRING="test" # export EVE_KEYRING="TEST"
 LOGLEVEL="info"
 TRACE="" # "--trace"
 
-
 eved config keyring-backend $KEYRING
 eved config chain-id $CHAINID
 eved config output "json"
@@ -42,13 +41,15 @@ from_scratch () {
   # Change chain options to use EXP as the staking denom for craft
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ueve"'
   # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ueve","enabled": false}]'
-  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"'
+  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"'    
 
   # update from token -> ucraft
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ueve"'  
   update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ueve","amount": "1000000"}]' # 1 eve right now
-  update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ueve","amount": "1000"}'
+  update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ueve","amount": "1000"}'  
 
+  # same as inqlusions
+  update_test_genesis '.app_state["staking"]["params"]["exemption_factor"]="10.000000000000000000"'  
 
   # Allocate genesis accounts
   # 10 eve (1 of which is used for validator)
