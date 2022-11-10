@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/CosmWasm/token-factory/x/tokenfactory"
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/eve-network/eve/x/claim"
-	"github.com/eve-network/eve/x/globalfee"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -41,6 +41,8 @@ import (
 	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
 )
 
+var emptyWasmOpts []wasm.Option = nil
+
 func TestEveAppExportAndBlockedAddrs(t *testing.T) {
 	encCfg := MakeTestEncodingConfig()
 	db := dbm.NewMemDB()
@@ -67,7 +69,7 @@ func TestEveAppExportAndBlockedAddrs(t *testing.T) {
 
 	logger2 := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	// Making a new app object with the db, so that initchain hasn't been called
-	app2 := NewEveApp(logger2, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, GetEnabledProposals(), EmptyAppOptions{}, nil)
+	app2 := NewEveApp(logger2, db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, GetEnabledProposals(), EmptyAppOptions{}, emptyWasmOpts)
 	_, err := app2.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }
@@ -197,7 +199,8 @@ func TestRunMigrations(t *testing.T) {
 					"wasm":         wasm.AppModule{}.ConsensusVersion(),
 					"ibc":          ibc.AppModule{}.ConsensusVersion(),
 					"transfer":     transfer.AppModule{}.ConsensusVersion(),
-					"globalfee":    globalfee.AppModule{}.ConsensusVersion(),
+					"tokenfactory": tokenfactory.AppModule{}.ConsensusVersion(),
+					// "globalfee":    globalfee.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
