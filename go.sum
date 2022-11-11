@@ -269,8 +269,6 @@ github.com/cosmos/cosmos-proto v1.0.0-alpha8 h1:d3pCRuMYYvGA5bM0ZbbjKn+AoQD4A7dy
 github.com/cosmos/cosmos-proto v1.0.0-alpha8/go.mod h1:6/p+Bc4O8JKeZqe0VqUGTX31eoYqemTT4C1hLCWsO7I=
 github.com/cosmos/cosmos-sdk v0.46.4 h1:I4CPfnz7lAPM7cEvvyTxL1h3M/ugbhTNr5ZRcnW8WsU=
 github.com/cosmos/cosmos-sdk v0.46.4/go.mod h1:b5usG7aBEEvhaatYCdV6orFbDUsj4BG1V6UtKwNcJeQ=
-github.com/cosmos/gaia/v8 v8.0.0-rc h1:Xegq9VrTdkb8S9jMceSDJ7KVJxVJk+WAc2SXjPB0kRM=
-github.com/cosmos/gaia/v8 v8.0.0-rc/go.mod h1:pdUqe/9+fu/RkCDKdW+yIo2YpnzhHsffMsUV3STPKXo=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
@@ -280,8 +278,8 @@ github.com/cosmos/gorocksdb v1.2.0 h1:d0l3jJG8M4hBouIZq0mDUHZ+zjOx044J3nGRskwTb4
 github.com/cosmos/gorocksdb v1.2.0/go.mod h1:aaKvKItm514hKfNJpUJXnnOWeBnk2GL4+Qw9NHizILw=
 github.com/cosmos/iavl v0.19.4 h1:t82sN+Y0WeqxDLJRSpNd8YFX5URIrT+p8n6oJbJ2Dok=
 github.com/cosmos/iavl v0.19.4/go.mod h1:X9PKD3J0iFxdmgNLa7b2LYWdsGd90ToV5cAONApkEPw=
-github.com/cosmos/ibc-go/v5 v5.0.1 h1:ZI5xCi6RDOL+hyu6Wx/w6JoAYFlOoK5hijsRTVWo+RA=
-github.com/cosmos/ibc-go/v5 v5.0.1/go.mod h1:LX0DHLW3dfi/1e4BJzi8MGLWmQ4DSraPEgVjyo3VzAo=
+github.com/cosmos/ibc-go/v5 v5.1.0 h1:m1NHXFkwwvNeJegZqtyox1WLinh+PMy4ivU/Cs9KjeA=
+github.com/cosmos/ibc-go/v5 v5.1.0/go.mod h1:H6sV0/CkNRDtvSrhbsIgiog1WnSwhguGfg8x34MOVEk=
 github.com/cosmos/interchain-accounts v0.3.2 h1:7S5rSndahpjkzUvG00kKZrTZsEuVHuVC9a7p0qDVcF8=
 github.com/cosmos/ledger-cosmos-go v0.11.1 h1:9JIYsGnXP613pb2vPjFeMMjBI5lEDsEaF6oYorTy6J4=
 github.com/cosmos/ledger-cosmos-go v0.11.1/go.mod h1:J8//BsAGTo3OC/vDLjMRFLW6q0WAaXvHnVc7ZmE8iUY=
@@ -665,8 +663,6 @@ github.com/influxdata/promql/v2 v2.12.0/go.mod h1:fxOPu+DY0bqCTCECchSRtWfc+0X19y
 github.com/influxdata/roaring v0.4.13-0.20180809181101-fc520f41fab6/go.mod h1:bSgUQ7q5ZLSO+bKBGqJiCBGAl+9DxyW63zLTujjUlOE=
 github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mqiSBE6Ffsg94weZZ2c+v/ciT8QRHFOap7EKDrR0=
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
-github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32 h1:uuzjQk/dBUCghUAxl3KNCj7iDylBLao6TnRK1xO/exQ=
-github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220922141950-331c2c464f32/go.mod h1:56yrn9/cmuDbUn8BJ9XNXyuYw0ZbqUN11I3bl0Tb/7Y=
 github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220923193544-9f2b692521b9 h1:jDHiWzi6AC4mQBfj0H68AhCxT5A+BZiSqbRASsfcTcY=
 github.com/iqlusioninc/liquidity-staking-module v1.0.1-0.20220923193544-9f2b692521b9/go.mod h1:cnK7iTwNSHH8ntlh6eqsbL2gVa+PExVS2Sa7/f3itmI=
 github.com/iris-contrib/blackfriday v2.0.0+incompatible/go.mod h1:UzZ2bDEoaSGPbkg6SAB4att1aAwTmVIx/5gCVqeyUdI=

@@ -9,7 +9,7 @@ require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.29.2
 	github.com/cosmos/cosmos-sdk v0.46.4
-	github.com/cosmos/ibc-go/v5 v5.0.1
+	github.com/cosmos/ibc-go/v5 v5.1.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/viper v1.14.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
-	// github.com/cosmos/gaia/v8 v8.0.0-rc // future for GlobalFee
+// github.com/cosmos/gaia/v8 v8.0.0-rc // future for GlobalFee
 )
 
 require (
