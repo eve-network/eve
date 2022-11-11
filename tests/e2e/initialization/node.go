@@ -186,7 +186,6 @@ func (n *internalNode) createKeyFromMnemonic(name, mnemonic string) error {
 	if err != nil {
 		return err
 	}
-
 	n.keyInfo = *info
 	n.mnemonic = mnemonic
 	n.privateKey = privKey

@@ -13,11 +13,12 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/eve-network/eve/tests/e2e/util"
 	"github.com/gogo/protobuf/proto"
 	tmjson "github.com/tendermint/tendermint/libs/json"
-
-	"github.com/eve-network/eve/tests/e2e/util"
 )
 
 // NodeConfig is a confiuration for the node supplied from the test runner
@@ -218,10 +219,10 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
-	// err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypesv1.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
-	// if err != nil {
-	// 	return err
-	// }
+	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypesv1.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
+	if err != nil {
+		return err
+	}
 
 	err = updateModuleGenesis(appGenState, genutiltypes.ModuleName, &genutiltypes.GenesisState{}, updateGenUtilGenesis(chain))
 	if err != nil {
@@ -279,12 +280,12 @@ func updateCrisisGenesis(crisisGenState *crisistypes.GenesisState) {
 	crisisGenState.ConstantFee.Denom = BaseDenom
 }
 
-// func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypes.GenesisState) {
-// 	return func(govGenState *govtypesv1.GenesisState) {
-// 		govGenState.VotingParams.VotingPeriod = votingPeriod
-// 		govGenState.DepositParams.MinDeposit = tenM
-// 	}
-// }
+func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypesv1.GenesisState) {
+	return func(govGenState *govtypesv1.GenesisState) {
+		govGenState.VotingParams.VotingPeriod = votingPeriod
+		govGenState.DepositParams.MinDeposit = tenM
+	}
+}
 
 func updateGenUtilGenesis(c *internalChain) func(*genutiltypes.GenesisState) {
 	return func(genUtilGenState *genutiltypes.GenesisState) {

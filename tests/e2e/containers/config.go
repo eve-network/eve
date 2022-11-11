@@ -23,11 +23,11 @@ const (
 	// Pre-upgrade eve repo/tag to pull.
 	// It should be uploaded to Docker Hub. EVE_E2E_SKIP_UPGRADE should be unset
 	// for this functionality to be used.
-	previousVersionRepository = "ghcr.io/cosmoscontracts/eve"
-	previousVersionTag        = "10.0.0-e2e"
+	// previousVersionRepository = "ghcr.io/cosmoscontracts/eve"
+	// previousVersionTag        = "0.0.1-e2e"
 	// Pre-upgrade repo/tag for eve initialization (this should be one version below upgradeVersion)
-	previousVersionInitRepository = "ghcr.io/cosmoscontracts/eve"
-	previousVersionInitTag        = "10.0.0-e2e-init-chain"
+	// previousVersionInitRepository = "ducnt87/eve"
+	// previousVersionInitTag        = "0.0.1-e2e-init-chain"
 	// Hermes repo/version for relayer, use osmosis dockerhub
 	relayerRepository = "osmolabs/hermes"
 	relayerTag        = "0.13.0"
@@ -53,25 +53,25 @@ func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 
 	// If upgrade is tested, we need to utilize InitRepository and InitTag
 	// to initialize older state with Docker
-	config.InitRepository = previousVersionInitRepository
-	config.InitTag = previousVersionInitTag
+	// config.InitRepository = previousVersionInitRepository
+	// config.InitTag = previousVersionInitTag
 
-	if isFork {
-		// Forks are state compatible with earlier versions before fork height.
-		// Normally, validators switch the binaries pre-fork height
-		// Then, once the fork height is reached, the state breaking-logic
-		// is run.
-		config.EveRepository = CurrentBranchRepository
-		config.EveTag = CurrentBranchTag
-	} else {
-		// Upgrades are run at the time when upgrade height is reached
-		// and are submitted via a governance proposal. Thefore, we
-		// must start running the previous Eve version. Then, the node
-		// should auto-upgrade, at which point we can restart the updated
-		// Eve validator container.
-		config.EveRepository = previousVersionRepository
-		config.EveTag = previousVersionTag
-	}
+	// if isFork {
+	// 	// Forks are state compatible with earlier versions before fork height.
+	// 	// Normally, validators switch the binaries pre-fork height
+	// 	// Then, once the fork height is reached, the state breaking-logic
+	// 	// is run.
+	// 	config.EveRepository = CurrentBranchRepository
+	// 	config.EveTag = CurrentBranchTag
+	// } else {
+	// 	// Upgrades are run at the time when upgrade height is reached
+	// 	// and are submitted via a governance proposal. Thefore, we
+	// 	// must start running the previous Eve version. Then, the node
+	// 	// should auto-upgrade, at which point we can restart the updated
+	// 	// Eve validator container.
+	// 	config.EveRepository = previousVersionRepository
+	// 	config.EveTag = previousVersionTag
+	// }
 
 	return config
 }
