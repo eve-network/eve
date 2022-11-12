@@ -20,8 +20,8 @@ import (
 	txsigning "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/go-bip39"
+	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 	"github.com/spf13/viper"
 	tmconfig "github.com/tendermint/tendermint/config"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -83,7 +83,7 @@ func (n *internalNode) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, error)
 	}
 
 	// get the initial validator min self delegation
-	minSelfDelegation, _ := sdk.NewIntFromString("1")
+	// minSelfDelegation, _ := sdk.NewIntFromString("1")
 
 	valPubKey, err := cryptocodec.FromTmPubKeyInterface(n.consensusKey.PubKey)
 	if err != nil {
@@ -96,7 +96,6 @@ func (n *internalNode) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, error)
 		amount,
 		description,
 		commissionRates,
-		minSelfDelegation,
 	)
 }
 

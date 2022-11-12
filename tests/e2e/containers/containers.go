@@ -213,7 +213,7 @@ func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir st
 		User:       "root:root",
 		Cmd:        []string{"start", "--trace"},
 		Mounts: []string{
-			fmt.Sprintf("%s/:/eve/.eve", valCondifDir),
+			fmt.Sprintf("%s/:/eve/.eved", valCondifDir),
 		},
 	}
 
