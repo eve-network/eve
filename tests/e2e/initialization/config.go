@@ -15,9 +15,9 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/tests/e2e/util"
 	"github.com/gogo/protobuf/proto"
+	staketypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 )
 
@@ -165,9 +165,9 @@ func updateModuleGenesis[V proto.Message](appGenState map[string]json.RawMessage
 
 func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.Duration, forkHeight int) error {
 	// initialize a genesis file
-	var addr sdk.AccAddress
 	configDir := chain.nodes[0].configDir()
 	for _, val := range chain.nodes {
+		var addr sdk.AccAddress
 		if chain.chainMeta.Id == ChainAID {
 			addr, _ = val.keyInfo.GetAddress()
 			if err := addAccount(configDir, "", InitBalanceStrA, addr, forkHeight); err != nil {

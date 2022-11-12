@@ -161,7 +161,7 @@ func (n *internalNode) createConsensusKey() error {
 }
 
 func (n *internalNode) createKeyFromMnemonic(name, mnemonic string) error {
-	kb, err := keyring.New(keyringAppName, keyring.BackendTest, n.configDir(), nil, nil)
+	kb, err := keyring.New(keyringAppName, keyring.BackendTest, n.configDir(), nil, util.Cdc)
 	if err != nil {
 		return err
 	}
