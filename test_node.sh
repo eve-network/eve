@@ -51,6 +51,8 @@ from_scratch () {
   # same as inqlusions
   update_test_genesis '.app_state["staking"]["params"]["exemption_factor"]="10.000000000000000000"'  
 
+  update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom": "ueve","amount": "1000000"}]'  
+
   # Allocate genesis accounts
   # 10 eve (1 of which is used for validator)
   eved add-genesis-account $KEY 10000000ueve --keyring-backend $KEYRING

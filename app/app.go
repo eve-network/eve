@@ -228,7 +228,7 @@ var (
 		groupmodule.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		nftmodule.AppModuleBasic{},
-		tokenfactory.NewAppModuleBasic(),
+		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
