@@ -9,6 +9,7 @@ require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.29.2
 	github.com/cosmos/cosmos-sdk v0.46.4
+	github.com/cosmos/gaia/v8 v8.0.0-rc
 	github.com/cosmos/ibc-go/v5 v5.1.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
@@ -19,7 +20,6 @@ require (
 	github.com/spf13/viper v1.14.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
-// github.com/cosmos/gaia/v8 v8.0.0-rc // future for GlobalFee
 )
 
 require (
@@ -183,5 +183,5 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// pebbledb - https://gist.github.com/faddat/673107b72eccdd869b242338dd17e9d9
-	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220731185452-136c7b65fb62
+	github.com/tendermint/tm-db => github.com/baabeetaa/tm-db v0.6.7-0.20220827003937-31989c12be6f
 )
