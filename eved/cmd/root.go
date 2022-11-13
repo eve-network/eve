@@ -33,8 +33,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	params "github.com/eve-network/eve/app/params"
+	genutilcli "github.com/iqlusioninc/liquidity-staking-module/x/genutil/client/cli"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -138,9 +138,9 @@ func initAppConfig() (string, interface{}) {
 
 		WASM WASMConfig `mapstructure:"wasm"`
 
-		// BypassMinFeeMsgTypes defines custom message types the operator may set that
-		// will bypass minimum fee checks during CheckTx.
-		BypassMinFeeMsgTypes []string `mapstructure:"bypass-min-fee-msg-types"`
+		// // BypassMinFeeMsgTypes defines custom message types the operator may set that
+		// // will bypass minimum fee checks during CheckTx.
+		// BypassMinFeeMsgTypes []string `mapstructure:"bypass-min-fee-msg-types"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -160,7 +160,7 @@ func initAppConfig() (string, interface{}) {
 			LruSize:       1,
 			QueryGasLimit: 300000,
 		},
-		BypassMinFeeMsgTypes: app.GetDefaultBypassFeeMessages(),
+		// BypassMinFeeMsgTypes: app.GetDefaultBypassFeeMessages(),
 	}
 
 	customAppTemplate := serverconfig.DefaultConfigTemplate + `
@@ -173,16 +173,6 @@ query_gas_limit = 300000
 # This is the number of wasm vm instances we keep cached in memory for speed-up
 # Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
 lru_size = 0
-
-###############################################################################
-###                        Custom Eve Configuration                        ###
-###############################################################################
-# bypass-min-fee-msg-types defines custom message types the operator may set that
-# will bypass minimum fee checks during CheckTx.
-#
-# Example:
-# ["/ibc.core.channel.v1.MsgRecvPacket", "/ibc.core.channel.v1.MsgAcknowledgement", ...]
-bypass-min-fee-msg-types = [{{ range .BypassMinFeeMsgTypes }}{{ printf "%q, " . }}{{end}}]
 `
 
 	return customAppTemplate, customAppConfig
@@ -195,7 +185,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
-		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),

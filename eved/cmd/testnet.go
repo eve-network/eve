@@ -38,7 +38,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/eve-network/eve/app"
-	"github.com/eve-network/eve/app/params"
 )
 
 var (
@@ -124,9 +123,7 @@ func InitTestnet(
 	nodeIDs := make([]string, numValidators)
 	valPubKeys := make([]cryptotypes.PubKey, numValidators)
 
-	simappConfig := params.CustomAppConfig{
-		Config: *srvconfig.DefaultConfig(),
-	}
+	simappConfig := *srvconfig.DefaultConfig()
 	simappConfig.MinGasPrices = minGasPrices
 	simappConfig.API.Enable = true
 	simappConfig.Telemetry.Enabled = true
