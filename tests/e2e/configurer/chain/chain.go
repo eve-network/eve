@@ -129,10 +129,7 @@ func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 		func() bool {
 			balancesDstPost, err := dstNode.QueryBalances(recipient)
 			require.NoError(c.t, err)
-			var ibcCoin sdk.Coins
-			for i := 0; i < balancesDstPre.Len(); i++ {
-				ibcCoin = balancesDstPost.Sub(balancesDstPre[i])
-			}
+			ibcCoin, _ := balancesDstPost.SafeSub(balancesDstPre...)
 			if ibcCoin.Len() == 1 {
 				tokenPre := balancesDstPre.AmountOfNoDenomValidation(ibcCoin[0].Denom)
 				tokenPost := balancesDstPost.AmountOfNoDenomValidation(ibcCoin[0].Denom)
