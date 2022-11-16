@@ -2,12 +2,9 @@
 name: Build and Push Docker Image for E2E Test
 
 on:
-  release:
-    types: [published, created, edited]
   push:
     tags:
-    branches:
-      - 'main'
+    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
