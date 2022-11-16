@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -105,7 +105,7 @@ func (n *NodeConfig) QueryContractsFromId(codeId int) ([]string, error) {
 	return contractsResponse.Contracts, nil
 }
 
-func (n *NodeConfig) QueryPropTally(proposalNumber int) (sdk.Int, sdk.Int, sdk.Int, sdk.Int, error) {
+func (n *NodeConfig) QueryPropTally(proposalNumber int) (sdkmath.Int, sdkmath.Int, sdkmath.Int, sdkmath.Int, error) {
 	path := fmt.Sprintf("cosmos/gov/v1beta1/proposals/%d/tally", proposalNumber)
 	bz, err := n.QueryGRPCGateway(path)
 	require.NoError(n.t, err)
