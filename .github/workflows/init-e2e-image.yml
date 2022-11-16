@@ -2,12 +2,9 @@
 name: Build and Push Docker Image for init E2E Test
 
 on:
-  release:
-    types: [published, created, edited]
   push:
     tags:
-    branches:
-      - 'main'
+    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -34,6 +31,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=pr-latest,event=pr-e2e
             type=semver,pattern={{raw}}-e2e-init-chain
             type=semver,pattern={{version}}-e2e-init-chain
             type=semver,pattern={{major}}.{{minor}}-e2e-init-chain
