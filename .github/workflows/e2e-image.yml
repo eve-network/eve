@@ -33,7 +33,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            latest=false
           tags: |
             type=ref,event=branch-e2e
             type=ref,event=pr-e2e
