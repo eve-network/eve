@@ -10,8 +10,9 @@ eved tx bank send eve1 eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn 1ueve --keyrin
 
 # set fee to 0, run all these of these at the same time.
 SEQ=$(eved q account eve1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn --output json | jq -r '.sequence')
+LAST_PROP_ID=$(eved q gov proposals --output json | jq -r '.proposals | last | .id')
 eved tx gov submit-legacy-proposal param-change testing/gov/lower_min_fee.json --from eve1 --keyring-backend test --chain-id eve-t1 --yes --fees 500ueve --sequence $SEQ
-eved tx gov vote 7 yes --from eve1 --keyring-backend test --chain-id eve-t1 --yes --fees 500ueve --sequence $((SEQ+1))
+eved tx gov vote $((LAST_PROP_ID+1)) yes --from eve1 --keyring-backend test --chain-id eve-t1 --yes --fees 500ueve --sequence $((SEQ+1))
 
 
 eved q globalfee minimum-gas-prices --output json
