@@ -56,6 +56,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=eved \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb \
+		  -X github.com/tendermint/tm-db.ForceSync=1 \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 	
 
@@ -66,7 +67,7 @@ ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
-
+BUILDDIR ?= $(CURDIR)/build
 #### Command List ####
 
 all: install
@@ -128,12 +129,43 @@ proto-check-breaking:
 ###############################################################################
 ###                           Tests & Simulation                            ###
 ###############################################################################
-
-PACKAGES_UNIT=$(shell go list ./...)
+PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/simulator|e2e')
+PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
+TEST_PACKAGES=./...
 
 test: test-unit
 test-unit:
 	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_UNIT)
+
+# test-e2e-ci runs a full e2e test suite
+# does not do any validation about the state of the Docker environment
+# As a result, avoid using this locally.
+test-e2e-ci:
+	@VERSION=$(VERSION) EVE_E2E_SKIP_STATE_SYNC=True EVE_E2E_SKIP_UPGRADE=True EVE_E2E_DEBUG_LOG=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
+
+# test-e2e-debug runs a full e2e test suite but does
+# not attempt to delete Docker resources at the end.
+test-e2e-debug: e2e-setup
+	@VERSION=$(VERSION) EVE_E2E_SKIP_STATE_SYNC=True EVE_E2E_SKIP_UPGRADE=True EVE_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
+
+benchmark:
+	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
+
+build-e2e-script:
+	mkdir -p $(BUILDDIR)
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/ ./tests/e2e/initialization/$(E2E_SCRIPT_NAME)
+
+docker-build-debug:
+	@DOCKER_BUILDKIT=1 docker build -t eve:${COMMIT} --build-arg BASE_IMG_TAG=debug -f tests/e2e/initialization/Dockerfile .
+	@DOCKER_BUILDKIT=1 docker tag eve:${COMMIT} eve:debug
+
+docker-build-e2e-init-chain:
+	@DOCKER_BUILDKIT=1 docker build -t eve-e2e-init-chain:debug --build-arg E2E_SCRIPT_NAME=chain -f tests/e2e/initialization/init.Dockerfile .
+
+docker-build-e2e-init-node:
+	@DOCKER_BUILDKIT=1 docker build -t eve-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
+
+.PHONY: test-mutation
 
 ###############################################################################
 ###                                Localnet                                 ###
