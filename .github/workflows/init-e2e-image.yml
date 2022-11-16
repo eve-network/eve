@@ -34,9 +34,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch-e2e-init-chain
-            type=ref,event=pr-e2e-init-chain
-            type=raw,value=pr-latest,event=pr-e2e-init-chain
             type=semver,pattern={{raw}}-e2e-init-chain
             type=semver,pattern={{version}}-e2e-init-chain
             type=semver,pattern={{major}}.{{minor}}-e2e-init-chain
