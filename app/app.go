@@ -304,6 +304,7 @@ type EveApp struct {
 }
 
 func init() {
+	SetAddressPrefixes()
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)

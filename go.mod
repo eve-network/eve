@@ -13,6 +13,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/ory/dockertest/v3 v3.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -20,6 +21,27 @@ require (
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
 // github.com/cosmos/gaia/v8 v8.0.0-rc // future for GlobalFee
+)
+
+require (
+	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/Microsoft/go-winio v0.5.2 // indirect
+	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
+	github.com/containerd/continuity v0.3.0 // indirect
+	github.com/docker/cli v20.10.14+incompatible // indirect
+	github.com/docker/docker v20.10.17+incompatible // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-units v0.4.0 // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/moby/term v0.0.0-20220808134915-39b0c02b01ae // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
+	github.com/opencontainers/runc v1.1.3 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
+	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
+	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 )
 
 require (
@@ -57,7 +79,7 @@ require (
 	github.com/confio/ics23/go v0.7.0 // indirect
 	github.com/cosmos/btcutil v1.0.4 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.2 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
@@ -182,6 +204,8 @@ replace (
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/iqlusioninc/liquidity-staking-module => github.com/notional-labs/liquidity-staking-module v0.0.3-0.20221113233908-923cf715d2ed
 	// pebbledb - https://gist.github.com/faddat/673107b72eccdd869b242338dd17e9d9
 	github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220731185452-136c7b65fb62
+
 )
