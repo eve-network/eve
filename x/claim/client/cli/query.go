@@ -29,41 +29,11 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	cmd.AddCommand(
-		GetCmdQueryModuleAccountBalance(),
 		GetCmdQueryParams(),
 		GetCmdQueryClaimRecord(),
-		GetCmdQueryTotalClaimable(),
+		GetCmdQueryClaimable(),
 	)
 	// this line is used by starport scaffolding # 1
-
-	return cmd
-}
-
-// GetCmdQueryParams implements a command to return the current claim
-// module account balance.
-func GetCmdQueryModuleAccountBalance() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "module-account-balance",
-		Short: "Query the current claim module's account balance",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryModuleAccountBalanceRequest{}
-			res, err := queryClient.ModuleAccountBalance(context.Background(), req)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -132,7 +102,7 @@ $ %s query claim claim-record <address>
 }
 
 // GetCmdQueryClaimable implements the query claimables command.
-func GetCmdQueryTotalClaimable() *cobra.Command {
+func GetCmdQueryClaimable() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "total-claimable [address]",
 		Args:  cobra.ExactArgs(1),
@@ -152,7 +122,7 @@ $ %s query claim total-claimable osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 			// Query store
-			res, err := queryClient.TotalClaimable(context.Background(), &types.QueryTotalClaimableRequest{
+			res, err := queryClient.Claimable(context.Background(), &types.QueryTotalClaimableRequest{
 				Address: args[0],
 			})
 			if err != nil {

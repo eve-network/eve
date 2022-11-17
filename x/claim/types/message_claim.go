@@ -9,13 +9,12 @@ var _ sdk.Msg = &MsgClaim{}
 
 // msg types
 const (
-	TypeMsgClaimFor = "claim_for"
+	TypeMsgClaimFor = "claim"
 )
 
-func NewMsgClaimFor(sender string, address string) *MsgClaim {
+func NewMsgClaim(sender string) *MsgClaim {
 	return &MsgClaim{
-		Sender:  sender,
-		Address: address,
+		Sender: sender,
 	}
 }
 
