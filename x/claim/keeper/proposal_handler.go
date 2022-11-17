@@ -19,5 +19,24 @@ func NewClaimProposalHandler(k Keeper) govv1beta1.Handler {
 }
 
 func handleAirdropProposal(ctx sdk.Context, k Keeper, p *types.AirdropProposal) error {
+	if err := p.ValidateBasic(); err != nil {
+		return err
+	}
+	// Set params
+	params := types.NewParams(true, p.ClaimDenom, p.AirdropStartTime, p.DurationUntilDecay, p.DurationOfDecay)
+	err := k.SetParams(ctx, params)
+	if err != nil {
+		return err
+	}
+	// Set airdrop list
+	err = k.appendClaimableList(ctx, p.AirdropList)
+	if err != nil {
+		return err
+	}
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeGovInitialAirdrop,
+	))
+
+	return nil
 }

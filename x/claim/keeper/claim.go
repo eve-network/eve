@@ -12,10 +12,78 @@ import (
 func (k Keeper) CreateModuleAccount(ctx sdk.Context, amount sdk.Coin) {
 	moduleAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter)
 	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
-	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(amount))
+}
+
+func (k Keeper) ClaimCoins(ctx sdk.Context, claimable types.Claimable) (sdk.Coins, error) {
+
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(claimable.Amount...))
 	if err != nil {
 		panic(err)
 	}
+
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(claimable.Address), claimable.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	return claimable.Amount, nil
+}
+
+func (k Keeper) appendClaimableList(ctx sdk.Context, claimables []types.Claimable) error {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimableListStorePrefix)
+
+	for _, claimable := range claimables {
+		accAddress, err := sdk.AccAddressFromBech32(claimable.Address)
+		if err != nil {
+			return err
+		}
+
+		bz, err := proto.Marshal(&claimable)
+		if err != nil {
+			return err
+		}
+
+		prefixStore.Set(accAddress, bz)
+	}
+	return nil
+}
+
+func (k Keeper) GetClaimableInfo(ctx sdk.Context, accAddress sdk.AccAddress) (types.Claimable, bool) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimableListStorePrefix)
+
+	var claimableInfo types.Claimable
+	bz := prefixStore.Get(accAddress)
+	if bz == nil {
+		return claimableInfo, false
+	}
+
+	err := proto.Unmarshal(bz, &claimableInfo)
+	if err != nil {
+		panic(err)
+	}
+
+	prefixStore.Delete(accAddress)
+	return claimableInfo, true
+}
+
+func (k Keeper) GetClaimRecord(ctx sdk.Context, address sdk.AccAddress) (types.ClaimRecord, bool) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimRecordsStorePrefix)
+
+	var claimRecord types.ClaimRecord
+	bz := prefixStore.Get(address)
+	if bz == nil {
+		return claimRecord, false
+	}
+
+	err := proto.Unmarshal(bz, &claimRecord)
+	if err != nil {
+		panic(err)
+	}
+
+	return claimRecord, true
 }
 
 // SetClaimables set claimable amount from balances object
@@ -39,7 +107,7 @@ func (k Keeper) SetClaimRecord(ctx sdk.Context, claimRecord types.ClaimRecord) e
 		return err
 	}
 
-	addr, err := sdk.AccAddressFromBech32(claimRecord.Address)
+	addr, err := sdk.AccAddressFromBech32(claimRecord.ClaimAble.Address)
 	if err != nil {
 		return err
 	}
@@ -70,13 +138,7 @@ func (k Keeper) ClaimRecords(ctx sdk.Context) []types.ClaimRecord {
 	return claimRecords
 }
 
-func (k Keeper) fundRemainingsToCommunity(ctx sdk.Context) error {
-	moduleAccAddr := k.GetModuleAccountAddress(ctx)
-	amt := k.GetModuleAccountBalance(ctx)
-	return k.distrKeeper.FundCommunityPool(ctx, sdk.NewCoins(amt), moduleAccAddr)
-}
-
-func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
+func (k Keeper) clearClaimRecords(ctx sdk.Context) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.ClaimRecordsStorePrefix)
 	defer iterator.Close()
@@ -87,11 +149,19 @@ func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
 	}
 }
 
-func (k Keeper) EndAirdrop(ctx sdk.Context) error {
-	err := k.fundRemainingsToCommunity(ctx)
-	if err != nil {
-		return err
+func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.ClaimableListStorePrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		store.Delete(key)
 	}
+}
+
+func (k Keeper) EndAirdrop(ctx sdk.Context) error {
+	k.clearInitialClaimables(ctx)
 	k.clearInitialClaimables(ctx)
 	return nil
 }

@@ -26,5 +26,6 @@ const (
 // KVStore keys
 var (
 	// ClaimRecordsStorePrefix defines the store prefix for the claim records
-	ClaimRecordsStorePrefix = []byte{0x01}
+	ClaimRecordsStorePrefix  = []byte{0x01}
+	ClaimableListStorePrefix = []byte{0x02}
 )

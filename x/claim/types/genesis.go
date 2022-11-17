@@ -26,15 +26,11 @@ func DefaultGenesis() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # genesis/types/validate
-	totalClaimable := sdk.Coins{}
-	for _, claimRecord := range gs.ClaimRecords {
-		totalClaimable = totalClaimable.Add(claimRecord.ClaimAble.Amount...)
+	if gs.ModuleAccountBalance.Amount.Equal(sdk.ZeroInt()) {
+		return nil
 	}
 
-	if !totalClaimable.IsEqual(sdk.NewCoins(gs.ModuleAccountBalance)) {
-		return ErrIncorrectModuleAccountBalance
-	}
-	return nil
+	return ErrIncorrectModuleAccountBalance
 }
 
 // GetGenesisStateFromAppState return GenesisState
