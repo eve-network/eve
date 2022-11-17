@@ -7,6 +7,7 @@ import (
 
 	"github.com/CosmWasm/token-factory/x/tokenfactory"
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/eve-network/eve/x/claim"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -194,6 +195,7 @@ func TestRunMigrations(t *testing.T) {
 					"crisis":       crisis.AppModule{}.ConsensusVersion(),
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
 					"capability":   capability.AppModule{}.ConsensusVersion(),
+					"claim":        claim.AppModule{}.ConsensusVersion(),
 					"wasm":         wasm.AppModule{}.ConsensusVersion(),
 					"ibc":          ibc.AppModule{}.ConsensusVersion(),
 					"transfer":     transfer.AppModule{}.ConsensusVersion(),
