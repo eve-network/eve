@@ -19,19 +19,13 @@ message Params {
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"airdrop_start_time\""
   ];
-  google.protobuf.Duration duration_until_decay = 3 [
+  google.protobuf.Duration duration_of_airdrop = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true,
-    (gogoproto.jsontag) = "duration_until_decay,omitempty",
-    (gogoproto.moretags) = "yaml:\"duration_until_decay\""
-  ];
-  google.protobuf.Duration duration_of_decay = 4 [
-    (gogoproto.nullable) = false,
-    (gogoproto.stdduration) = true,
-    (gogoproto.jsontag) = "duration_of_decay,omitempty",
-    (gogoproto.moretags) = "yaml:\"duration_of_decay\""
+    (gogoproto.jsontag) = "duration_of_airdrop,omitempty",
+    (gogoproto.moretags) = "yaml:\"duration_of_airdrop\""
   ];
 
   // denom of claimable asset
-  string claim_denom = 5;
+  string claim_denom = 4;
 }

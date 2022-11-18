@@ -24,12 +24,11 @@ func NewInitialAirdropProposal(
 	title string,
 	description string,
 	startTime time.Time,
-	durationUnitDecay time.Duration,
-	durationOfDecay time.Duration,
+	durationOfAirdrop time.Duration,
 	denom string,
 	airdropList []Claimable,
 ) *AirdropProposal {
-	return &AirdropProposal{title, description, startTime, durationUnitDecay, durationOfDecay, denom, airdropList}
+	return &AirdropProposal{title, description, startTime, durationOfAirdrop, denom, airdropList}
 }
 
 func (p AirdropProposal) ProposalRoute() string { return RouterKey }
@@ -40,10 +39,7 @@ func (p AirdropProposal) ValidateBasic() error {
 	if err := validateProposalCommons(p.Title, p.Description); err != nil {
 		return err
 	}
-	if err := validateTime(p.DurationOfDecay); err != nil {
-		return err
-	}
-	if err := validateTime(p.DurationUntilDecay); err != nil {
+	if err := validateDuration(p.DurationOfAirdrop); err != nil {
 		return err
 	}
 	if len(p.AirdropList) == 0 {

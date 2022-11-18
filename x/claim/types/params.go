@@ -9,28 +9,25 @@ import (
 )
 
 var (
-	DefaultClaimDenom         = "ueve"
-	DefaultDurationUntilDecay = time.Hour
-	DefaultDurationOfDecay    = time.Hour * 5
+	DefaultClaimDenom        = "ueve"
+	DefaultDurationOfAirdrop = time.Hour * 24 * 7
 )
 
-func NewParams(enabled bool, claimDenom string, startTime time.Time, durationUntilDecay, durationOfDecay time.Duration) Params {
+func NewParams(enabled bool, claimDenom string, startTime time.Time, durationOfAirdrop time.Duration) Params {
 	return Params{
-		AirdropEnabled:     enabled,
-		ClaimDenom:         claimDenom,
-		AirdropStartTime:   startTime,
-		DurationUntilDecay: durationUntilDecay,
-		DurationOfDecay:    durationOfDecay,
+		AirdropEnabled:    enabled,
+		ClaimDenom:        claimDenom,
+		AirdropStartTime:  startTime,
+		DurationOfAirdrop: durationOfAirdrop,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		AirdropEnabled:     false,
-		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: DefaultDurationUntilDecay,
-		DurationOfDecay:    DefaultDurationOfDecay,
-		ClaimDenom:         DefaultClaimDenom,
+		AirdropEnabled:    false,
+		AirdropStartTime:  time.Time{},
+		DurationOfAirdrop: DefaultDurationOfAirdrop,
+		ClaimDenom:        DefaultClaimDenom,
 	}
 }
 
@@ -58,11 +55,7 @@ func (p Params) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
-	err = validateDuration(p.DurationOfDecay)
-	if err != nil {
-		return err
-	}
-	err = validateDuration(p.DurationUntilDecay)
+	err = validateDuration(p.DurationOfAirdrop)
 	if err != nil {
 		return err
 	}

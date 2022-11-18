@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/eve-network/eve/x/claim/types"
 	"github.com/gogo/protobuf/proto"
@@ -15,6 +16,12 @@ func (k Keeper) CreateModuleAccount(ctx sdk.Context, amount sdk.Coin) {
 }
 
 func (k Keeper) ClaimCoins(ctx sdk.Context, claimable types.Claimable) (sdk.Coins, error) {
+	params := k.GetParams(ctx)
+	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
+
+	if elapsedAirdropTime > params.DurationOfAirdrop {
+		return nil, errors.Wrap(errors.ErrInvalidRequest, "Airdrop Ended")
+	}
 
 	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(claimable.Amount...))
 	if err != nil {
@@ -162,6 +169,6 @@ func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
 
 func (k Keeper) EndAirdrop(ctx sdk.Context) error {
 	k.clearInitialClaimables(ctx)
-	k.clearInitialClaimables(ctx)
+	k.clearClaimRecords(ctx)
 	return nil
 }

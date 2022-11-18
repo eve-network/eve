@@ -69,7 +69,7 @@ func (k msgServer) Claim(goCtx context.Context, msg *types.MsgClaim) (*types.Msg
 		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: Not initialize %s", msg.Sender)
 	}
 	if claimRecord.ClaimCompleted {
-		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: Already claim %s", msg.Sender)
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: Already claimed %s", msg.Sender)
 	}
 	coins, err := k.ClaimCoins(ctx, claimRecord.ClaimAble)
 	if err != nil {

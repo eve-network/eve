@@ -23,7 +23,7 @@ func handleAirdropProposal(ctx sdk.Context, k Keeper, p *types.AirdropProposal) 
 		return err
 	}
 	// Set params
-	params := types.NewParams(true, p.ClaimDenom, p.AirdropStartTime, p.DurationUntilDecay, p.DurationOfDecay)
+	params := types.NewParams(true, p.ClaimDenom, p.AirdropStartTime, p.DurationOfAirdrop)
 	err := k.SetParams(ctx, params)
 	if err != nil {
 		return err
