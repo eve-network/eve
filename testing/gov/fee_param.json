@@ -1,0 +1,17 @@
+{
+  "title": "Change GlobalFee",
+  "description": "This changes globalfee param to be a value from governance",
+  "changes": [
+    {
+      "subspace": "globalfee",
+      "key": "MinimumGasPricesParam",
+      "value": [
+        {
+          "denom": "ueve",
+          "amount": "0.0025"
+        }
+      ]
+    }
+  ],
+  "deposit": "100ueve"
+}

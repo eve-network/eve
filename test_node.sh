@@ -45,11 +45,13 @@ from_scratch () {
 
   # update from token -> ucraft
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ueve"'  
-  update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ueve","amount": "1000000"}]' # 1 eve right now
+  update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ueve","amount": "100"}]' # 1 eve right now
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ueve","amount": "1000"}'  
 
   # same as inqlusions
   update_test_genesis '.app_state["staking"]["params"]["exemption_factor"]="10.000000000000000000"'  
+
+  update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom": "ueve","amount": "1000000"}]'  
 
   # Allocate genesis accounts
   # 10 eve (1 of which is used for validator)

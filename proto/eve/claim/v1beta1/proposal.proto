@@ -24,9 +24,9 @@ message AirdropProposal {
         (gogoproto.moretags) = "yaml:\"duration_of_airdrop\""
       ];
     
-      string claim_denom = 6;
+      string claim_denom = 5;
 
-      repeated Claimable airdrop_list = 7 [
+      repeated Claimable airdrop_list = 6 [
         (gogoproto.nullable) = false,
         (gogoproto.jsontag) = "airdrop_list",
         (gogoproto.moretags) = "yaml:\"airdrop_list\""
