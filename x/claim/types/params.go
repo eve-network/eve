@@ -5,34 +5,29 @@ import (
 	"strings"
 	"time"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	yaml "gopkg.in/yaml.v2"
 )
 
 var (
-	DefaultClaimDenom         = "ueve"
-	DefaultDurationUntilDecay = time.Hour
-	DefaultDurationOfDecay    = time.Hour * 5
+	DefaultClaimDenom        = "ueve"
+	DefaultDurationOfAirdrop = time.Hour * 24 * 7
 )
 
-// Parameter store keys
-var (
-	KeyEnabled            = []byte("Enabled")
-	KeyStartTime          = []byte("StartTime")
-	KeyClaimDenom         = []byte("ClaimDenom")
-	KeyDurationUntilDecal = []byte("DurationUntilDecay")
-	KeyDurationOfDecay    = []byte("DurationOfDecay")
-	KeyAllowedClaimers    = []byte("AllowedClaimers")
-)
-
-func NewParams(enabled bool, claimDenom string, startTime time.Time, durationUntilDecay, durationOfDecay time.Duration, allowedClaimers []ClaimAuthorization) Params {
+func NewParams(enabled bool, claimDenom string, startTime time.Time, durationOfAirdrop time.Duration) Params {
 	return Params{
-		AirdropEnabled:     enabled,
-		ClaimDenom:         claimDenom,
-		AirdropStartTime:   startTime,
-		DurationUntilDecay: durationUntilDecay,
-		DurationOfDecay:    durationOfDecay,
-		AllowedClaimers:    allowedClaimers,
+		AirdropEnabled:    enabled,
+		ClaimDenom:        claimDenom,
+		AirdropStartTime:  startTime,
+		DurationOfAirdrop: durationOfAirdrop,
+	}
+}
+
+func DefaultParams() Params {
+	return Params{
+		AirdropEnabled:    false,
+		AirdropStartTime:  time.Time{},
+		DurationOfAirdrop: DefaultDurationOfAirdrop,
+		ClaimDenom:        DefaultClaimDenom,
 	}
 }
 
@@ -45,25 +40,27 @@ func (p Params) String() string {
 	return string(out)
 }
 
-// ParamSetPairs - Implements params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyEnabled, &p.AirdropEnabled, validateEnabled),
-		paramtypes.NewParamSetPair(KeyClaimDenom, &p.ClaimDenom, validateDenom),
-		paramtypes.NewParamSetPair(KeyStartTime, &p.AirdropStartTime, validateTime),
-		paramtypes.NewParamSetPair(KeyDurationUntilDecal, &p.DurationUntilDecay, validateDuration),
-		paramtypes.NewParamSetPair(KeyDurationOfDecay, &p.DurationOfDecay, validateDuration),
-		paramtypes.NewParamSetPair(KeyAllowedClaimers, &p.AllowedClaimers, validateClaimers),
-	}
-}
+func (p Params) ValidateBasic() error {
+	var err error
 
-// Validate validates all params
-func (p Params) Validate() error {
-	if err := validateEnabled(p.AirdropEnabled); err != nil {
+	err = validateEnabled(p.AirdropEnabled)
+	if err != nil {
 		return err
 	}
-	err := validateDenom(p.ClaimDenom)
-	return err
+	err = validateDenom(p.ClaimDenom)
+	if err != nil {
+		return err
+	}
+	err = validateTime(p.AirdropStartTime)
+	if err != nil {
+		return err
+	}
+	err = validateDuration(p.DurationOfAirdrop)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p Params) IsAirdropEnabled(t time.Time) bool {
@@ -77,11 +74,6 @@ func (p Params) IsAirdropEnabled(t time.Time) bool {
 		return false
 	}
 	return true
-}
-
-// ParamKeyTable for staking module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
 func validateEnabled(i interface{}) error {
@@ -120,14 +112,6 @@ func validateDuration(i interface{}) error {
 	}
 	if d < 1 {
 		return fmt.Errorf("duration must be greater than or equal to 1: %d", d)
-	}
-	return nil
-}
-
-func validateClaimers(i interface{}) error {
-	_, ok := i.([]ClaimAuthorization)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }

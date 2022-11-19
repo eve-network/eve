@@ -1,6 +1,7 @@
 package types
 
 const (
-	EventTypeClaim         = "claim"
-	AttributeValueCategory = ModuleName
+	ClaimModuleEventType = "claim"
+
+	EventTypeGovInitialAirdrop = "gov_initial_airdrop"
 )

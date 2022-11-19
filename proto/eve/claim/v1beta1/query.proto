@@ -1,5 +1,5 @@
 syntax = "proto3";
-package eve.claim.v1beta1;
+package evenetwork.eve.claim.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -8,16 +8,10 @@ import "eve/claim/v1beta1/claim_record.proto";
 import "eve/claim/v1beta1/params.proto";
 // this line is used by starport scaffolding # 1
 
-option go_package = "x/claim/types";
+option go_package = "github.com/eve-network/eve/x/claim/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // this line is used by starport scaffolding # 2
-  rpc ModuleAccountBalance(QueryModuleAccountBalanceRequest)
-      returns (QueryModuleAccountBalanceResponse) {
-    option (google.api.http).get =
-        "/eve/claim/v1beta1/module_account_balance";
-  }
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/eve/claim/v1beta1/params";
   }
@@ -25,12 +19,7 @@ service Query {
     option (google.api.http).get =
         "/eve/claim/v1beta1/claim_record/{address}";
   }
-  rpc ClaimableForAction(QueryClaimableForActionRequest)
-      returns (QueryClaimableForActionResponse) {
-    option (google.api.http).get =
-        "/eve/claim/v1beta1/claimable_for_action/{address}/{action}";
-  }
-  rpc TotalClaimable(QueryTotalClaimableRequest)
+  rpc Claimable(QueryTotalClaimableRequest)
       returns (QueryTotalClaimableResponse) {
     option (google.api.http).get =
         "/eve/claim/v1beta1/total_claimable/{address}";
@@ -71,26 +60,13 @@ message QueryClaimRecordResponse {
   ];
 }
 
-message QueryClaimableForActionRequest {
-  string address = 1 [ (gogoproto.moretags) = "yaml:\"address\"" ];
-  Action action = 2 [ (gogoproto.moretags) = "yaml:\"action\"" ];
-}
-
-message QueryClaimableForActionResponse {
-  repeated cosmos.base.v1beta1.Coin coins = 1 [
-    (gogoproto.moretags) = "yaml:\"coins\"",
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-}
-
 message QueryTotalClaimableRequest {
   string address = 1 [ (gogoproto.moretags) = "yaml:\"address\"" ];
 }
 
 message QueryTotalClaimableResponse {
-  repeated cosmos.base.v1beta1.Coin coins = 1 [
-    (gogoproto.moretags) = "yaml:\"coins\"",
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];

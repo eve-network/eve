@@ -25,55 +25,70 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type Action int32
-
-const (
-	ActionInitialClaim  Action = 0
-	ActionBidNFT        Action = 1
-	ActionMintNFT       Action = 2
-	ActionVote          Action = 3
-	ActionDelegateStake Action = 4
-)
-
-var Action_name = map[int32]string{
-	0: "ActionInitialClaim",
-	1: "ActionBidNFT",
-	2: "ActionMintNFT",
-	3: "ActionVote",
-	4: "ActionDelegateStake",
+type Claimable struct {
+	// address of claim user
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty" yaml:"address"`
+	// totalclaimable amount for the user
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount" yaml:"amount"`
 }
 
-var Action_value = map[string]int32{
-	"ActionInitialClaim":  0,
-	"ActionBidNFT":        1,
-	"ActionMintNFT":       2,
-	"ActionVote":          3,
-	"ActionDelegateStake": 4,
-}
-
-func (x Action) String() string {
-	return proto.EnumName(Action_name, int32(x))
-}
-
-func (Action) EnumDescriptor() ([]byte, []int) {
+func (m *Claimable) Reset()         { *m = Claimable{} }
+func (m *Claimable) String() string { return proto.CompactTextString(m) }
+func (*Claimable) ProtoMessage()    {}
+func (*Claimable) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d39e36bc33584e4b, []int{0}
+}
+func (m *Claimable) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Claimable) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Claimable.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Claimable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Claimable.Merge(m, src)
+}
+func (m *Claimable) XXX_Size() int {
+	return m.Size()
+}
+func (m *Claimable) XXX_DiscardUnknown() {
+	xxx_messageInfo_Claimable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Claimable proto.InternalMessageInfo
+
+func (m *Claimable) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+func (m *Claimable) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
 }
 
 type ClaimRecord struct {
-	// address of claim user
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty" yaml:"address"`
-	// total initial claimable amount for the user
-	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=initial_claimable_amount,json=initialClaimableAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"initial_claimable_amount" yaml:"initial_claimable_amount"`
-	// true if action is completed
-	// index of bool in array refers to action enum #
-	ActionCompleted []bool `protobuf:"varint,4,rep,packed,name=action_completed,json=actionCompleted,proto3" json:"action_completed,omitempty" yaml:"action_completed"`
+	ClaimAble      Claimable `protobuf:"bytes,1,opt,name=claim_able,json=claimAble,proto3" json:"claim_able" yaml:"claim_able"`
+	ClaimCompleted bool      `protobuf:"varint,2,opt,name=claim_completed,json=claimCompleted,proto3" json:"claim_completed,omitempty" yaml:"claim_completed"`
 }
 
 func (m *ClaimRecord) Reset()         { *m = ClaimRecord{} }
 func (m *ClaimRecord) String() string { return proto.CompactTextString(m) }
 func (*ClaimRecord) ProtoMessage()    {}
 func (*ClaimRecord) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d39e36bc33584e4b, []int{0}
+	return fileDescriptor_d39e36bc33584e4b, []int{1}
 }
 func (m *ClaimRecord) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -102,30 +117,23 @@ func (m *ClaimRecord) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ClaimRecord proto.InternalMessageInfo
 
-func (m *ClaimRecord) GetAddress() string {
+func (m *ClaimRecord) GetClaimAble() Claimable {
 	if m != nil {
-		return m.Address
+		return m.ClaimAble
 	}
-	return ""
+	return Claimable{}
 }
 
-func (m *ClaimRecord) GetInitialClaimableAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *ClaimRecord) GetClaimCompleted() bool {
 	if m != nil {
-		return m.InitialClaimableAmount
+		return m.ClaimCompleted
 	}
-	return nil
-}
-
-func (m *ClaimRecord) GetActionCompleted() []bool {
-	if m != nil {
-		return m.ActionCompleted
-	}
-	return nil
+	return false
 }
 
 func init() {
-	proto.RegisterEnum("eve.claim.v1beta1.Action", Action_name, Action_value)
-	proto.RegisterType((*ClaimRecord)(nil), "eve.claim.v1beta1.ClaimRecord")
+	proto.RegisterType((*Claimable)(nil), "evenetwork.eve.claim.v1beta1.Claimable")
+	proto.RegisterType((*ClaimRecord)(nil), "evenetwork.eve.claim.v1beta1.ClaimRecord")
 }
 
 func init() {
@@ -133,33 +141,75 @@ func init() {
 }
 
 var fileDescriptor_d39e36bc33584e4b = []byte{
-	// 412 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0xc1, 0x8e, 0x93, 0x40,
-	0x18, 0xc7, 0xa1, 0x6d, 0x56, 0x9d, 0x75, 0x57, 0x76, 0x34, 0xbb, 0xd8, 0xc3, 0xd0, 0x10, 0x13,
-	0x89, 0x51, 0xc8, 0xea, 0xcd, 0xdb, 0x82, 0x31, 0xd1, 0x44, 0x0f, 0xd4, 0x78, 0xf0, 0x42, 0x06,
-	0xf8, 0x82, 0x93, 0x02, 0xd3, 0x30, 0xd3, 0xc6, 0xbe, 0x81, 0x47, 0xdf, 0xc1, 0x8b, 0xf1, 0xe8,
-	0x53, 0xf4, 0xd8, 0xa3, 0xa7, 0x6a, 0xda, 0x37, 0xe8, 0x13, 0x18, 0x66, 0x20, 0x1a, 0x93, 0x3d,
-	0x31, 0xf3, 0xfb, 0xfe, 0xf9, 0xf1, 0x1f, 0x18, 0xf4, 0x00, 0x96, 0x10, 0x64, 0x25, 0x65, 0x55,
-	0xb0, 0xbc, 0x4c, 0x41, 0xd2, 0x4b, 0xbd, 0x4b, 0x1a, 0xc8, 0x78, 0x93, 0xfb, 0xf3, 0x86, 0x4b,
-	0x8e, 0xcf, 0x60, 0x09, 0xbe, 0xe2, 0x7e, 0x97, 0x1a, 0xdf, 0x2b, 0x78, 0xc1, 0xd5, 0x34, 0x68,
-	0x57, 0x3a, 0x38, 0x26, 0x19, 0x17, 0x15, 0x17, 0x41, 0x4a, 0x05, 0xfc, 0x15, 0x72, 0x56, 0xeb,
-	0xb9, 0xfb, 0x63, 0x80, 0x8e, 0xa3, 0xd6, 0x13, 0x2b, 0x3d, 0x7e, 0x8c, 0x6e, 0xd0, 0x3c, 0x6f,
-	0x40, 0x08, 0xdb, 0x9c, 0x98, 0xde, 0xad, 0x10, 0x1f, 0xb6, 0xce, 0xe9, 0x8a, 0x56, 0xe5, 0x73,
-	0xb7, 0x1b, 0xb8, 0x71, 0x1f, 0xc1, 0xdf, 0x4c, 0x64, 0xb3, 0x9a, 0x49, 0x46, 0xcb, 0x44, 0xb5,
-	0xa1, 0x69, 0x09, 0x09, 0xad, 0xf8, 0xa2, 0x96, 0xf6, 0x60, 0x32, 0xf4, 0x8e, 0x9f, 0xde, 0xf7,
-	0x75, 0x03, 0xbf, 0x6d, 0xd0, 0x97, 0xf5, 0x23, 0xce, 0xea, 0x70, 0xba, 0xde, 0x3a, 0xc6, 0x61,
-	0xeb, 0x38, 0x5a, 0x7f, 0x9d, 0xc8, 0xfd, 0xfe, 0xcb, 0xf1, 0x0a, 0x26, 0x3f, 0x2e, 0x52, 0x3f,
-	0xe3, 0x55, 0xd0, 0x9d, 0x48, 0x3f, 0x9e, 0x88, 0x7c, 0x16, 0xc8, 0xd5, 0x1c, 0x84, 0x72, 0x8a,
-	0xf8, 0xbc, 0xd3, 0x44, 0xbd, 0xe5, 0x4a, 0x49, 0xf0, 0x6b, 0x64, 0xd1, 0x4c, 0x32, 0x5e, 0x27,
-	0x19, 0xaf, 0xe6, 0x25, 0x48, 0xc8, 0xed, 0xd1, 0x64, 0xe8, 0xdd, 0x0c, 0x9d, 0xae, 0xc6, 0x45,
-	0x77, 0xca, 0xff, 0x52, 0x6e, 0x7c, 0x47, 0xa3, 0xa8, 0x27, 0x8f, 0x24, 0x3a, 0xba, 0x52, 0x08,
-	0x9f, 0x23, 0xac, 0x57, 0xaf, 0xfe, 0x79, 0xab, 0x65, 0x60, 0x0b, 0xdd, 0xd6, 0x3c, 0x64, 0xf9,
-	0xdb, 0x97, 0xef, 0x2c, 0x13, 0x9f, 0xa1, 0x13, 0x4d, 0xde, 0xb0, 0x5a, 0xb6, 0x68, 0x80, 0x4f,
-	0x11, 0xd2, 0xe8, 0x3d, 0x97, 0x60, 0x0d, 0xf1, 0x05, 0xba, 0xab, 0xf7, 0x2f, 0xa0, 0x84, 0x82,
-	0x4a, 0x98, 0x4a, 0x3a, 0x03, 0x6b, 0x34, 0x1e, 0x7d, 0xfe, 0x4a, 0x8c, 0xf0, 0xe1, 0x7a, 0x47,
-	0xcc, 0xcd, 0x8e, 0x98, 0xbf, 0x77, 0xc4, 0xfc, 0xb2, 0x27, 0xc6, 0x66, 0x4f, 0x8c, 0x9f, 0x7b,
-	0x62, 0x7c, 0x38, 0xf9, 0xd4, 0xdd, 0x18, 0xf5, 0x21, 0xd2, 0x23, 0xf5, 0x6b, 0x9f, 0xfd, 0x09,
-	0x00, 0x00, 0xff, 0xff, 0xbe, 0xe4, 0xe1, 0xa9, 0x4b, 0x02, 0x00, 0x00,
+	// 378 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0xbd, 0x4e, 0xf3, 0x30,
+	0x14, 0x8d, 0xfb, 0x49, 0xfd, 0xa8, 0x2b, 0x8a, 0x88, 0x10, 0x2a, 0x15, 0x4a, 0xaa, 0x08, 0xa9,
+	0x19, 0xa8, 0xa3, 0x96, 0x8d, 0xad, 0xc9, 0x1b, 0x64, 0x64, 0x41, 0xf9, 0xb9, 0x2a, 0x51, 0x93,
+	0xb8, 0x8a, 0xdd, 0x40, 0xdf, 0x82, 0xe7, 0x60, 0xe1, 0x21, 0x58, 0x3a, 0x76, 0x64, 0x0a, 0xa8,
+	0xdd, 0x18, 0xf3, 0x04, 0x28, 0x76, 0xfa, 0x33, 0x31, 0xc5, 0xbe, 0xf7, 0x9c, 0x73, 0xcf, 0x3d,
+	0x31, 0xbe, 0x81, 0x1c, 0xac, 0x20, 0xf6, 0xa2, 0xc4, 0xca, 0x47, 0x3e, 0x70, 0x6f, 0x24, 0x6f,
+	0x8f, 0x19, 0x04, 0x34, 0x0b, 0xc9, 0x3c, 0xa3, 0x9c, 0xaa, 0xd7, 0x90, 0x43, 0x0a, 0xfc, 0x99,
+	0x66, 0x33, 0x02, 0x39, 0x10, 0x01, 0x21, 0x35, 0xa1, 0x77, 0x31, 0xa5, 0x53, 0x2a, 0x80, 0x56,
+	0x75, 0x92, 0x9c, 0x9e, 0x16, 0x50, 0x96, 0x50, 0x66, 0xf9, 0x1e, 0x83, 0x83, 0x36, 0x8d, 0x52,
+	0xd9, 0x37, 0xde, 0x11, 0x6e, 0x39, 0x95, 0x8e, 0xe7, 0xc7, 0xa0, 0xde, 0xe2, 0xff, 0x5e, 0x18,
+	0x66, 0xc0, 0x58, 0x17, 0xf5, 0x91, 0xd9, 0xb2, 0xd5, 0xb2, 0xd0, 0x3b, 0x4b, 0x2f, 0x89, 0xef,
+	0x8d, 0xba, 0x61, 0xb8, 0x3b, 0x88, 0xca, 0x71, 0xd3, 0x4b, 0xe8, 0x22, 0xe5, 0xdd, 0x46, 0xff,
+	0x9f, 0xd9, 0x1e, 0x5f, 0x11, 0x39, 0x8c, 0x54, 0xc3, 0x76, 0xbe, 0x88, 0x43, 0xa3, 0xd4, 0x9e,
+	0xac, 0x0a, 0x5d, 0x29, 0x0b, 0xfd, 0xb4, 0xd6, 0x12, 0x34, 0xe3, 0xed, 0x4b, 0x37, 0xa7, 0x11,
+	0x7f, 0x5a, 0xf8, 0x24, 0xa0, 0x89, 0x55, 0x5b, 0x95, 0x9f, 0x21, 0x0b, 0x67, 0x16, 0x5f, 0xce,
+	0x81, 0x09, 0x05, 0xe6, 0xd6, 0xb3, 0x8c, 0x0f, 0x84, 0xdb, 0xc2, 0xb1, 0x2b, 0xb2, 0x51, 0x29,
+	0xc6, 0x32, 0xab, 0x6a, 0x03, 0x61, 0xbb, 0x3d, 0x1e, 0x90, 0xbf, 0xa2, 0x22, 0xfb, 0x85, 0xed,
+	0x41, 0xe5, 0xeb, 0xa7, 0xd0, 0x8f, 0x24, 0xca, 0x42, 0x3f, 0x97, 0x2e, 0x0f, 0x35, 0xc3, 0x6d,
+	0x89, 0xcb, 0xa4, 0x0a, 0xc9, 0xc1, 0x67, 0xb2, 0x13, 0xd0, 0x64, 0x1e, 0x03, 0x87, 0xb0, 0xdb,
+	0xe8, 0x23, 0xf3, 0xc4, 0xee, 0x95, 0x85, 0x7e, 0x79, 0x4c, 0xdd, 0x03, 0x0c, 0xb7, 0x23, 0x2a,
+	0xce, 0xae, 0x60, 0xdb, 0xab, 0x8d, 0x86, 0xd6, 0x1b, 0x0d, 0x7d, 0x6f, 0x34, 0xf4, 0xba, 0xd5,
+	0x94, 0xf5, 0x56, 0x53, 0x3e, 0xb7, 0x9a, 0xf2, 0x70, 0x9c, 0x08, 0xe4, 0x30, 0xac, 0xd7, 0xa8,
+	0xce, 0xd6, 0x4b, 0xfd, 0x48, 0x44, 0x2e, 0x7e, 0x53, 0xfc, 0xc2, 0xbb, 0xdf, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x23, 0x14, 0x4a, 0x26, 0x3e, 0x02, 0x00, 0x00,
+}
+
+func (m *Claimable) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Claimable) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Claimable) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintClaimRecord(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintClaimRecord(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *ClaimRecord) Marshal() (dAtA []byte, err error) {
@@ -182,40 +232,26 @@ func (m *ClaimRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.ActionCompleted) > 0 {
-		for iNdEx := len(m.ActionCompleted) - 1; iNdEx >= 0; iNdEx-- {
-			i--
-			if m.ActionCompleted[iNdEx] {
-				dAtA[i] = 1
-			} else {
-				dAtA[i] = 0
-			}
-		}
-		i = encodeVarintClaimRecord(dAtA, i, uint64(len(m.ActionCompleted)))
+	if m.ClaimCompleted {
 		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.InitialClaimableAmount) > 0 {
-		for iNdEx := len(m.InitialClaimableAmount) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.InitialClaimableAmount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintClaimRecord(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x12
+		if m.ClaimCompleted {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
 		}
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintClaimRecord(dAtA, i, uint64(len(m.Address)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x10
 	}
+	{
+		size, err := m.ClaimAble.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintClaimRecord(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -230,7 +266,7 @@ func encodeVarintClaimRecord(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *ClaimRecord) Size() (n int) {
+func (m *Claimable) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -240,14 +276,25 @@ func (m *ClaimRecord) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovClaimRecord(uint64(l))
 	}
-	if len(m.InitialClaimableAmount) > 0 {
-		for _, e := range m.InitialClaimableAmount {
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
 			l = e.Size()
 			n += 1 + l + sovClaimRecord(uint64(l))
 		}
 	}
-	if len(m.ActionCompleted) > 0 {
-		n += 1 + sovClaimRecord(uint64(len(m.ActionCompleted))) + len(m.ActionCompleted)*1
+	return n
+}
+
+func (m *ClaimRecord) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.ClaimAble.Size()
+	n += 1 + l + sovClaimRecord(uint64(l))
+	if m.ClaimCompleted {
+		n += 2
 	}
 	return n
 }
@@ -258,7 +305,7 @@ func sovClaimRecord(x uint64) (n int) {
 func sozClaimRecord(x uint64) (n int) {
 	return sovClaimRecord(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *ClaimRecord) Unmarshal(dAtA []byte) error {
+func (m *Claimable) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -281,10 +328,10 @@ func (m *ClaimRecord) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ClaimRecord: wiretype end group for non-group")
+			return fmt.Errorf("proto: Claimable: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ClaimRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Claimable: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -321,7 +368,7 @@ func (m *ClaimRecord) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field InitialClaimableAmount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -348,81 +395,114 @@ func (m *ClaimRecord) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.InitialClaimableAmount = append(m.InitialClaimableAmount, types.Coin{})
-			if err := m.InitialClaimableAmount[len(m.InitialClaimableAmount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		case 4:
-			if wireType == 0 {
-				var v int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowClaimRecord
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					v |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipClaimRecord(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthClaimRecord
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ClaimRecord) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowClaimRecord
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ClaimRecord: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ClaimRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimAble", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClaimRecord
 				}
-				m.ActionCompleted = append(m.ActionCompleted, bool(v != 0))
-			} else if wireType == 2 {
-				var packedLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowClaimRecord
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					packedLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if packedLen < 0 {
-					return ErrInvalidLengthClaimRecord
-				}
-				postIndex := iNdEx + packedLen
-				if postIndex < 0 {
-					return ErrInvalidLengthClaimRecord
-				}
-				if postIndex > l {
+				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
-				var elementCount int
-				elementCount = packedLen
-				if elementCount != 0 && len(m.ActionCompleted) == 0 {
-					m.ActionCompleted = make([]bool, 0, elementCount)
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
 				}
-				for iNdEx < postIndex {
-					var v int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowClaimRecord
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						v |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					m.ActionCompleted = append(m.ActionCompleted, bool(v != 0))
-				}
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field ActionCompleted", wireType)
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthClaimRecord
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthClaimRecord
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ClaimAble.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimCompleted", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClaimRecord
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ClaimCompleted = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipClaimRecord(dAtA[iNdEx:])

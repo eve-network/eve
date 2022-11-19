@@ -122,8 +122,6 @@ import (
 
 	// App Params.
 	appparameters "github.com/eve-network/eve/app/params"
-	"github.com/eve-network/eve/wasmbinding"
-	"github.com/eve-network/eve/wasmbinding/encoder"
 
 	// Slashing.
 	"github.com/iqlusioninc/liquidity-staking-module/x/slashing"
@@ -134,6 +132,12 @@ import (
 	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
 	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
 	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
+
+	//Claim
+	"github.com/eve-network/eve/x/claim"
+	claimclient "github.com/eve-network/eve/x/claim/client"
+	claimkeeper "github.com/eve-network/eve/x/claim/keeper"
+	claimtypes "github.com/eve-network/eve/x/claim/types"
 
 	// Upgrades.
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
@@ -159,12 +163,6 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-
-	// claim
-	"github.com/eve-network/eve/x/claim"
-	claimkeeper "github.com/eve-network/eve/x/claim/keeper"
-	claimtypes "github.com/eve-network/eve/x/claim/types"
-	claimwasm "github.com/eve-network/eve/x/claim/wasm"
 
 	// Token Factory
 	"github.com/CosmWasm/token-factory/x/tokenfactory"
@@ -230,7 +228,14 @@ var (
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
-			append(wasmclient.ProposalHandlers, paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler),
+			append(
+				wasmclient.ProposalHandlers,
+				claimclient.ProposalHandlers,
+				paramsclient.ProposalHandler,
+				distrclient.ProposalHandler,
+				upgradeclient.LegacyProposalHandler,
+				upgradeclient.LegacyCancelProposalHandler,
+			),
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -242,8 +247,8 @@ var (
 		transfer.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		groupmodule.AppModuleBasic{},
-		vesting.AppModuleBasic{},
 		claim.AppModuleBasic{},
+		vesting.AppModuleBasic{},
 		nftmodule.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		globalfee.AppModuleBasic{},
@@ -257,10 +262,10 @@ var (
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		claimtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		govtypes.ModuleName:            {authtypes.Burner},
 		nft.ModuleName:                 nil,
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		claimtypes.ModuleName:          {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 		wasm.ModuleName:                {authtypes.Burner},
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		// TODO: globalfee here?
@@ -448,8 +453,6 @@ func NewEveApp(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
 
-	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
-
 	app.ClaimKeeper = *claimkeeper.NewKeeper(
 		appCodec,
 		keys[claimtypes.StoreKey],
@@ -458,12 +461,13 @@ func NewEveApp(
 		app.BankKeeper,
 		&stakingKeeper,
 		app.DistrKeeper,
-		app.GetSubspace(claimtypes.ModuleName),
 	)
+
+	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper = *stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks(), app.ClaimKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
@@ -510,7 +514,8 @@ func NewEveApp(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(claimtypes.RouterKey, claimkeeper.NewClaimProposalHandler(app.ClaimKeeper))
 	govConfig := govtypes.DefaultConfig()
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -519,8 +524,7 @@ func NewEveApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
-			app.ClaimKeeper.Hooks(),
+		// register the governance hooks
 		),
 	)
 
@@ -544,20 +548,10 @@ func NewEveApp(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
 
-	// custom messages
-	registry := encoder.NewEncoderRegistry()
-	registry.RegisterEncoder(claimtypes.ModuleName, claimwasm.Encoder)
-
-	wasmOptsCustomClaimEncoder := wasmbinding.RegisterCustomPlugins(registry)
-	wasmOpts = append(wasmOpts, wasmOptsCustomClaimEncoder...)
-
-	// custom msg tokenfactory
-	wasmOptsCustomTf := bindings.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenFactoryKeeper)
-	wasmOpts = append(wasmOpts, wasmOptsCustomTf...)
-
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
+	wasmOpts = append(bindings.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenFactoryKeeper), wasmOpts...)
 
 	wasmKeeper := wasm.NewKeeper(
 		appCodec, app.keys[wasm.StoreKey], app.GetSubspace(wasm.ModuleName),
@@ -593,6 +587,7 @@ func NewEveApp(
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil),
+		claim.NewAppModule(appCodec, app.ClaimKeeper),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -601,7 +596,6 @@ func NewEveApp(
 		params.NewAppModule(app.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		app.TransferModule,
-		claim.NewAppModule(appCodec, app.ClaimKeeper),
 		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
@@ -627,8 +621,8 @@ func NewEveApp(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, capabilitytypes.ModuleName,
 		authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		ibchost.ModuleName, minttypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
-		authz.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName,
-		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName, claimtypes.ModuleName,
+		authz.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName, claimtypes.ModuleName,
+		upgradetypes.ModuleName, vestingtypes.ModuleName, ibctransfertypes.ModuleName,
 		globalfee.ModuleName, wasm.ModuleName, tokenfactorytypes.ModuleName,
 	)
 
@@ -642,8 +636,8 @@ func NewEveApp(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName,
 		stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName,
 		crisistypes.ModuleName, ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
-		authz.ModuleName, ibctransfertypes.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName,
-		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName, claimtypes.ModuleName,
+		authz.ModuleName, ibctransfertypes.ModuleName, feegrant.ModuleName, nft.ModuleName, group.ModuleName, claimtypes.ModuleName,
+		vestingtypes.ModuleName, upgradetypes.ModuleName, paramstypes.ModuleName,
 		globalfee.ModuleName, wasm.ModuleName, tokenfactorytypes.ModuleName,
 	) // wasm after ibc transferwasm.ModuleName,
 
@@ -935,7 +929,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
-	paramsKeeper.Subspace(claimtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)

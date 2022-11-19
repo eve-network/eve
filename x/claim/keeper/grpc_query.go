@@ -4,89 +4,66 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/eve-network/eve/x/claim/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var _ types.QueryServer = Keeper{}
 
-// Params returns params of the mint module.
-func (k Keeper) ModuleAccountBalance(c context.Context, _ *types.QueryModuleAccountBalanceRequest) (*types.QueryModuleAccountBalanceResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	moduleAccBal := sdk.NewCoins(k.GetModuleAccountBalance(ctx))
+func (k Keeper) Params(goCtx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QueryModuleAccountBalanceResponse{ModuleAccountBalance: moduleAccBal}, nil
-}
-
-// Params returns params of the mint module.
-func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
-
-	return &types.QueryParamsResponse{Params: params}, nil
+	return &types.QueryParamsResponse{
+		Params: params,
+	}, nil
 }
 
-// Claimable returns claimable amount per user
-func (k Keeper) ClaimRecord(
-	goCtx context.Context,
-	req *types.QueryClaimRecordRequest,
-) (*types.QueryClaimRecordResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-
+func (k Keeper) ClaimRecord(goCtx context.Context, req *types.QueryClaimRecordRequest) (*types.QueryClaimRecordResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, err
 	}
 
-	claimRecord, err := k.GetClaimRecord(ctx, addr)
-	return &types.QueryClaimRecordResponse{ClaimRecord: claimRecord}, err
-}
-
-// Activities returns activities
-func (k Keeper) ClaimableForAction(
-	goCtx context.Context,
-	req *types.QueryClaimableForActionRequest,
-) (*types.QueryClaimableForActionResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
+	claimRecord, found := k.GetClaimRecord(ctx, address)
+	if !found {
+		return nil, errors.Wrap(errors.ErrInvalidAddress, "Address not initial claim yet")
 	}
 
+	return &types.QueryClaimRecordResponse{
+		ClaimRecord: claimRecord,
+	}, nil
+
+}
+
+func (k Keeper) Claimable(goCtx context.Context, req *types.QueryTotalClaimableRequest) (*types.QueryTotalClaimableResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, err
 	}
 
-	coins, err := k.GetClaimableAmountForAction(ctx, addr, req.Action)
-
-	return &types.QueryClaimableForActionResponse{
-		Coins: coins,
-	}, err
-}
-
-// Activities returns activities
-func (k Keeper) TotalClaimable(
-	goCtx context.Context,
-	req *types.QueryTotalClaimableRequest,
-) (*types.QueryTotalClaimableResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
+	claimable, found := k.GetClaimableInfo(ctx, address)
+	if found {
+		return &types.QueryTotalClaimableResponse{
+			Amount: claimable.Amount,
+		}, nil
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, err
+	claimRecord, found := k.GetClaimRecord(ctx, address)
+	if !found {
+		return nil, errors.Wrap(errors.ErrInvalidAddress, "Address not in airdrop list")
 	}
 
-	coins, err := k.GetUserTotalClaimable(ctx, addr)
+	var amount sdk.Coins
+	if !claimRecord.ClaimCompleted {
+		amount = claimRecord.ClaimAble.Amount
+	}
 
 	return &types.QueryTotalClaimableResponse{
-		Coins: coins,
-	}, err
+		Amount: amount,
+	}, nil
 }

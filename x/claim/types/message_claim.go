@@ -5,30 +5,28 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgClaimFor{}
+var _ sdk.Msg = &MsgClaim{}
 
 // msg types
 const (
-	TypeMsgClaimFor = "claim_for"
+	TypeMsgClaim = "claim"
 )
 
-func NewMsgClaimFor(sender string, address string, action Action) *MsgClaimFor {
-	return &MsgClaimFor{
-		Sender:  sender,
-		Address: address,
-		Action:  action,
+func NewMsgClaim(sender string) *MsgClaim {
+	return &MsgClaim{
+		Sender: sender,
 	}
 }
 
-func (msg *MsgClaimFor) Route() string {
+func (msg *MsgClaim) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgClaimFor) Type() string {
-	return TypeMsgClaimFor
+func (msg *MsgClaim) Type() string {
+	return TypeMsgClaim
 }
 
-func (msg *MsgClaimFor) GetSigners() []sdk.AccAddress {
+func (msg *MsgClaim) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -36,12 +34,12 @@ func (msg *MsgClaimFor) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgClaimFor) GetSignBytes() []byte {
+func (msg *MsgClaim) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgClaimFor) ValidateBasic() error {
+func (msg *MsgClaim) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)

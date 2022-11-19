@@ -3,12 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/eve-network/eve/x/claim/types"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 type (
@@ -21,8 +21,6 @@ type (
 		bankKeeper    types.BankKeeper
 		stakingKeeper types.StakingKeeper
 		distrKeeper   types.DistrKeeper
-
-		paramstore paramtypes.Subspace
 	}
 )
 
@@ -32,13 +30,7 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper, distrKeeper types.DistrKeeper,
-	ps paramtypes.Subspace,
 ) *Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
-
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
@@ -47,7 +39,6 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		stakingKeeper: stakingKeeper,
 		distrKeeper:   distrKeeper,
-		paramstore:    ps,
 	}
 }
 

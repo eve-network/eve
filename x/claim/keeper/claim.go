@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/eve-network/eve/x/claim/types"
 	"github.com/gogo/protobuf/proto"
@@ -12,10 +13,84 @@ import (
 func (k Keeper) CreateModuleAccount(ctx sdk.Context, amount sdk.Coin) {
 	moduleAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter)
 	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
-	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(amount))
+}
+
+func (k Keeper) ClaimCoins(ctx sdk.Context, claimable types.Claimable) (sdk.Coins, error) {
+	params := k.GetParams(ctx)
+	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
+
+	if elapsedAirdropTime > params.DurationOfAirdrop {
+		return nil, errors.Wrap(errors.ErrInvalidRequest, "Airdrop Ended")
+	}
+
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(claimable.Amount...))
 	if err != nil {
 		panic(err)
 	}
+
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(claimable.Address), claimable.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	return claimable.Amount, nil
+}
+
+func (k Keeper) appendClaimableList(ctx sdk.Context, claimables []types.Claimable) error {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimableListStorePrefix)
+
+	for _, claimable := range claimables {
+		accAddress, err := sdk.AccAddressFromBech32(claimable.Address)
+		if err != nil {
+			return err
+		}
+
+		bz, err := proto.Marshal(&claimable)
+		if err != nil {
+			return err
+		}
+
+		prefixStore.Set(accAddress, bz)
+	}
+	return nil
+}
+
+func (k Keeper) GetClaimableInfo(ctx sdk.Context, accAddress sdk.AccAddress) (types.Claimable, bool) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimableListStorePrefix)
+
+	var claimableInfo types.Claimable
+	bz := prefixStore.Get(accAddress)
+	if bz == nil {
+		return claimableInfo, false
+	}
+
+	err := proto.Unmarshal(bz, &claimableInfo)
+	if err != nil {
+		panic(err)
+	}
+
+	prefixStore.Delete(accAddress)
+	return claimableInfo, true
+}
+
+func (k Keeper) GetClaimRecord(ctx sdk.Context, address sdk.AccAddress) (types.ClaimRecord, bool) {
+	store := ctx.KVStore(k.storeKey)
+	prefixStore := prefix.NewStore(store, types.ClaimRecordsStorePrefix)
+
+	var claimRecord types.ClaimRecord
+	bz := prefixStore.Get(address)
+	if bz == nil {
+		return claimRecord, false
+	}
+
+	err := proto.Unmarshal(bz, &claimRecord)
+	if err != nil {
+		panic(err)
+	}
+
+	return claimRecord, true
 }
 
 // SetClaimables set claimable amount from balances object
@@ -39,7 +114,7 @@ func (k Keeper) SetClaimRecord(ctx sdk.Context, claimRecord types.ClaimRecord) e
 		return err
 	}
 
-	addr, err := sdk.AccAddressFromBech32(claimRecord.Address)
+	addr, err := sdk.AccAddressFromBech32(claimRecord.ClaimAble.Address)
 	if err != nil {
 		return err
 	}
@@ -48,7 +123,6 @@ func (k Keeper) SetClaimRecord(ctx sdk.Context, claimRecord types.ClaimRecord) e
 	return nil
 }
 
-// ClaimRecords get claimables for genesis export
 func (k Keeper) ClaimRecords(ctx sdk.Context) []types.ClaimRecord {
 	store := ctx.KVStore(k.storeKey)
 	prefixStore := prefix.NewStore(store, types.ClaimRecordsStorePrefix)
@@ -56,9 +130,8 @@ func (k Keeper) ClaimRecords(ctx sdk.Context) []types.ClaimRecord {
 	iterator := prefixStore.Iterator(nil, nil)
 	defer iterator.Close()
 
-	claimRecords := []types.ClaimRecord{}
+	var claimRecords []types.ClaimRecord
 	for ; iterator.Valid(); iterator.Next() {
-
 		claimRecord := types.ClaimRecord{}
 
 		err := proto.Unmarshal(iterator.Value(), &claimRecord)
@@ -68,173 +141,34 @@ func (k Keeper) ClaimRecords(ctx sdk.Context) []types.ClaimRecord {
 
 		claimRecords = append(claimRecords, claimRecord)
 	}
+
 	return claimRecords
 }
 
-// ClaimRecord returns the claim record for a specific address
-func (k Keeper) GetClaimRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimRecord, error) {
-	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.ClaimRecordsStorePrefix)
-	if !prefixStore.Has(addr) {
-		return types.ClaimRecord{}, nil
-	}
-	bz := prefixStore.Get(addr)
-
-	claimRecord := types.ClaimRecord{}
-	err := proto.Unmarshal(bz, &claimRecord)
-	if err != nil {
-		return types.ClaimRecord{}, err
-	}
-
-	return claimRecord, nil
-}
-
-// GetClaimable returns claimable amount for a specific action done by an address
-func (k Keeper) GetClaimableAmountForAction(ctx sdk.Context, addr sdk.AccAddress, action types.Action) (sdk.Coins, error) {
-	claimRecord, err := k.GetClaimRecord(ctx, addr)
-	if err != nil {
-		return nil, err
-	}
-
-	if claimRecord.Address == "" {
-		return sdk.Coins{}, nil
-	}
-
-	// if action already completed, nothing is claimable
-	if claimRecord.ActionCompleted[action] {
-		return sdk.Coins{}, nil
-	}
-
-	params := k.GetParams(ctx)
-
-	// If we are before the start time, do nothing.
-	// This case _shouldn't_ occur on chain, since the
-	// start time ought to be chain start time.
-	if ctx.BlockTime().Before(params.AirdropStartTime) {
-		return sdk.Coins{}, nil
-	}
-
-	InitialClaimablePerAction := sdk.Coins{}
-	for _, coin := range claimRecord.InitialClaimableAmount {
-		InitialClaimablePerAction = InitialClaimablePerAction.Add(
-			sdk.NewCoin(coin.Denom,
-				coin.Amount.QuoRaw(int64(len(types.Action_name))),
-			),
-		)
-	}
-
-	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
-	// Are we early enough in the airdrop s.t. theres no decay?
-	if elapsedAirdropTime <= params.DurationUntilDecay {
-		return InitialClaimablePerAction, nil
-	}
-
-	// The entire airdrop has completed
-	if elapsedAirdropTime > params.DurationUntilDecay+params.DurationOfDecay {
-		return sdk.Coins{}, nil
-	}
-
-	// Positive, since goneTime > params.DurationUntilDecay
-	decayTime := elapsedAirdropTime - params.DurationUntilDecay
-	decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
-	claimablePercent := sdk.OneDec().Sub(decayPercent)
-
-	claimableCoins := sdk.Coins{}
-	for _, coin := range InitialClaimablePerAction {
-		claimableCoins = claimableCoins.Add(sdk.NewCoin(coin.Denom, claimablePercent.MulInt(coin.Amount).RoundInt()))
-	}
-
-	return claimableCoins, nil
-}
-
-// GetClaimable returns claimable amount for a specific action done by an address
-func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) (sdk.Coins, error) {
-	claimRecord, err := k.GetClaimRecord(ctx, addr)
-	if err != nil {
-		return sdk.Coins{}, err
-	}
-	if claimRecord.Address == "" {
-		return sdk.Coins{}, nil
-	}
-
-	totalClaimable := sdk.Coins{}
-
-	for action := range types.Action_name {
-		claimableForAction, err := k.GetClaimableAmountForAction(ctx, addr, types.Action(action))
-		if err != nil {
-			return sdk.Coins{}, err
-		}
-		totalClaimable = totalClaimable.Add(claimableForAction...)
-	}
-	return totalClaimable, nil
-}
-
-// ClaimCoins remove claimable amount entry and transfer it to user's account
-func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action types.Action) (sdk.Coins, error) {
-	params := k.GetParams(ctx)
-	if !params.IsAirdropEnabled(ctx.BlockTime()) {
-		return sdk.Coins{}, nil
-	}
-	claimableAmount, err := k.GetClaimableAmountForAction(ctx, addr, action)
-	if err != nil {
-		return claimableAmount, err
-	}
-
-	if claimableAmount.Empty() {
-		return claimableAmount, nil
-	}
-
-	claimRecord, err := k.GetClaimRecord(ctx, addr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, claimableAmount)
-	if err != nil {
-		return nil, err
-	}
-
-	claimRecord.ActionCompleted[action] = true
-
-	err = k.SetClaimRecord(ctx, claimRecord)
-	if err != nil {
-		return claimableAmount, err
-	}
-
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			types.EventTypeClaim,
-			sdk.NewAttribute(sdk.AttributeKeySender, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, claimableAmount.String()),
-		),
-	})
-
-	return claimableAmount, nil
-}
-
-// FundRemainingsToCommunity fund remainings to the community when airdrop period end
-func (k Keeper) fundRemainingsToCommunity(ctx sdk.Context) error {
-	moduleAccAddr := k.GetModuleAccountAddress(ctx)
-	amt := k.GetModuleAccountBalance(ctx)
-	return k.distrKeeper.FundCommunityPool(ctx, sdk.NewCoins(amt), moduleAccAddr)
-}
-
-func (k Keeper) EndAirdrop(ctx sdk.Context) error {
-	err := k.fundRemainingsToCommunity(ctx)
-	if err != nil {
-		return err
-	}
-	k.clearInitialClaimables(ctx)
-	return nil
-}
-
-// ClearClaimables clear claimable amounts
-func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
+func (k Keeper) clearClaimRecords(ctx sdk.Context) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.ClaimRecordsStorePrefix)
 	defer iterator.Close()
+
 	for ; iterator.Valid(); iterator.Next() {
 		key := iterator.Key()
 		store.Delete(key)
 	}
+}
+
+func (k Keeper) clearInitialClaimables(ctx sdk.Context) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.ClaimableListStorePrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		store.Delete(key)
+	}
+}
+
+func (k Keeper) EndAirdrop(ctx sdk.Context) error {
+	k.clearInitialClaimables(ctx)
+	k.clearClaimRecords(ctx)
+	return nil
 }

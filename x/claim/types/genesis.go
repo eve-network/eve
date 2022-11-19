@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	time "time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,29 +20,15 @@ func DefaultGenesis() *GenesisState {
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
-		AirdropEnabled:     true,
-		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: DefaultDurationUntilDecay,
-		DurationOfDecay:    DefaultDurationOfDecay,
-		ClaimDenom:         DefaultClaimDenom,
-	}
-}
-
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # genesis/types/validate
-	totalClaimable := sdk.Coins{}
-	for _, claimRecord := range gs.ClaimRecords {
-		totalClaimable = totalClaimable.Add(claimRecord.InitialClaimableAmount...)
+	if gs.ModuleAccountBalance.Amount.Equal(sdk.ZeroInt()) {
+		return nil
 	}
 
-	if !totalClaimable.IsEqual(sdk.NewCoins(gs.ModuleAccountBalance)) {
-		return ErrIncorrectModuleAccountBalance
-	}
-	return nil
+	return ErrIncorrectModuleAccountBalance
 }
 
 // GetGenesisStateFromAppState return GenesisState

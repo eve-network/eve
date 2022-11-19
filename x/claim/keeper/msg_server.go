@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/eve-network/eve/x/claim/types"
 )
 
@@ -29,29 +30,33 @@ func (k msgServer) InitialClaim(goCtx context.Context, msg *types.MsgInitialClai
 	if !params.IsAirdropEnabled(ctx.BlockTime()) {
 		return nil, types.ErrAirdropNotEnabled
 	}
-	coins, err := k.Keeper.ClaimCoinsForAction(ctx, sender, types.ActionInitialClaim)
+	claimInfo, found := k.GetClaimableInfo(ctx, sender)
+	if !found {
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: unclaimable or already initial claim %s", msg.Sender)
+	}
+	claimRecord := types.ClaimRecord{
+		ClaimAble:      claimInfo,
+		ClaimCompleted: false,
+	}
+	err = k.SetClaimRecord(ctx, claimRecord)
 	if err != nil {
 		return nil, err
 	}
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
-		),
-	})
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		sdk.EventTypeMessage,
+		sdk.NewAttribute(sdk.AttributeKeyModule, types.ClaimModuleEventType),
+		sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+	))
+
 	return &types.MsgInitialClaimResponse{
-		ClaimedAmount: coins,
+		ClaimableAmount: claimRecord.ClaimAble.Amount,
 	}, nil
 }
 
-func (k msgServer) ClaimFor(goCtx context.Context, msg *types.MsgClaimFor) (*types.MsgClaimForResponse, error) {
+func (k msgServer) Claim(goCtx context.Context, msg *types.MsgClaim) (*types.MsgClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil, err
-	}
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
 	}
@@ -59,29 +64,31 @@ func (k msgServer) ClaimFor(goCtx context.Context, msg *types.MsgClaimFor) (*typ
 	if !params.IsAirdropEnabled(ctx.BlockTime()) {
 		return nil, types.ErrAirdropNotEnabled
 	}
-	allowed := false
-	for _, authorization := range params.AllowedClaimers {
-		if authorization.ContractAddress == msg.Sender && authorization.Action == msg.Action {
-			allowed = true
-			break
-		}
+	claimRecord, found := k.GetClaimRecord(ctx, sender)
+	if !found {
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: Not initialize %s", msg.Sender)
 	}
-	if !allowed {
-		return nil, types.ErrUnauthorizedClaimer
+	if claimRecord.ClaimCompleted {
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "Invalid address: Already claimed %s", msg.Sender)
 	}
-	coins, err := k.Keeper.ClaimCoinsForAction(ctx, address, msg.GetAction())
+	coins, err := k.ClaimCoins(ctx, claimRecord.ClaimAble)
 	if err != nil {
 		return nil, err
 	}
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
-		),
-	})
-	return &types.MsgClaimForResponse{
-		Address:       msg.Address,
+	claimRecord.ClaimCompleted = true
+	err = k.SetClaimRecord(ctx, claimRecord)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		sdk.EventTypeMessage,
+		sdk.NewAttribute(sdk.AttributeKeyModule, types.ClaimModuleEventType),
+		sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+	))
+
+	return &types.MsgClaimResponse{
+		Address:       msg.Sender,
 		ClaimedAmount: coins,
 	}, nil
 }

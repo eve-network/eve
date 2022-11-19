@@ -76,7 +76,7 @@ func (m *MsgInitialClaim) GetSender() string {
 
 type MsgInitialClaimResponse struct {
 	// total initial claimable amount for the user
-	ClaimedAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=claimed_amount,json=claimedAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"claimed_amount" yaml:"claimed_amount"`
+	ClaimableAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=claimable_amount,json=claimableAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"claimable_amount" yaml:"claimable_amount"`
 }
 
 func (m *MsgInitialClaimResponse) Reset()         { *m = MsgInitialClaimResponse{} }
@@ -112,31 +112,29 @@ func (m *MsgInitialClaimResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgInitialClaimResponse proto.InternalMessageInfo
 
-func (m *MsgInitialClaimResponse) GetClaimedAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *MsgInitialClaimResponse) GetClaimableAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.ClaimedAmount
+		return m.ClaimableAmount
 	}
 	return nil
 }
 
-type MsgClaimFor struct {
-	Sender  string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
-	Action  Action `protobuf:"varint,3,opt,name=action,proto3,enum=eve.claim.v1beta1.Action" json:"action,omitempty"`
+type MsgClaim struct {
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
-func (m *MsgClaimFor) Reset()         { *m = MsgClaimFor{} }
-func (m *MsgClaimFor) String() string { return proto.CompactTextString(m) }
-func (*MsgClaimFor) ProtoMessage()    {}
-func (*MsgClaimFor) Descriptor() ([]byte, []int) {
+func (m *MsgClaim) Reset()         { *m = MsgClaim{} }
+func (m *MsgClaim) String() string { return proto.CompactTextString(m) }
+func (*MsgClaim) ProtoMessage()    {}
+func (*MsgClaim) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d82cd90558068c0, []int{2}
 }
-func (m *MsgClaimFor) XXX_Unmarshal(b []byte) error {
+func (m *MsgClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgClaimFor) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgClaim) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgClaimFor.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgClaim.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -146,57 +144,43 @@ func (m *MsgClaimFor) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *MsgClaimFor) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgClaimFor.Merge(m, src)
+func (m *MsgClaim) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaim.Merge(m, src)
 }
-func (m *MsgClaimFor) XXX_Size() int {
+func (m *MsgClaim) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgClaimFor) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgClaimFor.DiscardUnknown(m)
+func (m *MsgClaim) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaim.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgClaimFor proto.InternalMessageInfo
+var xxx_messageInfo_MsgClaim proto.InternalMessageInfo
 
-func (m *MsgClaimFor) GetSender() string {
+func (m *MsgClaim) GetSender() string {
 	if m != nil {
 		return m.Sender
 	}
 	return ""
 }
 
-func (m *MsgClaimFor) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *MsgClaimFor) GetAction() Action {
-	if m != nil {
-		return m.Action
-	}
-	return ActionInitialClaim
-}
-
-type MsgClaimForResponse struct {
+type MsgClaimResponse struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// total initial claimable amount for the user
 	ClaimedAmount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=claimed_amount,json=claimedAmount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"claimed_amount" yaml:"claimed_amount"`
 }
 
-func (m *MsgClaimForResponse) Reset()         { *m = MsgClaimForResponse{} }
-func (m *MsgClaimForResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgClaimForResponse) ProtoMessage()    {}
-func (*MsgClaimForResponse) Descriptor() ([]byte, []int) {
+func (m *MsgClaimResponse) Reset()         { *m = MsgClaimResponse{} }
+func (m *MsgClaimResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgClaimResponse) ProtoMessage()    {}
+func (*MsgClaimResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d82cd90558068c0, []int{3}
 }
-func (m *MsgClaimForResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgClaimResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgClaimForResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgClaimResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgClaimForResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgClaimResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -206,26 +190,26 @@ func (m *MsgClaimForResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *MsgClaimForResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgClaimForResponse.Merge(m, src)
+func (m *MsgClaimResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaimResponse.Merge(m, src)
 }
-func (m *MsgClaimForResponse) XXX_Size() int {
+func (m *MsgClaimResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgClaimForResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgClaimForResponse.DiscardUnknown(m)
+func (m *MsgClaimResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaimResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgClaimForResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgClaimResponse proto.InternalMessageInfo
 
-func (m *MsgClaimForResponse) GetAddress() string {
+func (m *MsgClaimResponse) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-func (m *MsgClaimForResponse) GetClaimedAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *MsgClaimResponse) GetClaimedAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.ClaimedAmount
 	}
@@ -233,43 +217,43 @@ func (m *MsgClaimForResponse) GetClaimedAmount() github_com_cosmos_cosmos_sdk_ty
 }
 
 func init() {
-	proto.RegisterType((*MsgInitialClaim)(nil), "eve.claim.v1beta1.MsgInitialClaim")
-	proto.RegisterType((*MsgInitialClaimResponse)(nil), "eve.claim.v1beta1.MsgInitialClaimResponse")
-	proto.RegisterType((*MsgClaimFor)(nil), "eve.claim.v1beta1.MsgClaimFor")
-	proto.RegisterType((*MsgClaimForResponse)(nil), "eve.claim.v1beta1.MsgClaimForResponse")
+	proto.RegisterType((*MsgInitialClaim)(nil), "evenetwork.eve.claim.v1beta1.MsgInitialClaim")
+	proto.RegisterType((*MsgInitialClaimResponse)(nil), "evenetwork.eve.claim.v1beta1.MsgInitialClaimResponse")
+	proto.RegisterType((*MsgClaim)(nil), "evenetwork.eve.claim.v1beta1.MsgClaim")
+	proto.RegisterType((*MsgClaimResponse)(nil), "evenetwork.eve.claim.v1beta1.MsgClaimResponse")
 }
 
 func init() { proto.RegisterFile("eve/claim/v1beta1/tx.proto", fileDescriptor_8d82cd90558068c0) }
 
 var fileDescriptor_8d82cd90558068c0 = []byte{
-	// 419 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x53, 0xcd, 0x6e, 0xda, 0x40,
-	0x10, 0xf6, 0x82, 0x44, 0xdb, 0xa5, 0x50, 0xd5, 0xfd, 0x33, 0x3e, 0x2c, 0xc8, 0xaa, 0x5a, 0xb7,
-	0x52, 0xd7, 0x82, 0xde, 0x7a, 0x03, 0xa4, 0x4a, 0x1c, 0xb8, 0xf8, 0xd8, 0x43, 0xd1, 0xda, 0x5e,
-	0x39, 0x56, 0xb0, 0x17, 0x79, 0x17, 0x04, 0xcf, 0x90, 0x4b, 0xde, 0x22, 0x52, 0xde, 0x20, 0x87,
-	0xdc, 0x39, 0x72, 0xcc, 0x89, 0x44, 0xf0, 0x06, 0x79, 0x82, 0x88, 0xf5, 0x8f, 0xf8, 0x4b, 0x72,
-	0xcd, 0xc9, 0x1e, 0x7d, 0xdf, 0xcc, 0x37, 0xdf, 0xcc, 0x2c, 0xd4, 0xe9, 0x84, 0x5a, 0xee, 0x90,
-	0x04, 0xa1, 0x35, 0x69, 0x3a, 0x54, 0x90, 0xa6, 0x25, 0xa6, 0x78, 0x14, 0x33, 0xc1, 0xd4, 0xf7,
-	0x74, 0x42, 0xb1, 0xc4, 0x70, 0x8a, 0xe9, 0x1f, 0x7d, 0xe6, 0x33, 0x89, 0x5a, 0x9b, 0xbf, 0x84,
-	0xa8, 0x23, 0x97, 0xf1, 0x90, 0x71, 0xcb, 0x21, 0x9c, 0xe6, 0x65, 0x5c, 0x16, 0x44, 0x29, 0xfe,
-	0xf5, 0x50, 0x44, 0x46, 0x83, 0x98, 0xba, 0x2c, 0xf6, 0x12, 0x96, 0xf1, 0x03, 0xbe, 0xeb, 0x73,
-	0xbf, 0x17, 0x05, 0x22, 0x20, 0xc3, 0xee, 0x06, 0x57, 0x3f, 0xc3, 0x12, 0xa7, 0x91, 0x47, 0x63,
-	0x0d, 0x34, 0x80, 0xf9, 0xc6, 0x4e, 0x23, 0xe3, 0x02, 0xc0, 0x2f, 0x7b, 0x5c, 0x9b, 0xf2, 0x11,
-	0x8b, 0x38, 0x55, 0xcf, 0x00, 0xac, 0xca, 0xea, 0xd4, 0x1b, 0x90, 0x90, 0x8d, 0x23, 0xa1, 0x15,
-	0x1a, 0x45, 0xb3, 0xdc, 0xaa, 0xe1, 0xa4, 0x4d, 0xbc, 0x69, 0x33, 0x73, 0x84, 0xbb, 0x2c, 0x88,
-	0x3a, 0xbd, 0xf9, 0xb2, 0xae, 0xdc, 0x2f, 0xeb, 0x9f, 0x66, 0x24, 0x1c, 0xfe, 0x31, 0x76, 0xd3,
-	0x8d, 0xcb, 0xdb, 0xba, 0xe9, 0x07, 0xe2, 0x64, 0xec, 0x60, 0x97, 0x85, 0x56, 0x6a, 0x36, 0xf9,
-	0xfc, 0xe2, 0xde, 0xa9, 0x25, 0x66, 0x23, 0xca, 0x65, 0x25, 0x6e, 0x57, 0xd2, 0xe4, 0x76, 0x92,
-	0x1b, 0xc3, 0x72, 0x9f, 0xfb, 0xb2, 0xc3, 0xbf, 0x2c, 0x7e, 0xcc, 0x90, 0xaa, 0xc1, 0x57, 0xc4,
-	0xf3, 0x62, 0xca, 0xb9, 0x56, 0x90, 0x40, 0x16, 0xaa, 0x4d, 0x58, 0x22, 0xae, 0x08, 0x58, 0xa4,
-	0x15, 0x1b, 0xc0, 0xac, 0xb6, 0x6a, 0xf8, 0x60, 0x2b, 0xb8, 0x2d, 0x09, 0x76, 0x4a, 0x34, 0xae,
-	0x01, 0xfc, 0xb0, 0x25, 0x9a, 0x4f, 0x66, 0x4b, 0x04, 0xec, 0x8a, 0xbc, 0xa8, 0x99, 0xb5, 0xae,
-	0x00, 0x2c, 0xf6, 0xb9, 0xaf, 0xfe, 0x87, 0x6f, 0x77, 0xae, 0xc1, 0x38, 0x62, 0x7d, 0xef, 0x0a,
-	0xf4, 0x9f, 0xcf, 0x73, 0xf2, 0x79, 0xd8, 0xf0, 0x75, 0xbe, 0x18, 0x74, 0x3c, 0x2f, 0xc3, 0xf5,
-	0x6f, 0x4f, 0xe3, 0x59, 0xcd, 0xce, 0xf7, 0xf9, 0x0a, 0x81, 0xc5, 0x0a, 0x81, 0xbb, 0x15, 0x02,
-	0xe7, 0x6b, 0xa4, 0x2c, 0xd6, 0x48, 0xb9, 0x59, 0x23, 0xe5, 0x5f, 0x65, 0x9a, 0x3e, 0x01, 0xe9,
-	0xdc, 0x29, 0xc9, 0xa3, 0xff, 0xfd, 0x10, 0x00, 0x00, 0xff, 0xff, 0xae, 0x75, 0xdf, 0xa5, 0x81,
-	0x03, 0x00, 0x00,
+	// 421 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xcd, 0xae, 0xd2, 0x40,
+	0x14, 0xee, 0x78, 0xe3, 0x55, 0xc7, 0x9f, 0x7b, 0xd3, 0xa8, 0x17, 0x1b, 0x53, 0x6e, 0x1a, 0x63,
+	0x70, 0xc1, 0x4c, 0xc0, 0xb8, 0x71, 0x27, 0xac, 0x88, 0x61, 0xc3, 0xd2, 0x0d, 0x99, 0xb6, 0x27,
+	0xb5, 0xa1, 0xed, 0x90, 0xce, 0x50, 0xe1, 0x19, 0xdc, 0xe8, 0x6b, 0x98, 0xf8, 0x02, 0x3e, 0x01,
+	0x4b, 0x96, 0x2e, 0x0c, 0x1a, 0x78, 0x03, 0x9f, 0xc0, 0x74, 0x66, 0xda, 0x20, 0x26, 0x08, 0xab,
+	0x99, 0x93, 0xf9, 0x7e, 0xe6, 0x3b, 0xe7, 0x60, 0x07, 0x0a, 0xa0, 0x41, 0xc2, 0xe2, 0x94, 0x16,
+	0x1d, 0x1f, 0x24, 0xeb, 0x50, 0x39, 0x27, 0xd3, 0x9c, 0x4b, 0x6e, 0x3f, 0x85, 0x02, 0x32, 0x90,
+	0x1f, 0x78, 0x3e, 0x21, 0x50, 0x00, 0x51, 0x30, 0x62, 0x60, 0xce, 0xc3, 0x88, 0x47, 0x5c, 0x01,
+	0x69, 0x79, 0xd3, 0x1c, 0xc7, 0x0d, 0xb8, 0x48, 0xb9, 0xa0, 0x3e, 0x13, 0x50, 0x2b, 0x06, 0x3c,
+	0xce, 0xcc, 0xfb, 0xb3, 0x7f, 0xfd, 0x54, 0x35, 0xce, 0x21, 0xe0, 0x79, 0xa8, 0x51, 0xde, 0x0b,
+	0x7c, 0x31, 0x14, 0xd1, 0x20, 0x8b, 0x65, 0xcc, 0x92, 0x7e, 0xf9, 0x6e, 0x3f, 0xc6, 0xe7, 0x02,
+	0xb2, 0x10, 0xf2, 0x06, 0xba, 0x46, 0xad, 0x3b, 0x23, 0x53, 0x79, 0x5f, 0x11, 0xbe, 0xda, 0xc3,
+	0x8e, 0x40, 0x4c, 0x79, 0x26, 0xc0, 0xfe, 0x8c, 0xf0, 0xa5, 0x52, 0x67, 0x7e, 0x02, 0x63, 0x96,
+	0xf2, 0x59, 0x26, 0x1b, 0x37, 0xae, 0xcf, 0x5a, 0x77, 0xbb, 0x4f, 0x88, 0xfe, 0x28, 0x29, 0x3f,
+	0x5a, 0x65, 0x22, 0x7d, 0x1e, 0x67, 0xbd, 0xb7, 0xcb, 0x75, 0xd3, 0xfa, 0xbd, 0x6e, 0x5e, 0x2d,
+	0x58, 0x9a, 0xbc, 0xf6, 0xf6, 0x05, 0xbc, 0x2f, 0x3f, 0x9b, 0xad, 0x28, 0x96, 0xef, 0x67, 0x3e,
+	0x09, 0x78, 0x4a, 0x4d, 0x60, 0x7d, 0xb4, 0x45, 0x38, 0xa1, 0x72, 0x31, 0x05, 0xa1, 0xb4, 0xc4,
+	0xe8, 0xa2, 0xa6, 0xbf, 0xd1, 0x6c, 0x0f, 0xdf, 0x1e, 0x8a, 0xe8, 0x70, 0xa6, 0x6f, 0x08, 0x5f,
+	0x56, 0xa0, 0x3a, 0x4c, 0x03, 0xdf, 0x62, 0x61, 0x98, 0x83, 0x10, 0x06, 0x5d, 0x95, 0xf6, 0x47,
+	0x84, 0x1f, 0x28, 0x1b, 0x08, 0x8f, 0x0e, 0x39, 0x30, 0x21, 0x1f, 0xed, 0x84, 0xac, 0xe9, 0xa7,
+	0x45, 0xbc, 0x6f, 0xc8, 0x3a, 0x60, 0xf7, 0x07, 0xc2, 0x67, 0x43, 0x11, 0xd9, 0x12, 0xdf, 0xfb,
+	0x6b, 0x80, 0x6d, 0x72, 0x68, 0x9d, 0xc8, 0xde, 0x0c, 0x9d, 0x57, 0x27, 0xc1, 0xeb, 0x2e, 0x8d,
+	0xf1, 0x4d, 0x6d, 0xf7, 0xfc, 0xbf, 0x7c, 0xed, 0x43, 0x8e, 0xc3, 0x55, 0x06, 0xbd, 0xde, 0x72,
+	0xe3, 0xa2, 0xd5, 0xc6, 0x45, 0xbf, 0x36, 0x2e, 0xfa, 0xb4, 0x75, 0xad, 0xd5, 0xd6, 0xb5, 0xbe,
+	0x6f, 0x5d, 0xeb, 0xdd, 0x6e, 0xc7, 0xa0, 0x80, 0xb6, 0x11, 0x2d, 0xef, 0x74, 0x6e, 0x76, 0x5e,
+	0xf5, 0xcd, 0x3f, 0x57, 0x5b, 0xfe, 0xf2, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbc, 0x20, 0xd6,
+	0xfa, 0x7d, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -286,7 +270,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	InitialClaim(ctx context.Context, in *MsgInitialClaim, opts ...grpc.CallOption) (*MsgInitialClaimResponse, error)
 	// this line is used by starport scaffolding # proto/tx/rpc
-	ClaimFor(ctx context.Context, in *MsgClaimFor, opts ...grpc.CallOption) (*MsgClaimForResponse, error)
+	Claim(ctx context.Context, in *MsgClaim, opts ...grpc.CallOption) (*MsgClaimResponse, error)
 }
 
 type msgClient struct {
@@ -299,16 +283,16 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 
 func (c *msgClient) InitialClaim(ctx context.Context, in *MsgInitialClaim, opts ...grpc.CallOption) (*MsgInitialClaimResponse, error) {
 	out := new(MsgInitialClaimResponse)
-	err := c.cc.Invoke(ctx, "/eve.claim.v1beta1.Msg/InitialClaim", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/evenetwork.eve.claim.v1beta1.Msg/InitialClaim", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) ClaimFor(ctx context.Context, in *MsgClaimFor, opts ...grpc.CallOption) (*MsgClaimForResponse, error) {
-	out := new(MsgClaimForResponse)
-	err := c.cc.Invoke(ctx, "/eve.claim.v1beta1.Msg/ClaimFor", in, out, opts...)
+func (c *msgClient) Claim(ctx context.Context, in *MsgClaim, opts ...grpc.CallOption) (*MsgClaimResponse, error) {
+	out := new(MsgClaimResponse)
+	err := c.cc.Invoke(ctx, "/evenetwork.eve.claim.v1beta1.Msg/Claim", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +303,7 @@ func (c *msgClient) ClaimFor(ctx context.Context, in *MsgClaimFor, opts ...grpc.
 type MsgServer interface {
 	InitialClaim(context.Context, *MsgInitialClaim) (*MsgInitialClaimResponse, error)
 	// this line is used by starport scaffolding # proto/tx/rpc
-	ClaimFor(context.Context, *MsgClaimFor) (*MsgClaimForResponse, error)
+	Claim(context.Context, *MsgClaim) (*MsgClaimResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -329,8 +313,8 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) InitialClaim(ctx context.Context, req *MsgInitialClaim) (*MsgInitialClaimResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitialClaim not implemented")
 }
-func (*UnimplementedMsgServer) ClaimFor(ctx context.Context, req *MsgClaimFor) (*MsgClaimForResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClaimFor not implemented")
+func (*UnimplementedMsgServer) Claim(ctx context.Context, req *MsgClaim) (*MsgClaimResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Claim not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -347,7 +331,7 @@ func _Msg_InitialClaim_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/eve.claim.v1beta1.Msg/InitialClaim",
+		FullMethod: "/evenetwork.eve.claim.v1beta1.Msg/InitialClaim",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).InitialClaim(ctx, req.(*MsgInitialClaim))
@@ -355,26 +339,26 @@ func _Msg_InitialClaim_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_ClaimFor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgClaimFor)
+func _Msg_Claim_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgClaim)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).ClaimFor(ctx, in)
+		return srv.(MsgServer).Claim(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/eve.claim.v1beta1.Msg/ClaimFor",
+		FullMethod: "/evenetwork.eve.claim.v1beta1.Msg/Claim",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).ClaimFor(ctx, req.(*MsgClaimFor))
+		return srv.(MsgServer).Claim(ctx, req.(*MsgClaim))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 var _Msg_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "eve.claim.v1beta1.Msg",
+	ServiceName: "evenetwork.eve.claim.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -382,8 +366,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_InitialClaim_Handler,
 		},
 		{
-			MethodName: "ClaimFor",
-			Handler:    _Msg_ClaimFor_Handler,
+			MethodName: "Claim",
+			Handler:    _Msg_Claim_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -440,10 +424,10 @@ func (m *MsgInitialClaimResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ClaimedAmount) > 0 {
-		for iNdEx := len(m.ClaimedAmount) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.ClaimableAmount) > 0 {
+		for iNdEx := len(m.ClaimableAmount) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.ClaimedAmount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.ClaimableAmount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -457,7 +441,7 @@ func (m *MsgInitialClaimResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgClaimFor) Marshal() (dAtA []byte, err error) {
+func (m *MsgClaim) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -467,28 +451,16 @@ func (m *MsgClaimFor) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgClaimFor) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgClaim) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgClaimFor) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Action != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.Action))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if len(m.Sender) > 0 {
 		i -= len(m.Sender)
 		copy(dAtA[i:], m.Sender)
@@ -499,7 +471,7 @@ func (m *MsgClaimFor) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgClaimForResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgClaimResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -509,12 +481,12 @@ func (m *MsgClaimForResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgClaimForResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgClaimResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgClaimForResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgClaimResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -573,8 +545,8 @@ func (m *MsgInitialClaimResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.ClaimedAmount) > 0 {
-		for _, e := range m.ClaimedAmount {
+	if len(m.ClaimableAmount) > 0 {
+		for _, e := range m.ClaimableAmount {
 			l = e.Size()
 			n += 1 + l + sovTx(uint64(l))
 		}
@@ -582,7 +554,7 @@ func (m *MsgInitialClaimResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgClaimFor) Size() (n int) {
+func (m *MsgClaim) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -592,17 +564,10 @@ func (m *MsgClaimFor) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	if m.Action != 0 {
-		n += 1 + sovTx(uint64(m.Action))
-	}
 	return n
 }
 
-func (m *MsgClaimForResponse) Size() (n int) {
+func (m *MsgClaimResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -740,7 +705,7 @@ func (m *MsgInitialClaimResponse) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ClaimedAmount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClaimableAmount", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -767,8 +732,8 @@ func (m *MsgInitialClaimResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ClaimedAmount = append(m.ClaimedAmount, types.Coin{})
-			if err := m.ClaimedAmount[len(m.ClaimedAmount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.ClaimableAmount = append(m.ClaimableAmount, types.Coin{})
+			if err := m.ClaimableAmount[len(m.ClaimableAmount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -793,7 +758,7 @@ func (m *MsgInitialClaimResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgClaimFor) Unmarshal(dAtA []byte) error {
+func (m *MsgClaim) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -816,10 +781,10 @@ func (m *MsgClaimFor) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgClaimFor: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgClaim: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgClaimFor: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgClaim: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -854,57 +819,6 @@ func (m *MsgClaimFor) Unmarshal(dAtA []byte) error {
 			}
 			m.Sender = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Action", wireType)
-			}
-			m.Action = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Action |= Action(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -926,7 +840,7 @@ func (m *MsgClaimFor) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgClaimForResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgClaimResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -949,10 +863,10 @@ func (m *MsgClaimForResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgClaimForResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgClaimResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgClaimForResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgClaimResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

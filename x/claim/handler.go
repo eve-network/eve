@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/eve-network/eve/x/claim/keeper"
 	"github.com/eve-network/eve/x/claim/types"
 )
@@ -22,8 +21,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgInitialClaim:
 			res, err := msgServer.InitialClaim(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgClaimFor:
-			res, err := msgServer.ClaimFor(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgClaim:
+			res, err := msgServer.Claim(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 			// this line is used by starport scaffolding # 1
 		default:
