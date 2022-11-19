@@ -29,3 +29,4 @@ message Params {
   // denom of claimable asset
   string claim_denom = 4;
 }
+

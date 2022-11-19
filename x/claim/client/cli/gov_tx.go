@@ -54,8 +54,8 @@ func ProposalAirdropInitialCmd() *cobra.Command {
 	}
 
 	// proposal flags
-	cmd.Flags().String(cli.FlagTitle, "", "Title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "Description of proposal")
+	cmd.Flags().String(cli.FlagTitle, "", "Title of proposal")             //nolint:staticcheck
+	cmd.Flags().String(cli.FlagDescription, "", "Description of proposal") //nolint:staticcheck
 	cmd.Flags().String(cli.FlagDeposit, "", "Deposit of proposal")
 	return cmd
 }
@@ -66,12 +66,12 @@ func getProposalInfo(cmd *cobra.Command) (client.Context, string, string, sdk.Co
 		return client.Context{}, "", "", nil, err
 	}
 
-	proposalTitle, err := cmd.Flags().GetString(cli.FlagTitle)
+	proposalTitle, err := cmd.Flags().GetString(cli.FlagTitle) //nolint:staticcheck
 	if err != nil {
 		return clientCtx, proposalTitle, "", nil, err
 	}
 
-	proposalDescr, err := cmd.Flags().GetString(cli.FlagDescription)
+	proposalDescr, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
 	if err != nil {
 		return client.Context{}, proposalTitle, proposalDescr, nil, err
 	}
