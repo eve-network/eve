@@ -135,6 +135,7 @@ import (
 
 	//Claim
 	"github.com/eve-network/eve/x/claim"
+	claimclient "github.com/eve-network/eve/x/claim/client"
 	claimkeeper "github.com/eve-network/eve/x/claim/keeper"
 	claimtypes "github.com/eve-network/eve/x/claim/types"
 
@@ -227,7 +228,14 @@ var (
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
-			append(wasmclient.ProposalHandlers, paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler),
+			append(
+				wasmclient.ProposalHandlers,
+				claimclient.ProposalHandlers,
+				paramsclient.ProposalHandler,
+				distrclient.ProposalHandler,
+				upgradeclient.LegacyProposalHandler,
+				upgradeclient.LegacyCancelProposalHandler,
+			),
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},

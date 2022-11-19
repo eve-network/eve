@@ -11,13 +11,14 @@ import (
 )
 
 const (
-	ProposalTypeInitialAirdrop = "InitialAirdrop"
+	ProposalTypeInitialAirdrop = "AirdropProposal"
 )
 
 var _ govv1beta1.Content = &AirdropProposal{}
 
 func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeInitialAirdrop)
+	govv1beta1.ModuleCdc.LegacyAmino.RegisterConcrete(&AirdropProposal{}, "claim/AirdropProposal", nil)
 }
 
 func NewInitialAirdropProposal(

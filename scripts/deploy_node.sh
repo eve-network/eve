@@ -39,14 +39,11 @@ cat $HOME/.eved/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["m
 cat $HOME/.eved/config/genesis.json | jq '.app_state["gov"]["voting_params"]["voting_period"]="250s"' > $HOME/.eved/config/tmp_genesis.json && mv $HOME/.eved/config/tmp_genesis.json $HOME/.eved/config/genesis.json
 cat $HOME/.eved/config/genesis.json | jq '.app_state["mint"]["params"]["mint_denom"]="ueve"' > $HOME/.eved/config/tmp_genesis.json && mv $HOME/.eved/config/tmp_genesis.json $HOME/.eved/config/genesis.json
 
-# Set gas limit in genesis
-# cat $HOME/.eved/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.eved/config/tmp_genesis.json && mv $HOME/.eved/config/tmp_genesis.json $HOME/.eved/config/genesis.json
-
 # Allocate genesis accounts (cosmos formatted addresses)
-eved add-genesis-account $VALIDATOR 10000000ueve --keyring-backend $KEYRING
+eved add-genesis-account $VALIDATOR 1000000000ueve --keyring-backend $KEYRING
 
 # Sign genesis transaction
-eved gentx $VALIDATOR 7000000ueve --keyring-backend $KEYRING --chain-id $CHAINID
+eved gentx $VALIDATOR 700000000ueve --keyring-backend $KEYRING --chain-id $CHAINID
 
 # Collect genesis tx
 eved collect-gentxs
@@ -55,4 +52,4 @@ eved collect-gentxs
 eved validate-genesis
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-eved start
+eved start --minimum-gas-prices=0.0001ueve

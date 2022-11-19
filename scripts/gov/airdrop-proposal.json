@@ -1,0 +1,18 @@
+{
+    "title": "Airdrop Proposal",
+    "description": "testing",
+    "airdrop_start_time": "2022-11-20T02:08:07.100Z",
+    "duration_of_airdrop": "600s",
+    "claim_denom": "ueve",
+    "airdrop_list": [
+        {
+            "address": "eve1258nuq58cz9tfcge5e5egeq69fdvdy7rxmjksa",
+            "amount": [
+                {
+                    "denom": "ueve",
+                    "amount": "1000000"
+                }
+            ]
+        }
+    ]
+}
