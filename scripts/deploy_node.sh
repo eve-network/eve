@@ -7,8 +7,6 @@ MONIKER="local-testnet"
 KEYALGO="secp256k1"
 LOGLEVEL="info"
 VALIDATOR="validator"
-TESTING_ACCOUNT="vesting_account"
-
 
 echo >&1 "installing eve"
 rm -rf $HOME/.eved
@@ -21,9 +19,6 @@ eve config chain-id $CHAINID
 
 eved keys add $VALIDATOR --keyring-backend $KEYRING
 MY_VALIDATOR_ADDRESS=$(eved keys show $VALIDATOR -a --keyring-backend $KEYRING)
-
-eved keys add $TESTING_ACCOUNT --keyring-backend $KEYRING
-MY_VESTING_ACCOUNT=$(eved keys show $TESTING_ACCOUNT -a --keyring-backend $KEYRING)
 
 echo >&1 "\n"
 
