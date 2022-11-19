@@ -9,7 +9,7 @@ var _ sdk.Msg = &MsgClaim{}
 
 // msg types
 const (
-	TypeMsgClaimFor = "claim"
+	TypeMsgClaim = "claim"
 )
 
 func NewMsgClaim(sender string) *MsgClaim {
@@ -23,7 +23,7 @@ func (msg *MsgClaim) Route() string {
 }
 
 func (msg *MsgClaim) Type() string {
-	return TypeMsgClaimFor
+	return TypeMsgClaim
 }
 
 func (msg *MsgClaim) GetSigners() []sdk.AccAddress {

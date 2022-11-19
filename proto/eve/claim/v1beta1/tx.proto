@@ -40,3 +40,4 @@ message MsgClaimResponse {
     (gogoproto.moretags) = "yaml:\"claimed_amount\""
   ];
 }
+

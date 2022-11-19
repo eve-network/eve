@@ -31,3 +31,4 @@ message ClaimRecord {
     (gogoproto.moretags) = "yaml:\"claim_completed\""
   ];
 }
+
