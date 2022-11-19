@@ -17,7 +17,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) []abci.Val
 	if err != nil {
 		panic(err)
 	}
-	k.SetParams(ctx, data.Params)
+	err = k.SetParams(ctx, data.Params)
+	if err != nil {
+		panic(err)
+	}
 	return nil
 }
 
