@@ -41,21 +41,7 @@ Eve doesn't make promises and may not be exactly as described because she's an e
 
 ## Economic Information
 
-Anything described below can be modified by making a pull request.  
-
-* genesis:  ????????
-  * embedded in binary after launch
-  * no "dev fund"
-  * community tax set to 20% initially
-  * 1 validator = 1 eve
-  * 10% minimum commission
-  * 50 validators
-
-* PebbleDB by default
-* Cosmwasm
-* Token Factory
-* Variable length blocks made on demand with a 3-minute heartbeat
-* Genesis validator set limited to contributors
+Eve thinks that beauty comes from simplicity.
 
 ## Use of Eve as a framework
 
