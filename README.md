@@ -82,7 +82,5 @@ From eve will flow new designs and techniques that increase development velocity
   * logo == code
   * docs == logo
 
-## Airdrop
 
-Nothing is guaranteed here, but whales won't be pruned.  Conversely, non-productive validators and their delegators may be pruned. 
 
