@@ -125,8 +125,8 @@ func TestAppImportExport(t *testing.T) {
 
 	appOptions[flags.FlagHome] = t.TempDir() // ensure a unique folder for the new app
 
-	newApp := NewWasmApp(log.NewNopLogger(), newDB, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "WasmApp", newApp.Name())
+	newApp := NewEveApp(log.NewNopLogger(), newDB, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
+	require.Equal(t, "EveApp", newApp.Name())
 
 	initReq := &abci.RequestInitChain{
 		AppStateBytes: exported.AppState,
@@ -239,8 +239,8 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(newDir))
 	}()
 
-	newApp := NewWasmApp(log.NewNopLogger(), newDB, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "WasmApp", newApp.Name())
+	newApp := NewEveApp(log.NewNopLogger(), newDB, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
+	require.Equal(t, "EveApp", newApp.Name())
 
 	_, err = newApp.InitChain(&abci.RequestInitChain{
 		ChainId:       SimAppChainID,
@@ -262,7 +262,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func setupSimulationApp(t *testing.T, msg string) (simtypes.Config, dbm.DB, simtestutil.AppOptionsMap, *WasmApp) {
+func setupSimulationApp(t *testing.T, msg string) (simtypes.Config, dbm.DB, simtestutil.AppOptionsMap, *EveApp) {
 	config := simcli.NewConfigFromFlags()
 	config.ChainID = SimAppChainID
 
@@ -281,8 +281,8 @@ func setupSimulationApp(t *testing.T, msg string) (simtypes.Config, dbm.DB, simt
 	appOptions[flags.FlagHome] = dir // ensure a unique folder
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
-	app := NewWasmApp(logger, db, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
-	require.Equal(t, "WasmApp", app.Name())
+	app := NewEveApp(logger, db, nil, true, appOptions, emptyWasmOpts, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
+	require.Equal(t, "EveApp", app.Name())
 	return config, db, appOptions, app
 }
 
@@ -334,7 +334,7 @@ func TestAppStateDeterminism(t *testing.T) {
 			appOptions.SetDefault(flags.FlagHome, t.TempDir()) // ensure a unique folder per run
 
 			db := dbm.NewMemDB()
-			app := NewWasmApp(logger, db, nil, true, appOptions, emptyWasmOpts, interBlockCacheOpt(), baseapp.SetChainID(SimAppChainID))
+			app := NewEveApp(logger, db, nil, true, appOptions, emptyWasmOpts, interBlockCacheOpt(), baseapp.SetChainID(SimAppChainID))
 
 			fmt.Printf(
 				"running non-determinism simulation; seed %d: %d/%d, attempt: %d/%d\n",

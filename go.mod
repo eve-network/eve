@@ -1,6 +1,6 @@
 module github.com/eve-network/eve
 
-go 1.22
+go 1.21
 
 require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.0

@@ -45,7 +45,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
-// SetupOptions defines arguments that are passed into `WasmApp` constructor.
+// SetupOptions defines arguments that are passed into `EveApp` constructor.
 type SetupOptions struct {
 	Logger   log.Logger
 	DB       *dbm.MemDB
@@ -53,7 +53,7 @@ type SetupOptions struct {
 	WasmOpts []wasmkeeper.Option
 }
 
-func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, opts ...wasmkeeper.Option) (*WasmApp, GenesisState) {
+func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, opts ...wasmkeeper.Option) (*EveApp, GenesisState) {
 	db := dbm.NewMemDB()
 	nodeHome := t.TempDir()
 	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
@@ -67,15 +67,15 @@ func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
-	app := NewWasmApp(log.NewNopLogger(), db, nil, true, appOptions, opts, bam.SetChainID(chainID), bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}))
+	app := NewEveApp(log.NewNopLogger(), db, nil, true, appOptions, opts, bam.SetChainID(chainID), bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}))
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
 	return app, GenesisState{}
 }
 
-// NewWasmAppWithCustomOptions initializes a new WasmApp with custom options.
-func NewWasmAppWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptions) *WasmApp {
+// NewWasmAppWithCustomOptions initializes a new EveApp with custom options.
+func NewWasmAppWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptions) *EveApp {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -93,7 +93,7 @@ func NewWasmAppWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOpti
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000000000))),
 	}
 
-	app := NewWasmApp(options.Logger, options.DB, nil, true, options.AppOpts, options.WasmOpts)
+	app := NewEveApp(options.Logger, options.DB, nil, true, options.AppOpts, options.WasmOpts)
 	genesisState := app.DefaultGenesis()
 	genesisState, err = GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 	require.NoError(t, err)
@@ -116,8 +116,8 @@ func NewWasmAppWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOpti
 	return app
 }
 
-// Setup initializes a new WasmApp. A Nop logger is set in WasmApp.
-func Setup(t *testing.T, opts ...wasmkeeper.Option) *WasmApp {
+// Setup initializes a new EveApp. A Nop logger is set in EveApp.
+func Setup(t *testing.T, opts ...wasmkeeper.Option) *EveApp {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -141,10 +141,10 @@ func Setup(t *testing.T, opts ...wasmkeeper.Option) *WasmApp {
 	return app
 }
 
-// SetupWithGenesisValSet initializes a new WasmApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new EveApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit in the default token of the WasmApp from first genesis
-// account. A Nop logger is set in WasmApp.
+// of one consensus engine unit in the default token of the EveApp from first genesis
+// account. A Nop logger is set in EveApp.
 func SetupWithGenesisValSet(
 	t *testing.T,
 	valSet *cmttypes.ValidatorSet,
@@ -152,7 +152,7 @@ func SetupWithGenesisValSet(
 	chainID string,
 	opts []wasmkeeper.Option,
 	balances ...banktypes.Balance,
-) *WasmApp {
+) *EveApp {
 	t.Helper()
 
 	app, genesisState := setup(t, chainID, true, 5, opts...)
@@ -186,14 +186,14 @@ func SetupWithGenesisValSet(
 }
 
 // SetupWithEmptyStore set up a wasmd app instance with empty DB
-func SetupWithEmptyStore(t testing.TB) *WasmApp {
+func SetupWithEmptyStore(t testing.TB) *EveApp {
 	app, _ := setup(t, "testing", false, 0)
 	return app
 }
 
 // GenesisStateWithSingleValidator initializes GenesisState with a single validator and genesis accounts
 // that also act as delegators.
-func GenesisStateWithSingleValidator(t *testing.T, app *WasmApp) GenesisState {
+func GenesisStateWithSingleValidator(t *testing.T, app *EveApp) GenesisState {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -223,11 +223,11 @@ func GenesisStateWithSingleValidator(t *testing.T, app *WasmApp) GenesisState {
 
 // AddTestAddrsIncremental constructs and returns accNum amount of accounts with an
 // initial balance of accAmt in random order
-func AddTestAddrsIncremental(app *WasmApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int) []sdk.AccAddress {
+func AddTestAddrsIncremental(app *EveApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int) []sdk.AccAddress {
 	return addTestAddrs(app, ctx, accNum, accAmt, simtestutil.CreateIncrementalAccounts)
 }
 
-func addTestAddrs(app *WasmApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int, strategy simtestutil.GenerateAccountStrategy) []sdk.AccAddress {
+func addTestAddrs(app *EveApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int, strategy simtestutil.GenerateAccountStrategy) []sdk.AccAddress {
 	testAddrs := strategy(accNum)
 	bondDenom, err := app.StakingKeeper.BondDenom(ctx)
 	if err != nil {
@@ -243,7 +243,7 @@ func addTestAddrs(app *WasmApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int,
 	return testAddrs
 }
 
-func initAccountWithCoins(app *WasmApp, ctx sdk.Context, addr sdk.AccAddress, coins sdk.Coins) {
+func initAccountWithCoins(app *EveApp, ctx sdk.Context, addr sdk.AccAddress, coins sdk.Coins) {
 	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
 	if err != nil {
 		panic(err)
@@ -257,7 +257,7 @@ func initAccountWithCoins(app *WasmApp, ctx sdk.Context, addr sdk.AccAddress, co
 
 var emptyWasmOptions []wasmkeeper.Option
 
-// NewTestNetworkFixture returns a new WasmApp AppConstructor for network simulation tests
+// NewTestNetworkFixture returns a new EveApp AppConstructor for network simulation tests
 func NewTestNetworkFixture() network.TestFixture {
 	dir, err := os.MkdirTemp("", "simapp")
 	if err != nil {
@@ -265,9 +265,9 @@ func NewTestNetworkFixture() network.TestFixture {
 	}
 	defer os.RemoveAll(dir)
 
-	app := NewWasmApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(dir), emptyWasmOptions)
+	app := NewEveApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(dir), emptyWasmOptions)
 	appCtr := func(val network.ValidatorI) servertypes.Application {
-		return NewWasmApp(
+		return NewEveApp(
 			val.GetCtx().Logger, dbm.NewMemDB(), nil, true,
 			simtestutil.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir),
 			emptyWasmOptions,

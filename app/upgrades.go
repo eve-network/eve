@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -18,23 +19,16 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmWasm/wasmd/app/upgrades"
-	"github.com/CosmWasm/wasmd/app/upgrades/noop"
-	v050 "github.com/CosmWasm/wasmd/app/upgrades/v050"
-	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/eve-network/eve/app/upgrades"
 )
 
 // Upgrades list of chain upgrades
-var Upgrades = []upgrades.Upgrade{v050.Upgrade}
+var Upgrades = []upgrades.Upgrade{}
 
 // RegisterUpgradeHandlers registers the chain upgrade handlers
-func (app *WasmApp) RegisterUpgradeHandlers() {
+func (app *EveApp) RegisterUpgradeHandlers() {
 	setupLegacyKeyTables(&app.ParamsKeeper)
-	if len(Upgrades) == 0 {
-		// always have a unique upgrade registered for the current version to test in system tests
-		Upgrades = append(Upgrades, noop.NewUpgrade(app.Version()))
-	}
 
 	keepers := upgrades.AppKeepers{
 		AccountKeeper:         &app.AccountKeeper,

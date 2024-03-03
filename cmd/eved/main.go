@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/eve-network/eve/app"
 	"os"
 
 	"cosmossdk.io/log"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"github.com/CosmWasm/wasmd/app"
 )
 
 func main() {
