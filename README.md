@@ -10,7 +10,7 @@ Eve won't compete with your contracts, and views herself as a beautiful, fertile
 
 Note: it is possible that we fall back to v0.47.x if simply avoiding vote extensions proves to be ineffective in stopping the issues seen in deployments of comet v0.38.x
 
-* cosmos-sdk v0.50.x without vote extensions, with cyber-sdk gpu support
+* cosmos-sdk v0.50.x without vote extensions
 * cometbft v0.38.x without vote extensions
 * CosmWasm v0.50.x
 * WasmVM v2.0.x
@@ -23,6 +23,7 @@ Note: it is possible that we fall back to v0.47.x if simply avoiding vote extens
 
 If it is possible, we will get these in at launch:
 
+* gpu support from cyber-sdk
 * interchain security provider
 * mesh security provider
 
