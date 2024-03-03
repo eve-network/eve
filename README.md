@@ -4,8 +4,7 @@ Eve is a governance minimized CosmWasm blockchain intended to push forward the s
 
 Contract uploads are not permissioned in any way, and governance thresholds have been adjusted to ensure that contract authors are not disturbed in their work.   This chain emphasizes decentralization, interchain capability and governance minimization.  
 
-Eve won't compete with your contracts, and views herself as a beautiful, fertile platform for authors to bring their visions to life. 
-
+Eve won't compete with your contracts, and views herself as a beautiful, fertile platform for authors to bring their visions to life.  
 
 ## Software at launch
 
@@ -16,7 +15,6 @@ Note: it is possible that we fall back to v0.47.x if simply avoiding vote extens
 * CosmWasm v0.50.x
 * WasmVM v1.5.x
 * IBC-go v8.1.x
-
 
 ## Planned software
 
@@ -33,7 +31,7 @@ Likely stuff built and tested here feeds into Juno and several other chains.
 
 ## Team
 
-The individuals and groups in the git history are eve's team. 
+Eve does not have a core team.  Contributors form Eve's team.  Quicksilver and affiliated teams plan to use eve to put the newest SDK, IBC and WASMD into produciton quickly.  If you have ideas for eve, please feel free to fork and make a PR.  
 
 ## No Promises
 
@@ -41,16 +39,7 @@ Eve doesn't make promises and may not be exactly as described because she's an e
 
 ## Economic Information
 
-Eve thinks that beauty comes from simplicity.
-
-## Use of Eve as a framework
-
-Numerous ideas in eve came about as a result of work on Craft Economy and Juno.  We were also inspired by recent moves to make the Osmosis epoch module importable-- it is better than the one in the SDK but isn't importable at this time. Thus, Eve herself is becoming an SDK or framework for light, efficient CosmWasm Chains that natively support liquid staking.  
-
-Features developed in eve are designed to be importable directly from Eve's repository, and eve won't have her SDK fork, though there may be a fork of Wasmd.
-
-To use eve as a framework to make your chain, just fork eve.
-
+Eve thinks that beauty comes from simplicity, and economic design follows this.
 
 ## Imperative
 
@@ -61,12 +50,8 @@ From eve will flow new designs and techniques that increase development velocity
 * Contributors will be added to this repository with write access.
 * Chronic contributors will be added as owners
 * We'll move this out of notional-labs sooner or later and owners will own the eve-network (or such) GitHub org
-* you can use <https://gitpod.io> to contribute easily without setting up a development environment
 * you contribute here, in this repository, and there are many ways to contribute
   * code == docs
   * docs == code
   * logo == code
   * docs == logo
-
-
-
