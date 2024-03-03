@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/eve-network/eve/app"
 	"io"
 	"os"
 
@@ -15,6 +16,10 @@ import (
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -31,12 +36,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-
-	"github.com/CosmWasm/wasmd/app"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmcli "github.com/CosmWasm/wasmd/x/wasm/client/cli"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -196,7 +195,7 @@ func newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.NewWasmApp(
+	return app.NewEveApp(
 		logger, db, traceStore, true,
 		appOpts,
 		wasmOpts,
@@ -215,7 +214,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var wasmApp *app.WasmApp
+	var wasmApp *app.EveApp
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
@@ -233,7 +232,7 @@ func appExport(
 	appOpts = viperAppOpts
 
 	var emptyWasmOpts []wasmkeeper.Option
-	wasmApp = app.NewWasmApp(
+	wasmApp = app.NewEveApp(
 		logger,
 		db,
 		traceStore,

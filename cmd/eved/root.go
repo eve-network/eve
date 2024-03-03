@@ -20,10 +20,10 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/CosmWasm/wasmd/app"
-	"github.com/CosmWasm/wasmd/app/params"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/eve-network/eve/app"
+	"github.com/eve-network/eve/app/params"
 )
 
 // NewRootCmd creates a new root command for wasmd. It is called once in the
@@ -37,7 +37,7 @@ func NewRootCmd() *cobra.Command {
 	cfg.Seal()
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used (see root_v2.go)
-	tempApp := app.NewWasmApp(log.NewNopLogger(), dbm.NewMemDB(), nil, false, simtestutil.NewAppOptionsWithFlagHome(tempDir()), []wasmkeeper.Option{})
+	tempApp := app.NewEveApp(log.NewNopLogger(), dbm.NewMemDB(), nil, false, simtestutil.NewAppOptionsWithFlagHome(tempDir()), []wasmkeeper.Option{})
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -57,7 +57,7 @@ func NewRootCmd() *cobra.Command {
 
 	rootCmd := &cobra.Command{
 		Use:           version.AppName,
-		Short:         "Wasm Daemon (server)",
+		Short:         "Eve Daemon (server)",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
