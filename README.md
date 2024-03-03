@@ -13,7 +13,7 @@ Note: it is possible that we fall back to v0.47.x if simply avoiding vote extens
 * cosmos-sdk v0.50.x without vote extensions, with cyber-sdk gpu support
 * cometbft v0.38.x without vote extensions
 * CosmWasm v0.50.x
-* WasmVM v1.5.x
+* WasmVM v2.0.x
 * IBC-go v8.1.x
 
 ## Planned software
