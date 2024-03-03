@@ -4,7 +4,7 @@ Eve is a governance minimized CosmWasm blockchain intended to push forward the s
 
 Contract uploads are not permissioned in any way, and governance thresholds have been adjusted to ensure that contract authors are not disturbed in their work.   This chain emphasizes decentralization, interchain capability and governance minimization.  
 
-Eve won't compete with your contracts, and views herself as a beautiful, fertile platform for authors to bring their visions to life. 
+Eve won't compete with your contracts, and views herself as a beautiful, fertile platform for authors to bring their visions to life.  
 
 ## Software at launch
 
@@ -31,7 +31,7 @@ Likely stuff built and tested here feeds into Juno and several other chains.
 
 ## Team
 
-Eve does not have a core team.  Contributors form Eve's team.  Quicksilver and affiliated teams plan to use eve to put the newest SDK, IBC and WASMD into produciton quickly.  If you have ideas for eve, please feel free to fork and make a PR.
+Eve does not have a core team.  Contributors form Eve's team.  Quicksilver and affiliated teams plan to use eve to put the newest SDK, IBC and WASMD into produciton quickly.  If you have ideas for eve, please feel free to fork and make a PR.  
 
 ## No Promises
 
@@ -55,4 +55,3 @@ From eve will flow new designs and techniques that increase development velocity
   * docs == code
   * logo == code
   * docs == logo
-
