@@ -31,11 +31,22 @@ Likely stuff built and tested here feeds into White Whale, Composable, Cyber, Sp
 
 ## Team
 
-Eve does not have a core team.  Contributors form Eve's team.  Quicksilver and affiliated teams plan to use eve to put the newest SDK, IBC and WASMD into produciton quickly.  If you have ideas for eve, please feel free to fork and make a PR.  
+Contributors == team.
+
+Quicksilver and affiliated teams plan to use eve to put the newest SDK, IBC and WASMD into produciton quickly.  If you have ideas for eve, please feel free to fork and make a PR.  
+
+If you want to write an upgrade for Eve, it can be shipped from any repository, and you can just reference the url and commit hash.
+
+## Promises
+
+Eve will remain as simple as possible, while using the latest cosmos ecosystem libraries.  Eve won't use her community pool to compete with your contracts, becasue eve does not have a community pool.
+
 
 ## No Promises
 
 Eve doesn't make promises and may not be exactly as described because she's an exploration of ideas first and foremost.  This includes the airdrop.  
+
+
 
 ## Economic Information
 
