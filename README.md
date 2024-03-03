@@ -27,7 +27,7 @@ In all cases, when stuff changes here and we find it nice, we'll feed it back to
 
 ### Downstream
 
-Likely stuff built and tested here feeds into Juno and several other chains.
+Likely stuff built and tested here feeds into White Whale, Composable, Cyber, SpacePussy, **unnamed chain**, Quicksilver, Osmosis, Stargaze, Archway and Neutron.
 
 ## Team
 
