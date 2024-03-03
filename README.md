@@ -61,12 +61,9 @@ From eve will flow new designs and techniques that increase development velocity
 * Contributors will be added to this repository with write access.
 * Chronic contributors will be added as owners
 * We'll move this out of notional-labs sooner or later and owners will own the eve-network (or such) GitHub org
-* you can use <https://gitpod.io> to contribute easily without setting up a development environment
 * you contribute here, in this repository, and there are many ways to contribute
   * code == docs
   * docs == code
   * logo == code
   * docs == logo
-
-
 
