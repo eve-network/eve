@@ -63,7 +63,7 @@ jobs:
       - 
         name: Build and push 
         id: build_push_image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: Dockerfile
           context: .
@@ -106,7 +106,7 @@ jobs:
       - 
         name: Build and push 
         id: build_push_e2e_image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: tests/e2e/initialization/Dockerfile
           context: .
@@ -150,7 +150,7 @@ jobs:
       - 
         name: Build and push 
         id: build_push_e2e_init_image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: tests/e2e/initialization/init.Dockerfile
           context: .
