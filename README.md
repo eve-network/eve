@@ -15,8 +15,13 @@ Note: it is possible that we fall back to v0.47.x if simply avoiding vote extens
 * CosmWasm v0.50.x
 * WasmVM v2.0.x
 * IBC-go v8.1.x
+* Token Factory
+* Packet Forward Middleware
+* IBC Hooks
 
 ## Planned software
+
+If it is possible, we will get these in at launch:
 
 * interchain security provider
 * mesh security provider
