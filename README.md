@@ -19,6 +19,8 @@ Note: it is possible that we fall back to v0.47.x if simply avoiding vote extens
 * Packet Forward Middleware
 * IBC Hooks
 
+this also means fhat Eve, as loving mother and repeatable template, is committed to ensuring that the modules amd middlewares above are kept up to date rigorously, with up to date being defined as supporting the latest release of cosmos-sdk, **regardless of the decisions of other teams**.  Eve is very confident in the current cosmos-sdk and ibc-go maintenance teams and smiles warmly at them.
+
 ## Planned software
 
 If it is possible, we will get these in at launch:
