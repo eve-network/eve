@@ -13,6 +13,7 @@ import (
 
 	cmtconfig "github.com/cometbft/cometbft/config"
 	cmttime "github.com/cometbft/cometbft/types/time"
+	"github.com/eve-network/eve/app"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -38,8 +39,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/eve-network/eve/app"
 )
 
 var (
