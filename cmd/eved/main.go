@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/eve-network/eve/app"
 	"os"
+
+	"github.com/eve-network/eve/app"
 
 	"cosmossdk.io/log"
 

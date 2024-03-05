@@ -2,7 +2,8 @@ package app
 
 import (
 	"fmt"
-	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
+
+	"github.com/eve-network/eve/app/upgrades"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -19,8 +20,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/eve-network/eve/app/upgrades"
 )
 
 // Upgrades list of chain upgrades
