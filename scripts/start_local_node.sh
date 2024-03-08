@@ -2,7 +2,7 @@
 set -eu
 
 EVE_HOME=~/.eve-local
-EVED="build/eved --home ${EVE_HOME}"
+EVED="eved --home ${EVE_HOME}"
 CHAIN_ID=eve-local-1
 DENOM=ueve
 

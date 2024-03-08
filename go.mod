@@ -4,9 +4,9 @@ go 1.21.1
 
 require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
-	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2 // indirect
+	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.5
+	github.com/cosmos/cosmos-sdk v0.50.4
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/iavl v1.0.1 // indirect
@@ -26,7 +26,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 // indirect
-	google.golang.org/grpc v1.62.0 // indirect
+	google.golang.org/grpc v1.62.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
@@ -48,6 +48,7 @@ require (
 	github.com/cometbft/cometbft v0.38.5
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.0.0-20240307202658-3f7320cd66dc
 	github.com/cosmos/ibc-go/v8 v8.1.0
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
 	github.com/spf13/viper v1.18.2
@@ -130,7 +131,7 @@ require (
 	github.com/hashicorp/go-getter v1.7.3 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-metrics v0.5.2 // indirect
+	github.com/hashicorp/go-metrics v0.5.3 // indirect
 	github.com/hashicorp/go-plugin v1.5.2 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
@@ -217,8 +218,8 @@ replace (
 	// core v0.12 was tagged wrong (sdk51)
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => /Users/kyle/cosmos/ibc-go/modules/light-clients/08-wasm
 	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
-
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// See: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2

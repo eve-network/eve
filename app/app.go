@@ -142,10 +142,19 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	// add wasm light client
+	wasmvm "github.com/CosmWasm/wasmvm/v2"
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
+	wasm08keeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 const appName = "EveApp"
+
+const (
+	// ContractMemoryLimit is the memory limit of each contract execution (in MiB)
+	// constant value so all nodes run with the same limit.
+	ContractMemoryLimit = uint32(32)
+)
 
 // We pull these out so we can set them with LDFLAGS in the Makefile
 var (
@@ -236,6 +245,7 @@ type EveApp struct {
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
+	Wasm08Keeper        wasm08keeper.Keeper
 	WasmKeeper          wasmkeeper.Keeper
 	ConsumerKeeper      ccvconsumerkeeper.Keeper
 
@@ -310,7 +320,7 @@ func NewEveApp(
 		group.StoreKey,
 		// non sdk store keys
 		capabilitytypes.StoreKey, ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
-		wasmtypes.StoreKey, icahosttypes.StoreKey,
+		wasm08types.StoreKey, wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, tokenfactorytypes.StoreKey,
 	)
 
@@ -493,6 +503,18 @@ func NewEveApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	wasmDir := filepath.Join(homePath, "wasm")
+	wasmer, err := wasmvm.NewVM(
+		wasmDir,
+		AllCapabilities(),
+		ContractMemoryLimit,
+		wasmtypes.DefaultWasmConfig().ContractDebugMode,
+		wasmtypes.DefaultWasmConfig().MemoryCacheSize,
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
 		keys[ibcexported.StoreKey],
@@ -501,6 +523,15 @@ func NewEveApp(
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	app.Wasm08Keeper = wasm08keeper.NewKeeperWithVM(
+		appCodec,
+		runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
+		app.IBCKeeper.ClientKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		wasmer,
+		bApp.GRPCQueryRouter(),
 	)
 
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
@@ -637,7 +668,6 @@ func NewEveApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic(fmt.Sprintf("error while reading wasm config: %s", err))
@@ -736,6 +766,7 @@ func NewEveApp(
 		circuit.NewAppModule(appCodec, app.CircuitKeeper),
 		// non sdk modules
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
+		wasm08.NewAppModule(app.Wasm08Keeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
@@ -761,6 +792,8 @@ func NewEveApp(
 					paramsclient.ProposalHandler,
 				},
 			),
+			// wasm08types.ModuleName: wasm08.AppModuleBasic{},
+			// wasmtypes.ModuleName:   wasm.AppModuleBasic{},
 		})
 	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
 	app.BasicModuleManager.RegisterInterfaces(interfaceRegistry)
@@ -791,6 +824,7 @@ func NewEveApp(
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 	)
@@ -809,6 +843,7 @@ func NewEveApp(
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 	)
@@ -849,6 +884,7 @@ func NewEveApp(
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		wasm08types.ModuleName,
 		// wasm after ibc transfer
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -910,6 +946,7 @@ func NewEveApp(
 	if manager := app.SnapshotManager(); manager != nil {
 		err := manager.RegisterExtensions(
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
+			wasm08keeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.Wasm08Keeper),
 		)
 		if err != nil {
 			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
@@ -948,6 +985,9 @@ func NewEveApp(
 		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			panic(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
+		// if err := wasm08keeper.InitializePinnedCodes(ctx); err != nil {
+		// 	panic(fmt.Sprintf("failed initialize pinned codes %s", err))
+		// }
 	}
 
 	return app
