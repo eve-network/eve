@@ -3,7 +3,7 @@ module github.com/eve-network/eve
 go 1.21
 
 require (
-	github.com/CosmWasm/wasmd v0.51.0-rc.0
+	github.com/CosmWasm/wasmd v0.51.0-rc.1
 	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
 	github.com/cosmos/cosmos-sdk v0.50.4
