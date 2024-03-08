@@ -49,7 +49,6 @@ require (
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
 	github.com/cosmos/ibc-go/v8 v8.1.0
-	github.com/osmosis-labs/tokenfactory v0.0.0-00010101000000-000000000000
 	github.com/spf13/viper v1.18.2
 )
 
@@ -213,6 +212,8 @@ require (
 )
 
 replace (
+	// core v0.12 was tagged wrong (sdk51)
+	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
 
