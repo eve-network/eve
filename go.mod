@@ -28,7 +28,7 @@ require (
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/grpc v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-
+	github.com/osmosis-labs/tokenfactory v0.0.0-20220322163447-3e3e3e3e3e3e
 )
 
 require (
@@ -228,4 +228,6 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	gitlab.com/osmosis-labs/tokenfactory => github.com/osmosis-labs/tokenfactory v0.0.0-20220322163447-3e3e3e3e3e3e
 )
