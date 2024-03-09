@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/eve-network/eve/cmd"
 	"os"
 
 	"github.com/eve-network/eve/app"
@@ -12,6 +13,7 @@ import (
 
 func main() {
 	rootCmd := NewRootCmd()
+	rootCmd.AddCommand(cmd.AddConsumerSectionCmd(app.DefaultNodeHome))
 
 	if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
 		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)

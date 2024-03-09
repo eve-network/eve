@@ -2,8 +2,6 @@ module github.com/eve-network/eve
 
 go 1.21.1
 
-toolchain go1.21.6
-
 require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
 	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2 // indirect
@@ -37,6 +35,7 @@ require (
 	cosmossdk.io/api v0.7.3
 	cosmossdk.io/client/v2 v2.0.0-beta.1
 	cosmossdk.io/core v0.11.0
+	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/store v1.0.2
@@ -62,7 +61,6 @@ require (
 	cloud.google.com/go/storage v1.36.0 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/errors v1.0.1 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -216,6 +214,8 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
+
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// See: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
@@ -228,13 +228,4 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-)
-
-retract (
-	// see https://github.com/CosmWasm/wasmd/issues/1713
-	v0.44.0
-	// see https://github.com/CosmWasm/wasmd/issues/1713
-	v0.43.0
-	// see https://github.com/CosmWasm/wasmd/issues/1651
-	v0.42.0
 )
