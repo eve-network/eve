@@ -2,10 +2,11 @@ package app
 
 import (
 	"errors"
-	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	consumerante "github.com/cosmos/interchain-security/v4/app/consumer/ante"
+	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 
 	corestoretypes "cosmossdk.io/core/store"
 	circuitante "cosmossdk.io/x/circuit/ante"
@@ -16,7 +17,6 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	consumerante "github.com/cosmos/interchain-security/v4/app/consumer/ante"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC

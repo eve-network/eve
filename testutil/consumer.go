@@ -1,56 +1,33 @@
 package testutil
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/interchain-security/v4/testutil/crypto"
-	ccv "github.com/cosmos/interchain-security/v4/x/ccv/types"
 	"time"
 
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
-
+	ibctypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types" //nolint:staticcheck
+	"github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	consumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
+	ccvprovidertypes "github.com/cosmos/interchain-security/v4/x/ccv/provider/types"
+	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
 )
 
-func CreateMinimalConsumerTestGenesis() *consumertypes.GenesisState {
-	// create validator set
-	cId := crypto.NewCryptoIdentityFromIntSeed(234234)
-	pubKey := cId.TMCryptoPubKey()
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valset := []abci.ValidatorUpdate{tmtypes.TM2PB.ValidatorUpdate(validator)}
+func CreateMinimalConsumerTestGenesis() *ccvtypes.ConsumerGenesisState {
+	genesisState := ccvtypes.DefaultConsumerGenesisState()
+	genesisState.Params.Enabled = true
+	genesisState.NewChain = true
+	genesisState.Provider.ClientState = ccvprovidertypes.DefaultParams().TemplateClient
+	genesisState.Provider.ClientState.ChainId = "eve"
+	genesisState.Provider.ClientState.LatestHeight = ibctypes.Height{RevisionNumber: 0, RevisionHeight: 1}
+	trustPeriod, err := ccvtypes.CalculateTrustPeriod(genesisState.Params.UnbondingPeriod, ccvprovidertypes.DefaultTrustingPeriodFraction)
+	if err != nil {
+		panic("provider client trusting period error")
+	}
+	genesisState.Provider.ClientState.TrustingPeriod = trustPeriod
+	genesisState.Provider.ClientState.UnbondingPeriod = genesisState.Params.UnbondingPeriod
+	genesisState.Provider.ClientState.MaxClockDrift = ccvprovidertypes.DefaultMaxClockDrift
+	genesisState.Provider.ConsensusState = &ibctmtypes.ConsensusState{
+		Timestamp: time.Now().UTC(),
+		Root:      types.MerkleRoot{Hash: []byte("dummy")},
+	}
 
-	// create ibc client and last consensus states
-	provConsState := ibctmtypes.NewConsensusState(
-		time.Now(),
-		commitmenttypes.NewMerkleRoot([]byte("apphash")),
-		tmtypes.NewValidatorSet([]*tmtypes.Validator{validator}).Hash(),
-	)
-
-	provClientState := ibctmtypes.NewClientState(
-		"provider",
-		ibctmtypes.DefaultTrustLevel,
-		1,
-		stakingtypes.DefaultUnbondingTime,
-		time.Second*10,
-		clienttypes.Height{RevisionNumber: 0, RevisionHeight: 1},
-		commitmenttypes.GetSDKSpecs(),
-		[]string{"upgrade", "upgradedIBCState"},
-	)
-
-	// create default parameters for a new chain
-	params := ccv.DefaultParams()
-	params.Enabled = true
-	state := consumertypes.NewInitialGenesisState(
-		provClientState,
-		provConsState,
-		valset,
-		params,
-	)
-	state.ProviderConsensusState = provConsState
-	state.ProviderClientState = provClientState
-
-	return state
+	return genesisState
 }

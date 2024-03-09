@@ -3,21 +3,24 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/eve-network/eve/testutil"
 	"strconv"
 
-	errorsmod "cosmossdk.io/errors"
 	types1 "github.com/cometbft/cometbft/abci/types"
 	pvm "github.com/cometbft/cometbft/privval"
+	tmtypes "github.com/cometbft/cometbft/types"
+	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
+	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
+	"github.com/eve-network/eve/testutil"
+	"github.com/spf13/cobra"
+
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	"github.com/spf13/cobra"
 )
 
 func AddConsumerSectionCmd(defaultNodeHome string) *cobra.Command {
@@ -52,11 +55,11 @@ func AddConsumerSectionCmd(defaultNodeHome string) *cobra.Command {
 					if err != nil {
 						return err
 					}
-					sdkPublicKey, err := cryptocodec.FromTmPubKeyInterface(pk)
+					sdkPublicKey, err := cryptocodec.FromTmPubKeyInterface(pk) //nolint:staticcheck
 					if err != nil {
 						return err
 					}
-					tmProtoPublicKey, err := cryptocodec.ToTmProtoPublicKey(sdkPublicKey)
+					tmProtoPublicKey, err := cryptocodec.ToTmProtoPublicKey(sdkPublicKey) //nolint:staticcheck
 					if err != nil {
 						return err
 					}
@@ -69,8 +72,8 @@ func AddConsumerSectionCmd(defaultNodeHome string) *cobra.Command {
 					return errorsmod.Wrap(err, "could not convert val updates to validator set")
 				}
 
-				genesisState.InitialValSet = initialValset
-				genesisState.ProviderConsensusState.NextValidatorsHash = tmtypes.NewValidatorSet(vals).Hash()
+				genesisState.Provider.InitialValSet = initialValset
+				genesisState.Provider.ConsensusState.NextValidatorsHash = tmtypes.NewValidatorSet(vals).Hash()
 
 				state.ConsumerModuleState = genesisState
 				return nil
@@ -149,9 +152,9 @@ type GenesisData struct {
 	GenesisFile         string
 	GenDoc              *genutiltypes.AppGenesis
 	AppState            map[string]json.RawMessage
-	ConsumerModuleState *ccvconsumertypes.GenesisState
+	ConsumerModuleState *ccvtypes.ConsumerGenesisState
 }
 
-func NewGenesisData(genesisFile string, genDoc *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvconsumertypes.GenesisState) *GenesisData {
+func NewGenesisData(genesisFile string, genDoc *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvtypes.ConsumerGenesisState) *GenesisData {
 	return &GenesisData{GenesisFile: genesisFile, GenDoc: genDoc, AppState: appState, ConsumerModuleState: consumerModuleState}
 }
