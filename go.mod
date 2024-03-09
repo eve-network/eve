@@ -1,6 +1,8 @@
 module github.com/eve-network/eve
 
-go 1.21
+go 1.21.1
+
+toolchain go1.21.6
 
 require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
@@ -11,6 +13,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/iavl v1.0.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
+	github.com/cosmos/interchain-security/v4 v4.0.0-20240308155501-e731e82d77f1
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -27,6 +30,7 @@ require (
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/grpc v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+
 )
 
 require (

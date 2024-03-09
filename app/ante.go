@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	ccvconsumerkeeper "github.com/cosmos/interchain-security/v4/x/ccv/consumer/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -15,6 +16,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	consumerante "github.com/cosmos/interchain-security/v4/app/consumer/ante"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
@@ -23,6 +25,7 @@ type HandlerOptions struct {
 	ante.HandlerOptions
 
 	IBCKeeper             *keeper.Keeper
+	ConsumerKeeper        ccvconsumerkeeper.Keeper
 	WasmConfig            *wasmTypes.WasmConfig
 	WasmKeeper            *wasmkeeper.Keeper
 	TXCounterStoreService corestoretypes.KVStoreService
@@ -57,6 +60,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewGasRegisterDecorator(options.WasmKeeper.GetGasRegister()),
 		circuitante.NewCircuitBreakerDecorator(options.CircuitKeeper),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		consumerante.NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
