@@ -43,12 +43,11 @@ import (
 	ccvdistr "github.com/cosmos/interchain-security/v4/x/ccv/democracy/distribution"
 	ccvgov "github.com/cosmos/interchain-security/v4/x/ccv/democracy/governance"
 	ccvstaking "github.com/cosmos/interchain-security/v4/x/ccv/democracy/staking"
-	"github.com/spf13/cast"
-
 	"github.com/osmosis-labs/tokenfactory"
 	"github.com/osmosis-labs/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/osmosis-labs/tokenfactory/keeper"
 	tokenfactorytypes "github.com/osmosis-labs/tokenfactory/types"
+	"github.com/spf13/cast"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -72,6 +71,7 @@ import (
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
