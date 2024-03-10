@@ -83,21 +83,21 @@ ifeq ($(OS),Windows_NT)
 	$(error eved server not supported. Use "make build-windows-client" for client)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/eved ./cmd/eved
+	go build $(BUILD_FLAGS) -o build/eved ./cmd/eved
 endif
 
 build-windows-client: go.sum
-	GOOS=windows GOARCH=amd64 go build -mod=readonly $(BUILD_FLAGS) -o build/eved.exe ./cmd/eved
+	GOOS=windows GOARCH=amd64 go build $(BUILD_FLAGS) -o build/eved.exe ./cmd/eved
 
 build-contract-tests-hooks:
 ifeq ($(OS),Windows_NT)
-	go build -mod=readonly $(BUILD_FLAGS) -o build/contract_tests.exe ./cmd/contract_tests
+	go build $(BUILD_FLAGS) -o build/contract_tests.exe ./cmd/contract_tests
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/contract_tests ./cmd/contract_tests
+	go build $(BUILD_FLAGS) -o build/contract_tests ./cmd/contract_tests
 endif
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/eved
+	go install $(BUILD_FLAGS) ./cmd/eved
 
 ########################################
 ### Tools & dependencies

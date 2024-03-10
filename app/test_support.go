@@ -29,7 +29,7 @@ func (app *EveApp) GetBankKeeper() bankkeeper.Keeper {
 }
 
 func (app *EveApp) GetStakingKeeper() *stakingkeeper.Keeper {
-	return app.StakingKeeper
+	return &app.StakingKeeper
 }
 
 func (app *EveApp) GetAccountKeeper() authkeeper.AccountKeeper {
