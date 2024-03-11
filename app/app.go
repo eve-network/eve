@@ -694,7 +694,7 @@ func NewEveApp(
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		AllCapabilities(),
+		strings.Join(AllCapabilities(), ","),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmOpts...,
 	)

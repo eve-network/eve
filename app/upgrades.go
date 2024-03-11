@@ -20,7 +20,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
@@ -95,7 +94,7 @@ func setupLegacyKeyTables(k *paramskeeper.Keeper) {
 			keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
 			// wasm
 		case wasmtypes.ModuleName:
-			keyTable = v2.ParamKeyTable() //nolint:staticcheck
+			keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
 		default:
 			continue
 		}
