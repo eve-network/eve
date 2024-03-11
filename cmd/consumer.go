@@ -9,7 +9,6 @@ import (
 	pvm "github.com/cometbft/cometbft/privval"
 	tmtypes "github.com/cometbft/cometbft/types"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
 	"github.com/eve-network/eve/testutil"
 	"github.com/spf13/cobra"
 
@@ -40,7 +39,7 @@ func AddConsumerSectionCmd(defaultNodeHome string) *cobra.Command {
 			}
 
 			return genesisMutator.AlterConsumerModuleState(cmd, func(state *GenesisData, _ map[string]json.RawMessage) error {
-				initialValset := []types1.ValidatorUpdate{}
+				var initialValset []types1.ValidatorUpdate
 				genesisState := testutil.CreateMinimalConsumerTestGenesis()
 				clientCtx := client.GetClientContextFromCmd(cmd)
 				serverCtx := server.GetServerContextFromCmd(cmd)
@@ -122,8 +121,8 @@ func (x DefaultGenesisIO) AlterConsumerModuleState(cmd *cobra.Command, callback 
 		return errorsmod.Wrap(err, "marshal application genesis state")
 	}
 
-	g.GenDoc.AppState = appStateJSON
-	return genutil.ExportGenesisFile(g.GenDoc, g.GenesisFile)
+	g.AppGenesis.AppState = appStateJSON
+	return genutil.ExportGenesisFile(g.AppGenesis, g.GenesisFile)
 }
 
 type DefaultGenesisReader struct{}
@@ -150,11 +149,11 @@ func (d DefaultGenesisReader) ReadGenesis(cmd *cobra.Command) (*GenesisData, err
 
 type GenesisData struct {
 	GenesisFile         string
-	GenDoc              *genutiltypes.AppGenesis
+	AppGenesis          *genutiltypes.AppGenesis
 	AppState            map[string]json.RawMessage
-	ConsumerModuleState *ccvtypes.ConsumerGenesisState
+	ConsumerModuleState *ccvconsumertypes.GenesisState
 }
 
-func NewGenesisData(genesisFile string, genDoc *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvtypes.ConsumerGenesisState) *GenesisData {
-	return &GenesisData{GenesisFile: genesisFile, GenDoc: genDoc, AppState: appState, ConsumerModuleState: consumerModuleState}
+func NewGenesisData(genesisFile string, appGenesis *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvconsumertypes.GenesisState) *GenesisData {
+	return &GenesisData{GenesisFile: genesisFile, AppGenesis: appGenesis, AppState: appState, ConsumerModuleState: consumerModuleState}
 }

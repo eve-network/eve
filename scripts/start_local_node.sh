@@ -57,9 +57,20 @@ $EVED start
 ## Add a governator
 #echo "Adding governator..."
 #pub_key=$($EVED tendermint show-validator)
-#$EVED tx staking create-validator --amount 1000000000${DENOM} --from val \
-#    --pubkey=$pub_key --commission-rate="0.10" --commission-max-rate="0.20" \
-#    --commission-max-change-rate="0.01" --min-self-delegation="1" -y
+#
+#echo '{
+#             "pubkey": "'"$pub_key"'",
+#             "amount": "1000000'$DENOM'",
+#             "moniker": "myvalidator",
+#             "identity": "optional identity signature (ex. UPort or Keybase)",
+#             "website": "validator website",
+#             "commission-rate": "0.1",
+#             "commission-max-rate": "0.2",
+#             "commission-max-change-rate": "0.01",
+#             "min-self-delegation": "1"
+#     }' > create-validator.json
+#
+#$EVED tx staking create-validator create-valiator.json -y
 #
 ## Bring the daemon back to the foreground
 #wait $pid
