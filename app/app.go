@@ -518,15 +518,6 @@ func NewEveApp(
 		panic(err)
 	}
 
-	app.Wasm08Keeper = wasm08keeper.NewKeeperWithVM(
-		appCodec,
-		runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
-		app.IBCKeeper.ClientKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		wasmer,
-		bApp.GRPCQueryRouter(),
-	)
-
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
 		keys[ibcexported.StoreKey],
@@ -547,6 +538,15 @@ func NewEveApp(
 	)
 
 	wasmOpts = append(wasmOpts, bindings.RegisterCustomPlugins(app.BankKeeper, &app.TokenFactoryKeeper)...)
+	app.Wasm08Keeper = wasm08keeper.NewKeeperWithVM(
+		appCodec,
+		runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
+		app.IBCKeeper.ClientKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		wasmer,
+		bApp.GRPCQueryRouter(),
+	)
+
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
 	// by granting the governance module the right to execute the message.
