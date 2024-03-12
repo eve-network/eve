@@ -50,7 +50,7 @@ echo "$EVE_ADMIN_MNEMONIC" | $EVED keys add admin --recover --keyring-backend=te
 $EVED genesis add-genesis-account admin 200000000000${DENOM} --keyring-backend=test
 
 # Start the daemon in the background
-$EVED start
+$EVED start --log_level debug
 #pid=$!
 #sleep 10
 #
