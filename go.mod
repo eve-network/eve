@@ -50,6 +50,7 @@ require (
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.0.0-20240307202658-3f7320cd66dc
 	github.com/cosmos/ibc-go/v8 v8.1.0
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20240306102635-57b349e8fd83
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
 	github.com/spf13/viper v1.18.2
 )
@@ -231,6 +232,8 @@ replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 	github.com/osmosis-labs/tokenfactory => github.com/notional-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
+	
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 =>github.com/kienn6034/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20240306102635-57b349e8fd83
 
 	// temporary replace statement to use latest dependencies
 	// github.com/CosmWasm/wasmd => github.com/faddat/wasmd v0.40.0-rc.1.0.20240303013559-e8c435758c06
