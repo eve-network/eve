@@ -219,6 +219,8 @@ replace (
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => /Users/kyle/cosmos/ibc-go/modules/light-clients/08-wasm
+
+	// github.com/cosmos/ibc-go/v8 => github.com/cosmos/ibc-go/v8 v8.0.0-beta.1.0.20240310203317-cf4b9b9ad758
 	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// See: https://github.com/cosmos/cosmos-sdk/issues/13134

@@ -7,6 +7,8 @@ import (
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -19,9 +21,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	v2 "github.com/CosmWasm/wasmd/x/wasm/migrations/v2"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // Upgrades list of chain upgrades
