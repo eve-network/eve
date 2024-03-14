@@ -815,6 +815,8 @@ github.com/nats-io/nkeys v0.1.0/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxzi
 github.com/nats-io/nkeys v0.1.3/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxziKVo7w=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
+github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314043527-f53cabfd50c0 h1:Zig/yWf/GhpperDs8GQlMiOGA7e27YnNZJ+u8kYb1gc=
+github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314043527-f53cabfd50c0/go.mod h1:+r+mJkIfvKtyYUzgPsw2VncseYMo+LIwvXc19stBHGM=
 github.com/notional-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42 h1:IwHvk/pnsC/7wkAliqjSv5CZ1UdW0l0jvss1TH6yZs0=
 github.com/notional-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42/go.mod h1:/7BTO79gDbiT40Dw3nCjd7I0MEIsfTxzoawgJC168nQ=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
