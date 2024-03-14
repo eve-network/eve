@@ -6,7 +6,7 @@ require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
 	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.4
+	github.com/cosmos/cosmos-sdk v0.50.5
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/iavl v1.0.1 // indirect
