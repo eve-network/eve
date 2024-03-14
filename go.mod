@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
-	github.com/CosmWasm/wasmvm/v2 v2.0.0-rc.2
+	github.com/CosmWasm/wasmvm/v2 v2.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
 	github.com/cosmos/cosmos-sdk v0.50.5
 	github.com/cosmos/gogogateway v1.2.0 // indirect
