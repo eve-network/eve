@@ -47,6 +47,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.1
 	github.com/cometbft/cometbft v0.38.5
 	github.com/cosmos/cosmos-db v1.0.2
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 v8.0.0-00010101000000-000000000000
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.0.0-20240307202658-3f7320cd66dc
 	github.com/cosmos/ibc-go/v8 v8.1.0
@@ -218,10 +219,10 @@ replace (
 	// core v0.12 was tagged wrong (sdk51)
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314043527-f53cabfd50c0
 	// github.com/cosmos/ibc-go/v8 => github.com/cosmos/ibc-go/v8 v8.0.0-beta.1.0.20240310203317-cf4b9b9ad758
 
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/kienn6034/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20240306102635-57b349e8fd83
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314043527-f53cabfd50c0
 	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
 
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
