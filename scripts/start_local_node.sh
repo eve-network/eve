@@ -10,8 +10,8 @@ EVE_ADMIN_MNEMONIC="gorilla bind ghost erode play crack ancient flight mountain 
 EVE_VAL_MNEMONIC="jeans agree enter oak sure amateur ride ceiling museum bunker weekend fruit give truth blush lucky ball chunk regret mirror leader pudding mirror web"
 
 MAX_DEPOSIT_PERIOD="20s"
-VOTING_PERIOD="20s"
-UNBONDING_TIME="120s"
+VOTING_PERIOD="30s"
+UNBONDING_TIME="20s"
 
 config_toml="${EVE_HOME}/config/config.toml"
 client_toml="${EVE_HOME}/config/client.toml"
@@ -50,7 +50,7 @@ echo "$EVE_ADMIN_MNEMONIC" | $EVED keys add admin --recover --keyring-backend=te
 $EVED genesis add-genesis-account admin 200000000000${DENOM} --keyring-backend=test
 
 # Start the daemon in the background
-$EVED start --log_level debug
+$EVED start --log_level trace
 #pid=$!
 #sleep 10
 #
