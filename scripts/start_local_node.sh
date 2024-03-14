@@ -9,9 +9,9 @@ DENOM=ueve
 EVE_ADMIN_MNEMONIC="gorilla bind ghost erode play crack ancient flight mountain floor rent flip lens split today winter oil arctic recycle lab reform habit keep cactus"
 EVE_VAL_MNEMONIC="jeans agree enter oak sure amateur ride ceiling museum bunker weekend fruit give truth blush lucky ball chunk regret mirror leader pudding mirror web"
 
-MAX_DEPOSIT_PERIOD="20s"
-VOTING_PERIOD="20s"
-UNBONDING_TIME="120s"
+MAX_DEPOSIT_PERIOD="86401s"
+VOTING_PERIOD="86401s"
+UNBONDING_TIME="86401s"
 
 config_toml="${EVE_HOME}/config/config.toml"
 client_toml="${EVE_HOME}/config/client.toml"
@@ -38,8 +38,8 @@ jq '.app_state.gov.params.voting_period = $newVal' --arg newVal "$VOTING_PERIOD"
 rm -rf ~/.eve-loca1
 cp -r ${EVE_HOME} ~/.eve-loca1
 
-$EVED add-consumer-section 1
-jq '.app_state.ccvconsumer.params.unbonding_period = $newVal' --arg newVal "$UNBONDING_TIME" $genesis_json > json.tmp && mv json.tmp $genesis_json
+#$EVED add-consumer-section 1
+#jq '.app_state.ccvconsumer.params.unbonding_period = $newVal' --arg newVal "$UNBONDING_TIME" $genesis_json > json.tmp && mv json.tmp $genesis_json
 
 rm -rf ~/.eve-loca1
 
@@ -48,6 +48,15 @@ $EVED genesis add-genesis-account val 200000000000${DENOM} --keyring-backend=tes
 
 echo "$EVE_ADMIN_MNEMONIC" | $EVED keys add admin --recover --keyring-backend=test
 $EVED genesis add-genesis-account admin 200000000000${DENOM} --keyring-backend=test
+
+COMMISSION_RATE=0.01
+COMMISSION_MAX_RATE=0.02
+
+# Sign genesis transaction
+$EVED genesis gentx val "1000000${DENOM}" --commission-rate=$COMMISSION_RATE --commission-max-rate=$COMMISSION_MAX_RATE --keyring-backend=test --chain-id $CHAIN_ID --home $EVE_HOME
+
+# Collect genesis tx
+$EVED genesis collect-gentxs --home $EVE_HOME
 
 # Start the daemon in the background
 $EVED start
