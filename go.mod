@@ -6,7 +6,7 @@ require (
 	github.com/CosmWasm/wasmd v0.51.0-rc.1
 	github.com/CosmWasm/wasmvm/v2 v2.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.4
+	github.com/cosmos/cosmos-sdk v0.50.5
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/iavl v1.0.1 // indirect
@@ -146,7 +146,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.6 // indirect
+	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
@@ -222,7 +222,6 @@ replace (
 
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/notional-labs/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20240306102635-57b349e8fd83
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314043527-f53cabfd50c0
-	github.com/cosmos/interchain-security => /Users/hoank/resource/notional/interchain-security
 
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// See: https://github.com/cosmos/cosmos-sdk/issues/13134
