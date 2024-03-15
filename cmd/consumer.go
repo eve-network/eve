@@ -8,8 +8,8 @@ import (
 	types1 "github.com/cometbft/cometbft/abci/types"
 	pvm "github.com/cometbft/cometbft/privval"
 	tmtypes "github.com/cometbft/cometbft/types"
-	ccvconsumertypes "github.com/cosmos/interchain-security/v4/x/ccv/consumer/types"
-	ccvtypes "github.com/cosmos/interchain-security/v4/x/ccv/types"
+	ccvconsumertypes "github.com/cosmos/interchain-security/v5/x/ccv/consumer/types"
+	ccvtypes "github.com/cosmos/interchain-security/v5/x/ccv/types"
 	"github.com/eve-network/eve/testutil"
 	"github.com/spf13/cobra"
 
