@@ -9,7 +9,6 @@ import (
 	pvm "github.com/cometbft/cometbft/privval"
 	tmtypes "github.com/cometbft/cometbft/types"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v5/x/ccv/consumer/types"
-	ccvtypes "github.com/cosmos/interchain-security/v5/x/ccv/types"
 	"github.com/eve-network/eve/testutil"
 	"github.com/spf13/cobra"
 
@@ -152,9 +151,9 @@ type GenesisData struct {
 	GenesisFile         string
 	GenDoc              *genutiltypes.AppGenesis
 	AppState            map[string]json.RawMessage
-	ConsumerModuleState *ccvtypes.ConsumerGenesisState
+	ConsumerModuleState *ccvconsumertypes.GenesisState
 }
 
-func NewGenesisData(genesisFile string, genDoc *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvtypes.ConsumerGenesisState) *GenesisData {
+func NewGenesisData(genesisFile string, genDoc *genutiltypes.AppGenesis, appState map[string]json.RawMessage, consumerModuleState *ccvconsumertypes.GenesisState) *GenesisData {
 	return &GenesisData{GenesisFile: genesisFile, GenDoc: genDoc, AppState: appState, ConsumerModuleState: consumerModuleState}
 }
