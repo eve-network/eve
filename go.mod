@@ -50,7 +50,7 @@ require (
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 v8.0.0-00010101000000-000000000000
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.0.0-20240314094315-e89424c5bf2e
-	github.com/cosmos/ibc-go/v8 v8.1.0
+	github.com/cosmos/ibc-go/v8 v8.1.1
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
 	github.com/spf13/viper v1.18.2
 )
