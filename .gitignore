@@ -46,3 +46,7 @@ dependency-graph.png
 *.out
 *.synctex.gz
 contract_tests/*
+
+#Airdrop tool
+balance.json
+rewards.json
