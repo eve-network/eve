@@ -17,6 +17,8 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// got to export genesis state from neutron and bostrom chain
+
 const (
 	EVE_AIRDROP    = "1000000000" // 1,000,000,000
 	LIMIT_PER_PAGE = 100000000
@@ -41,7 +43,7 @@ func getValidators(stakingClient stakingtypes.QueryClient, block_height string) 
 }
 
 func main() {
-	balanceComposableInfo, rewardComposableInfo := terra()
+	balanceComposableInfo, rewardComposableInfo := celestia()
 	// Write delegations to file
 	fileForDebug, _ := json.MarshalIndent(rewardComposableInfo, "", " ")
 	_ = os.WriteFile("rewards.json", fileForDebug, 0644)

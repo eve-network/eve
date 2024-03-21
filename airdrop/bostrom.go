@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,18 +10,15 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func bostrom() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetBostromConfig().NodeStatusUrl)
+	// block_height := getLatestHeight(config.GetBostromConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetBostromConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
@@ -30,25 +26,30 @@ func bostrom() ([]banktypes.Balance, []config.Reward) {
 		panic(err)
 	}
 	defer grpcConn.Close()
-	stakingClient := stakingtypes.NewQueryClient(grpcConn)
+	// stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	// validators := getValidators(stakingClient, block_height)
+	rpc := config.GetBostromConfig().RPC + "/cosmos/staking/v1beta1/validators?pagination.count_total=true"
+	validatorsResponse := fetchValidators(rpc)
+	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-			&stakingtypes.QueryValidatorDelegationsRequest{
-				ValidatorAddr: validator.OperatorAddress,
-				Pagination: &query.PageRequest{
-					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
-				},
-			},
-			grpc.Header(&header), // Retrieve header from response
-		)
+		// var header metadata.MD
+		// delegationsResponse, _ := stakingClient.ValidatorDelegations(
+		// 	metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+		// 	&stakingtypes.QueryValidatorDelegationsRequest{
+		// 		ValidatorAddr: validator.OperatorAddress,
+		// 		Pagination: &query.PageRequest{
+		// 			CountTotal: true,
+		// 			Limit:      LIMIT_PER_PAGE,
+		// 		},
+		// 	},
+		// 	grpc.Header(&header), // Retrieve header from response
+		// )
+		rpcUrl := config.GetBostromConfig().RPC + "/cosmos/staking/v1beta1/validators/" + validator.String() + "/delegations?pagination.limit=" + string(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		delegationsResponse := fetchDelegations(rpcUrl)
 		total := delegationsResponse.Pagination.Total
 		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
@@ -136,4 +137,33 @@ func fetchBostromTokenPrice(apiUrl string) math.LegacyDec {
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
 	return tokenInUsd
+}
+
+func fetchValidators(rpcUrl string) stakingtypes.QueryValidatorsResponse {
+	// Make a GET request to the API
+	response, err := http.Get(rpcUrl)
+	if err != nil {
+		fmt.Println("Error making GET request:", err)
+		panic("")
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		panic("")
+	}
+
+	var data stakingtypes.QueryValidatorsResponse
+
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		panic("")
+	}
+
+	fmt.Println(data)
+	return data
 }

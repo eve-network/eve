@@ -22,7 +22,7 @@ import (
 )
 
 func sentinel() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetSentinelConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetSentinelConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetSentinelConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

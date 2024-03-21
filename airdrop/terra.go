@@ -22,7 +22,7 @@ import (
 )
 
 func terra() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetTerraConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetTerraConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetTerraConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
@@ -38,7 +38,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
+		delegationsResponse, err := stakingClient.ValidatorDelegations(
 			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
 			&stakingtypes.QueryValidatorDelegationsRequest{
 				ValidatorAddr: validator.OperatorAddress,
@@ -49,6 +49,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 			},
 			grpc.Header(&header), // Retrieve header from response
 		)
+		fmt.Println("err: ", err)
 		total := delegationsResponse.Pagination.Total
 		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)

@@ -23,7 +23,7 @@ import (
 )
 
 func neutron() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetNeutronConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

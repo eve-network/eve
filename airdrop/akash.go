@@ -22,7 +22,7 @@ import (
 )
 
 func akash() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetAkashConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetAkashConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetAkashConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

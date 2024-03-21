@@ -22,7 +22,7 @@ import (
 )
 
 func stargaze() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetStargazeConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetStargazeConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetStargazeConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

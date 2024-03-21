@@ -22,7 +22,7 @@ import (
 )
 
 func cosmos() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetCosmosHubConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetCosmosHubConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetCosmosHubConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

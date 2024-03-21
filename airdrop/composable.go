@@ -22,7 +22,7 @@ import (
 )
 
 func composable() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetComposableConfig().NodeStatusUrl)
+	block_height := getLatestHeight(config.GetComposableConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetComposableConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))

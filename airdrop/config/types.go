@@ -13,7 +13,8 @@ type ChainClientConfig struct {
 	AccountPrefix string `json:"account-prefix" yaml:"account-prefix"`
 	Percent       int    `json:"percent" yaml:"percent"`
 	CoinId        string `json:"coin-id" yaml:"coin-id"`
-	NodeStatusUrl string `json:"node-status" yaml:"node-status"`
+	RPC           string `json:"rpc" yaml:"rpc"`
+	API           string `json:"api" yaml:"api"`
 }
 
 type Reward struct {
