@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,7 +14,6 @@ import (
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -31,66 +29,38 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 		panic(err)
 	}
 	defer grpcConn.Close()
-	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
-	delegators := []stakingtypes.DelegationResponse{}
+	addresses, total := fetchBalance(block_height)
+	fmt.Println("Response ", len(addresses))
+	fmt.Println("Total ", total)
 
-	validators := getValidators(stakingClient, block_height)
-	fmt.Println("Validators: ", len(validators))
-	for validatorIndex, validator := range validators {
-		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-			&stakingtypes.QueryValidatorDelegationsRequest{
-				ValidatorAddr: validator.OperatorAddress,
-				Pagination: &query.PageRequest{
-					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
-				},
-			},
-			grpc.Header(&header), // Retrieve header from response
-		)
-		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
-		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegationsResponse.DelegationResponses...)
-	}
-
-	usd := math.LegacyMustNewDecFromStr("20")
+	usd, _ := math.LegacyNewDecFromStr("20")
 
 	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetNeutronConfig().CoinId + "&vs_currencies=usd"
 	tokenInUsd := fetchNeutronTokenPrice(apiUrl)
-	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
-
+	tokenIn20Usd := usd.Quo(tokenInUsd)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 
-	totalTokenDelegate := math.LegacyMustNewDecFromStr("0")
-	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
-		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+	totalTokenBalance, _ := math.NewIntFromString("0")
+	for _, address := range addresses {
+		if math.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
 			continue
 		}
-		totalTokenDelegate = totalTokenDelegate.Add(token)
+		totalTokenBalance = totalTokenBalance.Add(address.Balance.Amount)
 	}
 	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
-	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
-		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+	for _, address := range addresses {
+		if math.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetNeutronConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
-		eveBech32Address := convertBech32Address(delegator.Delegation.DelegatorAddress)
+		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetNeutronConfig().Percent))).QuoInt64(100).MulInt(address.Balance.Amount).QuoInt(totalTokenBalance)
+		eveBech32Address := convertBech32Address(address.Address)
 		rewardInfo = append(rewardInfo, config.Reward{
-			Address:         delegator.Delegation.DelegatorAddress,
+			Address:         address.Address,
 			EveAddress:      eveBech32Address,
-			Shares:          delegator.Delegation.Shares,
-			Token:           token,
+			Token:           address.Balance.Amount.ToLegacyDec(),
 			EveAirdropToken: eveAirdrop,
 			ChainId:         config.GetNeutronConfig().ChainID,
 		})
@@ -110,6 +80,50 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
+func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
+	grpcAddr := config.GetNeutronConfig().GRPCAddr
+	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
+	if err != nil {
+		panic(err)
+	}
+	defer grpcConn.Close()
+	bankClient := banktypes.NewQueryClient(grpcConn)
+	var header metadata.MD
+	var addresses *banktypes.QueryDenomOwnersResponse //QueryValidatorDelegationsResponse
+	var paginationKey []byte
+	addressInfo := []*banktypes.DenomOwner{}
+	step := 5000
+	total := uint64(0)
+	// Fetch addresses, 5000 at a time
+	i := 0
+	for {
+		i += 1
+		fmt.Println("Fetching addresses", step*i, "to", step*(i+1))
+		addresses, err = bankClient.DenomOwners(
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+			&banktypes.QueryDenomOwnersRequest{
+				Denom: "untrn",
+				Pagination: &query.PageRequest{
+					Limit:      uint64(step),
+					Key:        paginationKey,
+					CountTotal: true,
+				},
+			},
+			grpc.Header(&header), // Retrieve header from response
+		)
+		fmt.Println("err: ", err)
+		if total != 0 {
+			total = addresses.Pagination.Total
+		}
+		addressInfo = append(addressInfo, addresses.DenomOwners...)
+		paginationKey = addresses.Pagination.NextKey
+		if len(paginationKey) == 0 {
+			break
+		}
+	}
+	return addressInfo, total
+}
+
 func fetchNeutronTokenPrice(apiUrl string) math.LegacyDec {
 	// Make a GET request to the API
 	response, err := http.Get(apiUrl)
@@ -126,7 +140,7 @@ func fetchNeutronTokenPrice(apiUrl string) math.LegacyDec {
 		panic("")
 	}
 
-	var data config.CosmosPrice
+	var data config.NeutronPrice
 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)

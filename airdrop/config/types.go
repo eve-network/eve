@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"cosmossdk.io/math"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type ChainClientConfig struct {
@@ -91,3 +92,32 @@ type SyncInfo struct {
 	LatestBlockTime      string `json:"latest_block_time"`
 }
 type ValidatorInfo struct{}
+
+type ValidatorResponse struct {
+	Validators []Validator `json:"validators"`
+	Pagination Pagination  `json:"pagination"`
+}
+
+type Pagination struct {
+	// next_key is the key to be passed to PageRequest.key to
+	// query the next page most efficiently
+	NextKey []byte `protobuf:"bytes,1,opt,name=next_key,json=nextKey,proto3" json:"next_key,omitempty"`
+	// total is total number of results available if PageRequest.count_total
+	// was set, its value is undefined otherwise
+	Total string `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+}
+
+type Validator struct {
+	// operator_address defines the address of the validator's operator; bech encoded in JSON.
+	OperatorAddress string `protobuf:"bytes,1,opt,name=operator_address,json=operatorAddress,proto3" json:"operator_address,omitempty" yaml:"operator_address"`
+	// tokens define the delegated tokens (incl. self-delegation).
+	Tokens math.Int `protobuf:"bytes,5,opt,name=tokens,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"tokens"`
+	// delegator_shares defines total shares issued to a validator's delegators.
+	DelegatorShares math.LegacyDec `protobuf:"bytes,6,opt,name=delegator_shares,json=delegatorShares,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"delegator_shares" yaml:"delegator_shares"`
+}
+
+type QueryValidatorDelegationsResponse struct {
+	DelegationResponses stakingtypes.DelegationResponses `protobuf:"bytes,1,rep,name=delegation_responses,json=delegationResponses,proto3,castrepeated=DelegationResponses" json:"delegation_responses"`
+	// pagination defines the pagination in the response.
+	Pagination Pagination `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}

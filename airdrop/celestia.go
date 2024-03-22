@@ -2,6 +2,7 @@ package main
 
 // error max size response
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,11 +12,14 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 func celestia() ([]banktypes.Balance, []config.Reward) {
@@ -34,27 +38,11 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 	validators := getValidators(stakingClient, block_height)
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		// var header metadata.MD
-		// delegationsResponse, err := stakingClient.ValidatorDelegations(
-		// 	metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-		// 	&stakingtypes.QueryValidatorDelegationsRequest{
-		// 		ValidatorAddr: validator.OperatorAddress,
-		// 		Pagination: &query.PageRequest{
-		// 			CountTotal: true,
-		// 			Limit:      LIMIT_PER_PAGE,
-		// 		},
-		// 	},
-		// 	grpc.Header(&header), // Retrieve header from response
-		// )
-		// stakingtypes.QueryValidatorDelegationsResponse
-		rpcUrl := config.GetCelestiaConfig().API + "/validators/" + validator.String() + "/delegations?pagination.limit=" + string(LIMIT_PER_PAGE) + "&pagination.count_total=true"
-		fmt.Println(rpcUrl)
-		delegationsResponse := fetchDelegations(rpcUrl)
-		fmt.Println("err: ", err)
-		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
+		delegations, total := fetchDelegationsv2(validator.OperatorAddress, block_height, validatorIndex)
+		fmt.Println(validator.OperatorAddress)
+		fmt.Println("Response ", len(delegations))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegationsResponse.DelegationResponses...)
+		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
@@ -111,33 +99,46 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchDelegations(rpcUrl string) stakingtypes.QueryValidatorDelegationsResponse {
-	// Make a GET request to the API
-	response, err := http.Get(rpcUrl)
+func fetchDelegationsv2(valAddr string, block_height string, validatorIndex int) ([]stakingtypes.DelegationResponse, uint64) {
+	grpcAddr := config.GetCelestiaConfig().GRPCAddr
+	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		panic(err)
 	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+	defer grpcConn.Close()
+	stakingClient := stakingtypes.NewQueryClient(grpcConn)
+	var header metadata.MD
+	var delegations *stakingtypes.QueryValidatorDelegationsResponse
+	var paginationKey []byte
+	delegationInfo := stakingtypes.DelegationResponses{}
+	step := 5000
+	total := uint64(0)
+	// Fetch delegations, 5000 at a time
+	i := 0
+	for {
+		i += 1
+		fmt.Println("Fetching delegations", step*i, "to", step*(i+1))
+		delegations, err = stakingClient.ValidatorDelegations(
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+			&stakingtypes.QueryValidatorDelegationsRequest{
+				ValidatorAddr: valAddr,
+				Pagination: &query.PageRequest{
+					Limit:      uint64(step),
+					Key:        paginationKey,
+					CountTotal: true,
+				},
+			},
+			grpc.Header(&header), // Retrieve header from response
+		)
+		fmt.Println(err)
+		total = delegations.Pagination.Total
+		delegationInfo = append(delegationInfo, delegations.DelegationResponses...)
+		paginationKey = delegations.Pagination.NextKey
+		if len(paginationKey) == 0 {
+			break
+		}
 	}
-
-	var data stakingtypes.QueryValidatorDelegationsResponse
-	fmt.Println(responseBody)
-	// Unmarshal the JSON byte slice into the defined struct
-	err = data.Unmarshal(responseBody)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
-	}
-
-	fmt.Println(data)
-	return data
+	return delegationInfo, total
 }
 
 func fetchCelestiaTokenPrice(apiUrl string) math.LegacyDec {

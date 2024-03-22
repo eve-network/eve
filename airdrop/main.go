@@ -8,9 +8,12 @@ import (
 	"net/http"
 	"os"
 
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
@@ -43,12 +46,34 @@ func getValidators(stakingClient stakingtypes.QueryClient, block_height string) 
 }
 
 func main() {
-	balanceComposableInfo, rewardComposableInfo := celestia()
+	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetBostromConfig().CoinId + "&vs_currencies=usd"
+	fetchBostromTokenPrice(apiUrl)
+	return
+	balanceComposableInfo, rewardComposableInfo := bostrom()
+
+	airdropMap := make(map[string]int)
+	for _, info := range balanceComposableInfo {
+		amount := airdropMap[info.Address]
+		airdropMap[info.Address] = amount + int(info.Coins.AmountOf("eve").Int64())
+	}
+
+	balanceInfo := []banktypes.Balance{}
+	checkBalance := 0
+	for address, amount := range airdropMap {
+		checkBalance += amount
+		balanceInfo = append(balanceInfo, banktypes.Balance{
+			Address: address,
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", math.NewInt(int64(amount)))),
+		})
+	}
+
+	fmt.Println("Check balance: ", checkBalance)
+
 	// Write delegations to file
 	fileForDebug, _ := json.MarshalIndent(rewardComposableInfo, "", " ")
 	_ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
-	fileBalance, _ := json.MarshalIndent(balanceComposableInfo, "", " ")
+	fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	_ = os.WriteFile("balance.json", fileBalance, 0644)
 }
 

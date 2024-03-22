@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -26,34 +27,20 @@ func bostrom() ([]banktypes.Balance, []config.Reward) {
 		panic(err)
 	}
 	defer grpcConn.Close()
-	// stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	// validators := getValidators(stakingClient, block_height)
-	rpc := config.GetBostromConfig().RPC + "/cosmos/staking/v1beta1/validators?pagination.count_total=true"
+	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit" + strconv.Itoa(LIMIT_PER_PAGE) + "pagination.count_total=true"
 	validatorsResponse := fetchValidators(rpc)
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		// var header metadata.MD
-		// delegationsResponse, _ := stakingClient.ValidatorDelegations(
-		// 	metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-		// 	&stakingtypes.QueryValidatorDelegationsRequest{
-		// 		ValidatorAddr: validator.OperatorAddress,
-		// 		Pagination: &query.PageRequest{
-		// 			CountTotal: true,
-		// 			Limit:      LIMIT_PER_PAGE,
-		// 		},
-		// 	},
-		// 	grpc.Header(&header), // Retrieve header from response
-		// )
-		rpcUrl := config.GetBostromConfig().RPC + "/cosmos/staking/v1beta1/validators/" + validator.String() + "/delegations?pagination.limit=" + string(LIMIT_PER_PAGE) + "&pagination.count_total=true"
-		delegationsResponse := fetchDelegations(rpcUrl)
-		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
+		url := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		delegations, total := fetchDelegations(url)
+		fmt.Println(validator.OperatorAddress)
+		fmt.Println("Response ", len(delegations))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegationsResponse.DelegationResponses...)
+		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
@@ -67,7 +54,7 @@ func bostrom() ([]banktypes.Balance, []config.Reward) {
 
 	totalTokenDelegate := math.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorBostromInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -78,7 +65,7 @@ func bostrom() ([]banktypes.Balance, []config.Reward) {
 	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorBostromInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -134,12 +121,51 @@ func fetchBostromTokenPrice(apiUrl string) math.LegacyDec {
 		fmt.Println("Error unmarshalling JSON:", err)
 		panic("")
 	}
-
+	fmt.Println(data.Token.USD)
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
+	fmt.Println(tokenInUsd)
 	return tokenInUsd
 }
 
-func fetchValidators(rpcUrl string) stakingtypes.QueryValidatorsResponse {
+func fetchValidators(rpcUrl string) config.ValidatorResponse {
+	// Make a GET request to the API
+	response, err := http.Get(rpcUrl)
+	if err != nil {
+		fmt.Println("Error making GET request:", err)
+		panic("")
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		panic("")
+	}
+
+	var data config.ValidatorResponse
+
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		panic("")
+	}
+
+	fmt.Println(data.Pagination.Total)
+	return data
+}
+
+func findValidatorBostromInfo(validators []config.Validator, address string) int {
+	for key, v := range validators {
+		if v.OperatorAddress == address {
+			return key
+		}
+	}
+	return -1
+}
+
+func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) {
 	// Make a GET request to the API
 	response, err := http.Get(rpcUrl)
 	if err != nil {
@@ -155,7 +181,7 @@ func fetchValidators(rpcUrl string) stakingtypes.QueryValidatorsResponse {
 		panic("")
 	}
 
-	var data stakingtypes.QueryValidatorsResponse
+	var data config.QueryValidatorDelegationsResponse
 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
@@ -164,6 +190,7 @@ func fetchValidators(rpcUrl string) stakingtypes.QueryValidatorsResponse {
 		panic("")
 	}
 
-	fmt.Println(data)
-	return data
+	fmt.Println(data.Pagination.Total)
+	total, _ := strconv.ParseUint(data.Pagination.Total, 10, 64)
+	return data.DelegationResponses, total
 }

@@ -33,7 +33,7 @@ func GetCelestiaConfig() *ChainClientConfig {
 		Percent:       13,
 		CoinId:        "celestia",
 		RPC:           "https://celestia-rpc.polkachu.com",
-		API:           "https://public-celestia-lcd.numia.xyz",
+		API:           "https://celestia-api.polkachu.com",
 	}
 }
 
@@ -105,6 +105,6 @@ func GetBostromConfig() *ChainClientConfig {
 		AccountPrefix: "bostrom",
 		Percent:       13,
 		CoinId:        "bostrom",
-		RPC:           "https://rpc.bostrom.cybernode.ai",
+		API:           "https://lcd.bostrom.cybernode.ai",
 	}
 }
