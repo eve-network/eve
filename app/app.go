@@ -3,9 +3,6 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
-	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
-	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -47,6 +44,9 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
+	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
+	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"github.com/osmosis-labs/tokenfactory"
 	"github.com/osmosis-labs/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/osmosis-labs/tokenfactory/keeper"
@@ -206,11 +206,6 @@ var maccPerms = map[string][]string{
 	alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.RewardsPoolName: nil,
 	feeabstypes.ModuleName:       nil,
-}
-
-// module accounts that are allowed to receive tokens
-var allowedReceivingModAcc = map[string]bool{
-	feeabstypes.ModuleName: true,
 }
 
 var (
@@ -595,7 +590,7 @@ func NewEveApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
