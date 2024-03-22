@@ -3,6 +3,9 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
+	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
+	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -202,6 +205,12 @@ var maccPerms = map[string][]string{
 	tokenfactorytypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.RewardsPoolName: nil,
+	feeabstypes.ModuleName:       nil,
+}
+
+// module accounts that are allowed to receive tokens
+var allowedReceivingModAcc = map[string]bool{
+	feeabstypes.ModuleName: true,
 }
 
 var (
@@ -241,6 +250,7 @@ type EveApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	CircuitKeeper         circuitkeeper.Keeper
+	FeeabsKeeper          feeabskeeper.Keeper
 
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCFeeKeeper        ibcfeekeeper.Keeper
@@ -259,6 +269,7 @@ type EveApp struct {
 	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 	ScopedIBCFeeKeeper        capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
+	ScopedFeeabsKeeper        capabilitykeeper.ScopedKeeper
 
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
@@ -326,6 +337,7 @@ func NewEveApp(
 		icacontrollertypes.StoreKey, tokenfactorytypes.StoreKey,
 		ibchookstypes.StoreKey,
 		alliancemoduletypes.StoreKey,
+		feeabstypes.StoreKey,
 	)
 
 	tkeys := storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -377,7 +389,7 @@ func NewEveApp(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
-
+	scopedFeeabsKeeper := app.CapabilityKeeper.ScopeToModule(feeabstypes.ModuleName)
 	// add keepers
 
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -558,7 +570,8 @@ func NewEveApp(
 	// See: https://docs.cosmos.network/main/modules/gov#proposal-messages
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).AddRoute(alliancemoduletypes.RouterKey, alliancemodule.NewAllianceProposalHandler(app.AllianceKeeper))
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).AddRoute(alliancemoduletypes.RouterKey, alliancemodule.NewAllianceProposalHandler(app.AllianceKeeper)).
+		AddRoute(feeabstypes.RouterKey, feeabsmodule.NewHostZoneProposal(app.FeeabsKeeper))
 
 	govConfig := govtypes.DefaultConfig()
 	/*
@@ -582,7 +595,7 @@ func NewEveApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 
@@ -605,6 +618,20 @@ func NewEveApp(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
+	app.FeeabsKeeper = feeabskeeper.NewKeeper(
+		appCodec,
+		app.keys[feeabstypes.StoreKey],
+		app.GetSubspace(feeabstypes.ModuleName),
+		&app.StakingKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.TransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.PortKeeper,
+		app.ScopedFeeabsKeeper,
+	)
+
+	feeabsIBCModule := feeabsmodule.NewIBCModule(appCodec, app.FeeabsKeeper)
 	// Create Interchain Accounts Stack
 	// SendPacket, since it is originating from the application to core IBC:
 	// icaAuthModuleKeeper.SendTx -> icaController.SendPacket -> fee.SendPacket -> channel.SendPacket
@@ -637,6 +664,7 @@ func NewEveApp(
 		AddRoute(wasmtypes.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack)
+	AddRoute(feeabstypes.ModuleName, feeabsIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
@@ -764,6 +792,7 @@ func NewEveApp(
 		// sdk
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them,
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
+		feeabsmodule.NewAppModule(appCodec, app.FeeabsKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -777,6 +806,9 @@ func NewEveApp(
 			govtypes.ModuleName: gov.NewAppModuleBasic(
 				[]govclient.ProposalHandler{
 					paramsclient.ProposalHandler,
+					feeabsmodule.UpdateAddHostZoneClientProposalHandler,
+					feeabsmodule.UpdateDeleteHostZoneClientProposalHandler,
+					feeabsmodule.UpdateSetHostZoneClientProposalHandler,
 				},
 			),
 			alliancemoduletypes.ModuleName: alliancemodule.AppModuleBasic{},
@@ -816,6 +848,7 @@ func NewEveApp(
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancemoduletypes.ModuleName,
+		feeabstypes.ModuleName,
 	)
 
 	app.ModuleManager.SetOrderEndBlockers(
@@ -834,7 +867,9 @@ func NewEveApp(
 		ibchookstypes.ModuleName,
 		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
-		tokenfactorytypes.ModuleName, alliancemoduletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
+		alliancemoduletypes.ModuleName,
+		feeabstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -880,6 +915,8 @@ func NewEveApp(
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancemoduletypes.ModuleName,
+
+		feeabstypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
@@ -950,6 +987,7 @@ func NewEveApp(
 	app.ScopedWasmKeeper = scopedWasmKeeper
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
+	app.ScopedFeeabsKeeper = scopedFeeabsKeeper
 
 	app.setPostHandler()
 
@@ -1272,6 +1310,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName).WithKeyTable(tokenfactorytypes.ParamKeyTable())
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(alliancemoduletypes.ModuleName)
+	paramsKeeper.Subspace(feeabstypes.ModuleName)
 
 	return paramsKeeper
 }

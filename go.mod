@@ -26,6 +26,7 @@ require (
 	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 // indirect
 	google.golang.org/grpc v1.62.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/osmosis-labs/fee-abstraction/v8 v8.0.0-20240320032009-4e0c8728b722
 )
 
 require (
