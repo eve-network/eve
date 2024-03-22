@@ -3,9 +3,6 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
-	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
-	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -53,6 +50,9 @@ import (
 	ccvdistr "github.com/cosmos/interchain-security/v5/x/ccv/democracy/distribution"
 	ccvgov "github.com/cosmos/interchain-security/v5/x/ccv/democracy/governance"
 	ccvstaking "github.com/cosmos/interchain-security/v5/x/ccv/democracy/staking"
+	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
+	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
+	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"github.com/osmosis-labs/tokenfactory"
 	"github.com/osmosis-labs/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/osmosis-labs/tokenfactory/keeper"
@@ -207,11 +207,6 @@ var maccPerms = map[string][]string{
 	wasmtypes.ModuleName:         {authtypes.Burner},
 	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 	feeabstypes.ModuleName:       nil,
-}
-
-// module accounts that are allowed to receive tokens
-var allowedReceivingModAcc = map[string]bool{
-	feeabstypes.ModuleName: true,
 }
 
 var (
@@ -604,7 +599,7 @@ func NewEveApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
