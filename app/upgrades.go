@@ -19,8 +19,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // Upgrades list of chain upgrades
@@ -93,8 +91,6 @@ func setupLegacyKeyTables(k *paramskeeper.Keeper) {
 		case crisistypes.ModuleName:
 			keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
 			// wasm
-		case wasmtypes.ModuleName:
-			keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
 		default:
 			continue
 		}

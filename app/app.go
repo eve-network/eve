@@ -143,7 +143,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	wasmvm "github.com/CosmWasm/wasmvm"
+	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
 	wasm08keeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
