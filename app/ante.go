@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	feeabsante "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/ante"
