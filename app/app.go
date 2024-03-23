@@ -50,6 +50,9 @@ import (
 	ccvdistr "github.com/cosmos/interchain-security/v5/x/ccv/democracy/distribution"
 	ccvgov "github.com/cosmos/interchain-security/v5/x/ccv/democracy/governance"
 	ccvstaking "github.com/cosmos/interchain-security/v5/x/ccv/democracy/staking"
+	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
+	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
+	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"github.com/osmosis-labs/tokenfactory"
 	"github.com/osmosis-labs/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/osmosis-labs/tokenfactory/keeper"
@@ -203,6 +206,7 @@ var maccPerms = map[string][]string{
 	icatypes.ModuleName:          nil,
 	wasmtypes.ModuleName:         {authtypes.Burner},
 	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+	feeabstypes.ModuleName:       nil,
 }
 
 var (
@@ -242,6 +246,7 @@ type EveApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	CircuitKeeper         circuitkeeper.Keeper
+	FeeabsKeeper          feeabskeeper.Keeper
 
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCFeeKeeper        ibcfeekeeper.Keeper
@@ -261,6 +266,7 @@ type EveApp struct {
 	ScopedIBCFeeKeeper        capabilitykeeper.ScopedKeeper
 	ScopedCCVConsumerKeeper   capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
+	ScopedFeeabsKeeper        capabilitykeeper.ScopedKeeper
 
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
@@ -328,6 +334,7 @@ func NewEveApp(
 		wasm08types.StoreKey, wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, tokenfactorytypes.StoreKey,
 		ibchookstypes.StoreKey,
+		feeabstypes.StoreKey,
 	)
 
 	tkeys := storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -380,6 +387,7 @@ func NewEveApp(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 	scopedCCVConsumerKeeper := app.CapabilityKeeper.ScopeToModule(ccvconsumertypes.ModuleName)
+	scopedFeeabsKeeper := app.CapabilityKeeper.ScopeToModule(feeabstypes.ModuleName)
 	app.CapabilityKeeper.Seal()
 
 	// add keepers
@@ -566,7 +574,9 @@ func NewEveApp(
 	// See: https://docs.cosmos.network/main/modules/gov#proposal-messages
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		AddRoute(feeabstypes.RouterKey, feeabsmodule.NewHostZoneProposal(app.FeeabsKeeper))
+
 	govConfig := govtypes.DefaultConfig()
 	/*
 		Example of setting gov params:
@@ -637,6 +647,21 @@ func NewEveApp(
 	app.ConsumerKeeper = *app.ConsumerKeeper.SetHooks(app.SlashingKeeper.Hooks())
 
 	consumerModule := ccvconsumer.NewAppModule(app.ConsumerKeeper, app.GetSubspace(ccvconsumertypes.ModuleName))
+
+	app.FeeabsKeeper = feeabskeeper.NewKeeper(
+		appCodec,
+		app.keys[feeabstypes.StoreKey],
+		app.GetSubspace(feeabstypes.ModuleName),
+		&app.StakingKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.TransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.PortKeeper,
+		app.ScopedFeeabsKeeper,
+	)
+
+	feeabsIBCModule := feeabsmodule.NewIBCModule(appCodec, app.FeeabsKeeper)
 	// Create Interchain Accounts Stack
 	// SendPacket, since it is originating from the application to core IBC:
 	// icaAuthModuleKeeper.SendTx -> icaController.SendPacket -> fee.SendPacket -> channel.SendPacket
@@ -669,7 +694,8 @@ func NewEveApp(
 		AddRoute(wasmtypes.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
-		AddRoute(ccvconsumertypes.ModuleName, consumerModule)
+		AddRoute(ccvconsumertypes.ModuleName, consumerModule).
+		AddRoute(feeabstypes.ModuleName, feeabsIBCModule)
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -798,6 +824,7 @@ func NewEveApp(
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them,
 		consumerModule,
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
+		feeabsmodule.NewAppModule(appCodec, app.FeeabsKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -811,6 +838,9 @@ func NewEveApp(
 			govtypes.ModuleName: gov.NewAppModuleBasic(
 				[]govclient.ProposalHandler{
 					paramsclient.ProposalHandler,
+					feeabsmodule.UpdateAddHostZoneClientProposalHandler,
+					feeabsmodule.UpdateDeleteHostZoneClientProposalHandler,
+					feeabsmodule.UpdateSetHostZoneClientProposalHandler,
 				},
 			),
 			// wasm08types.ModuleName: wasm08.AppModuleBasic{},
@@ -849,6 +879,7 @@ func NewEveApp(
 		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feeabstypes.ModuleName,
 	)
 
 	app.ModuleManager.SetOrderEndBlockers(
@@ -869,6 +900,7 @@ func NewEveApp(
 		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feeabstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -914,6 +946,8 @@ func NewEveApp(
 
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+
+		feeabstypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
@@ -985,6 +1019,7 @@ func NewEveApp(
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
 	app.ScopedCCVConsumerKeeper = scopedCCVConsumerKeeper
+	app.ScopedFeeabsKeeper = scopedFeeabsKeeper
 
 	app.setPostHandler()
 
@@ -1305,5 +1340,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName).WithKeyTable(tokenfactorytypes.ParamKeyTable())
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(ccvconsumertypes.ModuleName)
+	paramsKeeper.Subspace(feeabstypes.ModuleName)
 	return paramsKeeper
 }
