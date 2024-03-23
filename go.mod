@@ -233,7 +233,7 @@ replace (
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/osmosis-labs/tokenfactory => github.com/notional-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
+	github.com/osmosis-labs/tokenfactory => github.com/notional-labs/tokenfactory v0.0.0-20240323111121-fb1e8562da4d
 
 	// temporary replace statement to use latest dependencies
 	// github.com/CosmWasm/wasmd => github.com/faddat/wasmd v0.40.0-rc.1.0.20240303013559-e8c435758c06
