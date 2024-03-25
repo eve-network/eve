@@ -59,6 +59,10 @@ type TerraPrice struct {
 	Token Price `json:"terra-luna-2"`
 }
 
+type TerracPrice struct {
+	Token Price `json:"terra-luna"`
+}
+
 type BostromPrice struct {
 	Token Price `json:"bostrom"`
 }
@@ -120,4 +124,31 @@ type QueryValidatorDelegationsResponse struct {
 	DelegationResponses stakingtypes.DelegationResponses `protobuf:"bytes,1,rep,name=delegation_responses,json=delegationResponses,proto3,castrepeated=DelegationResponses" json:"delegation_responses"`
 	// pagination defines the pagination in the response.
 	Pagination Pagination `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+type Access struct {
+	Owner     string   `json:"owner"`
+	Approvals []string `json:"approvals"`
+}
+type Info struct {
+	TokenUri string `json:"token_uri"`
+}
+type Data struct {
+	Access Access `json:"access"`
+	Info   Info   `json:"info"`
+}
+type TokenInfoResponse struct {
+	Data Data `json:"data"`
+}
+
+type TokenIds struct {
+	Token []string `json:"tokens"`
+}
+type TokenIdsResponse struct {
+	Data TokenIds `json:"data"`
+}
+
+type NftHolder struct {
+	Address string
+	TokenId string
 }

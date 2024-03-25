@@ -25,6 +25,8 @@ import (
 const (
 	EVE_AIRDROP    = "1000000000" // 1,000,000,000
 	LIMIT_PER_PAGE = 100000000
+	BADKIDS        = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
+	CRYPTONIUM     = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
 )
 
 func getValidators(stakingClient stakingtypes.QueryClient, block_height string) []stakingtypes.Validator {
@@ -46,13 +48,59 @@ func getValidators(stakingClient stakingtypes.QueryClient, block_height string) 
 }
 
 func main() {
-	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetBostromConfig().CoinId + "&vs_currencies=usd"
-	fetchBostromTokenPrice(apiUrl)
-	return
-	balanceComposableInfo, rewardComposableInfo := bostrom()
+	balanceAkashInfo, _ := akash()
+	akashLength := len(balanceAkashInfo)
+
+	balanceBostromInfo, _ := bostrom()
+	bostromLength := len(balanceBostromInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceBostromInfo...)
+
+	balanceCelestiaInfo, _ := celestia()
+	celestiaLength := len(balanceCelestiaInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceCelestiaInfo...)
+
+	balanceComposableInfo, _ := composable()
+	composableLength := len(balanceComposableInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceComposableInfo...)
+
+	balanceCosmosInfo, _ := cosmos()
+	cosmosLength := len(balanceCosmosInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceCosmosInfo...)
+
+	balanceNeutronInfo, _ := neutron()
+	neutronLength := len(balanceNeutronInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceNeutronInfo...)
+
+	balanceSentinelInfo, _ := sentinel()
+	sentinelLength := len(balanceSentinelInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceSentinelInfo...)
+
+	balanceStargazeInfo, _ := stargaze()
+	stargazeLength := len(balanceStargazeInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceStargazeInfo...)
+
+	balanceTerraInfo, _ := terra()
+	terraLength := len(balanceTerraInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceTerraInfo...)
+
+	balanceTerracInfo, _ := terrac()
+	terracLength := len(balanceTerracInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceTerracInfo...)
+
+	balanceBadKidsInfo, _ := cosmosnft(BADKIDS)
+	badkidsLength := len(balanceBadKidsInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceBadKidsInfo...)
+
+	balanceCryptoniumInfo, _ := cosmosnft(CRYPTONIUM)
+	cryptoniumLength := len(balanceCryptoniumInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceCryptoniumInfo...)
+
+	total := akashLength + bostromLength + celestiaLength + composableLength + cosmosLength + neutronLength + sentinelLength + stargazeLength + terraLength + terracLength + badkidsLength + cryptoniumLength
+	fmt.Println("total: ", total)
+	fmt.Println(len(balanceAkashInfo))
 
 	airdropMap := make(map[string]int)
-	for _, info := range balanceComposableInfo {
+	for _, info := range balanceAkashInfo {
 		amount := airdropMap[info.Address]
 		airdropMap[info.Address] = amount + int(info.Coins.AmountOf("eve").Int64())
 	}
@@ -69,9 +117,9 @@ func main() {
 
 	fmt.Println("Check balance: ", checkBalance)
 
-	// Write delegations to file
-	fileForDebug, _ := json.MarshalIndent(rewardComposableInfo, "", " ")
-	_ = os.WriteFile("rewards.json", fileForDebug, 0644)
+	// // Write delegations to file
+	// fileForDebug, _ := json.MarshalIndent(rewardComposableInfo, "", " ")
+	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
 	fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	_ = os.WriteFile("balance.json", fileBalance, 0644)

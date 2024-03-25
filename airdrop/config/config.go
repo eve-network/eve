@@ -4,11 +4,12 @@ func GetCosmosHubConfig() *ChainClientConfig {
 	return &ChainClientConfig{
 		Key:           "default",
 		ChainID:       "cosmoshub-4",
-		GRPCAddr:      "grpc-cosmoshub-ia.cosmosia.notional.ventures:443",
+		GRPCAddr:      "cosmos-grpc.publicnode.com:443",
 		AccountPrefix: "cosmos",
 		CoinId:        "cosmos",
-		Percent:       0,
+		Percent:       10,
 		RPC:           "https://cosmos-rpc.polkachu.com",
+		API:           "https://cosmos-rest.publicnode.com",
 	}
 }
 
@@ -18,7 +19,7 @@ func GetComposableConfig() *ChainClientConfig {
 		ChainID:       "centauri-1",
 		GRPCAddr:      "composable-grpc.polkachu.com:22290",
 		AccountPrefix: "centauri",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "picasso",
 		RPC:           "https://composable-rpc.polkachu.com",
 	}
@@ -30,7 +31,7 @@ func GetCelestiaConfig() *ChainClientConfig {
 		ChainID:       "celestia",
 		GRPCAddr:      "celestia-grpc.polkachu.com:11690",
 		AccountPrefix: "celestia",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "celestia",
 		RPC:           "https://celestia-rpc.polkachu.com",
 		API:           "https://celestia-api.polkachu.com",
@@ -43,7 +44,7 @@ func GetSentinelConfig() *ChainClientConfig {
 		ChainID:       "sentinelhub-2",
 		GRPCAddr:      "sentinel-grpc.polkachu.com:23990",
 		AccountPrefix: "sent",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "sentinel",
 		RPC:           "https://sentinel-rpc.polkachu.com",
 	}
@@ -55,7 +56,7 @@ func GetAkashConfig() *ChainClientConfig {
 		ChainID:       "akashnet-2",
 		GRPCAddr:      "akash-grpc.polkachu.com:12890",
 		AccountPrefix: "akash",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "akash-network",
 		RPC:           "https://akash-rpc.polkachu.com",
 	}
@@ -67,9 +68,10 @@ func GetStargazeConfig() *ChainClientConfig {
 		ChainID:       "stargaze-1",
 		GRPCAddr:      "stargaze-grpc.polkachu.com:13790",
 		AccountPrefix: "stars",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "stargaze",
 		RPC:           "https://stargaze-rpc.polkachu.com",
+		API:           "https://rest.stargaze-apis.com",
 	}
 }
 
@@ -79,7 +81,7 @@ func GetNeutronConfig() *ChainClientConfig {
 		ChainID:       "neutron-1",
 		GRPCAddr:      "neutron-grpc.polkachu.com:19190",
 		AccountPrefix: "neutron",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "neutron-3",
 		RPC:           "https://neutron-rpc.polkachu.com",
 	}
@@ -91,9 +93,10 @@ func GetTerraConfig() *ChainClientConfig {
 		ChainID:       "phoenix-1",
 		GRPCAddr:      "terra-grpc.polkachu.com:11790",
 		AccountPrefix: "terra",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "terra-luna-2",
 		RPC:           "https://terra-rpc.polkachu.com",
+		API:           "https://terra-rest.publicnode.com",
 	}
 }
 
@@ -103,8 +106,20 @@ func GetBostromConfig() *ChainClientConfig {
 		ChainID:       "bostrom",
 		GRPCAddr:      "grpc.cyber.bronbro.io:443",
 		AccountPrefix: "bostrom",
-		Percent:       13,
+		Percent:       10,
 		CoinId:        "bostrom",
 		API:           "https://lcd.bostrom.cybernode.ai",
+	}
+}
+
+func GetTerracConfig() *ChainClientConfig {
+	return &ChainClientConfig{
+		Key:           "default",
+		ChainID:       "columbus-5",
+		GRPCAddr:      "terra-classic-grpc.publicnode.com:443",
+		AccountPrefix: "terra",
+		Percent:       10,
+		CoinId:        "terra-luna",
+		API:           "https://terra-classic-lcd.publicnode.com",
 	}
 }

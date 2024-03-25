@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,54 +10,41 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
-func composable() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetComposableConfig().RPC + "/status")
+func terrac() ([]banktypes.Balance, []config.Reward) {
 	godotenv.Load()
-	grpcAddr := config.GetComposableConfig().GRPCAddr
+	grpcAddr := config.GetTerracConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
 	if err != nil {
 		panic(err)
 	}
 	defer grpcConn.Close()
-	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	rpc := config.GetTerracConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+	validatorsResponse := fetchValidators(rpc)
+	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-			&stakingtypes.QueryValidatorDelegationsRequest{
-				ValidatorAddr: validator.OperatorAddress,
-				Pagination: &query.PageRequest{
-					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
-				},
-			},
-			grpc.Header(&header), // Retrieve header from response
-		)
-		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
+		url := config.GetTerracConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		delegations, total := fetchDelegations(url)
+		fmt.Println(validator.OperatorAddress)
+		fmt.Println("Response ", len(delegations))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegationsResponse.DelegationResponses...)
+		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetComposableConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchComposableTokenPrice(apiUrl)
+	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetTerracConfig().CoinId + "&vs_currencies=usd"
+	tokenInUsd := fetchTerracTokenPrice(apiUrl)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -66,7 +52,7 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 
 	totalTokenDelegate := math.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -77,13 +63,13 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetComposableConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetTerracConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address := convertBech32Address(delegator.Delegation.DelegatorAddress)
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
@@ -91,7 +77,7 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetComposableConfig().ChainID,
+			ChainId:         config.GetTerracConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -99,7 +85,7 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Composable ", testAmount)
+	fmt.Println("terrac", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
@@ -109,7 +95,7 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchComposableTokenPrice(apiUrl string) math.LegacyDec {
+func fetchTerracTokenPrice(apiUrl string) math.LegacyDec {
 	// Make a GET request to the API
 	response, err := http.Get(apiUrl)
 	if err != nil {
@@ -125,7 +111,7 @@ func fetchComposableTokenPrice(apiUrl string) math.LegacyDec {
 		panic("")
 	}
 
-	var data config.ComposablePrice
+	var data config.TerracPrice
 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)

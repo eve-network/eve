@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,18 +10,14 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func terra() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetTerraConfig().RPC + "/status")
 	godotenv.Load()
 	grpcAddr := config.GetTerraConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
@@ -30,30 +25,20 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 		panic(err)
 	}
 	defer grpcConn.Close()
-	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+	validatorsResponse := fetchValidators(rpc)
+	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		var header metadata.MD
-		delegationsResponse, err := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
-			&stakingtypes.QueryValidatorDelegationsRequest{
-				ValidatorAddr: validator.OperatorAddress,
-				Pagination: &query.PageRequest{
-					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
-				},
-			},
-			grpc.Header(&header), // Retrieve header from response
-		)
-		fmt.Println("err: ", err)
-		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
+		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		delegations, total := fetchDelegations(url)
+		fmt.Println(validator.OperatorAddress)
+		fmt.Println("Response ", len(delegations))
 		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegationsResponse.DelegationResponses...)
+		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
@@ -67,7 +52,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 
 	totalTokenDelegate := math.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -78,7 +63,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -100,7 +85,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println(testAmount)
+	fmt.Println("terra ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
