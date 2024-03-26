@@ -4,11 +4,7 @@ run:
   sort-results: true
   allow-parallel-runners: true
   exclude-dir: testutil/testdata
-  skip-files:
-    - server/grpc/gogoreflection/fix_registration.go
-    - ".*\\.pb\\.go$"
-    - ".*\\.pb\\.gw\\.\\.go$"
-    - ".*\\.pulsar\\.go$"
+
 
 linters:
   disable-all: true
