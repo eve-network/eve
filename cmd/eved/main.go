@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
-	"cosmossdk.io/log"
 	"github.com/eve-network/eve/app"
+
+	"cosmossdk.io/log"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )

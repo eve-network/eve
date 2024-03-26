@@ -3,12 +3,13 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	abci "github.com/cometbft/cometbft/abci/types"
