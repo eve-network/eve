@@ -13,13 +13,13 @@ import (
 	"github.com/eve-network/eve/airdrop/config"
 )
 
-func cosmosnft(contract string) ([]banktypes.Balance, []config.Reward) {
+func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward) {
 	tokenIds := fetchTokenIds(contract)
 	allEveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 	testAmount, _ := math.LegacyNewDecFromStr("0")
-	eveAirdrop := (allEveAirdrop.MulInt64(int64(config.GetAkashConfig().Percent))).QuoInt64(100).QuoInt(math.NewInt(int64(len(tokenIds))))
+	eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(math.NewInt(int64(len(tokenIds))))
 	fmt.Println("balance ", eveAirdrop)
 	for index, token := range tokenIds {
 		nftHolders := fetchTokenInfo(token, contract)
@@ -29,7 +29,7 @@ func cosmosnft(contract string) ([]banktypes.Balance, []config.Reward) {
 			Address:         nftHolders.Address,
 			EveAddress:      eveBech32Address,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetAkashConfig().ChainID,
+			ChainId:         config.GetBadKidsConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{

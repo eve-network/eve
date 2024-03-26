@@ -8,24 +8,13 @@ import (
 	"strconv"
 
 	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 )
 
 func terrac() ([]banktypes.Balance, []config.Reward) {
-	godotenv.Load()
-	grpcAddr := config.GetTerracConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
-	if err != nil {
-		panic(err)
-	}
-	defer grpcConn.Close()
-
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetTerracConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"

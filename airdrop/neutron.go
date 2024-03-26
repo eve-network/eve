@@ -15,21 +15,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/eve-network/eve/airdrop/config"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 func neutron() ([]banktypes.Balance, []config.Reward) {
 	block_height := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
-	godotenv.Load()
-	grpcAddr := config.GetNeutronConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
-	if err != nil {
-		panic(err)
-	}
-	defer grpcConn.Close()
-
 	addresses, total := fetchBalance(block_height)
 	fmt.Println("Response ", len(addresses))
 	fmt.Println("Total ", total)

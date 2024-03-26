@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -87,15 +89,20 @@ func main() {
 	terracLength := len(balanceTerracInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceTerracInfo...)
 
-	balanceBadKidsInfo, _ := cosmosnft(BADKIDS)
+	balanceBadKidsInfo, _ := cosmosnft(BADKIDS, int64(config.GetBadKidsConfig().Percent))
 	badkidsLength := len(balanceBadKidsInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceBadKidsInfo...)
 
-	balanceCryptoniumInfo, _ := cosmosnft(CRYPTONIUM)
+	balanceCryptoniumInfo, _ := cosmosnft(CRYPTONIUM, int64(config.GetCryptoniumConfig().Percent))
 	cryptoniumLength := len(balanceCryptoniumInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceCryptoniumInfo...)
 
-	total := akashLength + bostromLength + celestiaLength + composableLength + cosmosLength + neutronLength + sentinelLength + stargazeLength + terraLength + terracLength + badkidsLength + cryptoniumLength
+	// need set coin type on Eve
+	balanceMiladyInfo, _ := ethereumnft()
+	miladyLength := len(balanceMiladyInfo)
+	balanceAkashInfo = append(balanceAkashInfo, balanceMiladyInfo...)
+
+	total := akashLength + bostromLength + celestiaLength + composableLength + cosmosLength + neutronLength + sentinelLength + stargazeLength + terraLength + terracLength + badkidsLength + cryptoniumLength + miladyLength
 	fmt.Println("total: ", total)
 	fmt.Println(len(balanceAkashInfo))
 
@@ -167,4 +174,71 @@ func convertBech32Address(otherChainAddress string) string {
 	_, bz, _ := bech32.DecodeAndConvert(otherChainAddress)
 	newBech32DelAddr, _ := bech32.ConvertAndEncode("eve", bz)
 	return newBech32DelAddr
+}
+
+func fetchValidators(rpcUrl string) config.ValidatorResponse {
+	// Make a GET request to the API
+	response, err := http.Get(rpcUrl)
+	if err != nil {
+		fmt.Println("Error making GET request:", err)
+		panic("")
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		panic("")
+	}
+
+	var data config.ValidatorResponse
+
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		panic("")
+	}
+	fmt.Println(data.Pagination.Total)
+	return data
+}
+
+func findValidatorInfoCustomType(validators []config.Validator, address string) int {
+	for key, v := range validators {
+		if v.OperatorAddress == address {
+			return key
+		}
+	}
+	return -1
+}
+
+func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) {
+	// Make a GET request to the API
+	response, err := http.Get(rpcUrl)
+	if err != nil {
+		fmt.Println("Error making GET request:", err)
+		panic("")
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		panic("")
+	}
+
+	var data config.QueryValidatorDelegationsResponse
+
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		panic("")
+	}
+
+	fmt.Println(data.Pagination.Total)
+	total, _ := strconv.ParseUint(data.Pagination.Total, 10, 64)
+	return data.DelegationResponses, total
 }

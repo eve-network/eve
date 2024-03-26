@@ -34,7 +34,7 @@ func GetCelestiaConfig() *ChainClientConfig {
 		Percent:       10,
 		CoinId:        "celestia",
 		RPC:           "https://celestia-rpc.polkachu.com",
-		API:           "https://celestia-api.polkachu.com",
+		API:           "https://celestia-rest.publicnode.com",
 	}
 }
 
@@ -121,5 +121,26 @@ func GetTerracConfig() *ChainClientConfig {
 		Percent:       10,
 		CoinId:        "terra-luna",
 		API:           "https://terra-classic-lcd.publicnode.com",
+	}
+}
+
+func GetBadKidsConfig() *ChainClientConfig {
+	return &ChainClientConfig{
+		ChainID: "stargaze-1",
+		Percent: 10,
+	}
+}
+
+func GetCryptoniumConfig() *ChainClientConfig {
+	return &ChainClientConfig{
+		ChainID: "stargaze-1",
+		Percent: 10,
+	}
+}
+
+func GetMiladyConfig() *ChainClientConfig {
+	return &ChainClientConfig{
+		ChainID: "0x1",
+		Percent: 10,
 	}
 }

@@ -50,3 +50,5 @@ contract_tests/*
 #Airdrop tool
 balance.json
 rewards.json
+balancenft.json
+.env

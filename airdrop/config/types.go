@@ -152,3 +152,17 @@ type NftHolder struct {
 	Address string
 	TokenId string
 }
+
+type EthResult struct {
+	TokenId      string `json:"token_id"`
+	TokenAddress string `json:"token_address"`
+	OwnerOf      string `json:"owner_of"`
+}
+
+type NftEthResponse struct {
+	Status   string      `json:"status"`
+	Page     int         `json:"page"`
+	PageSize int         `json:"page_size"`
+	Cursor   string      `json:"cursor"`
+	Result   []EthResult `json:"result"`
+}

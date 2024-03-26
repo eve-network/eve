@@ -3,32 +3,19 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/eve-network/eve/airdrop/config"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 )
 
 func bostrom() ([]banktypes.Balance, []config.Reward) {
-	// block_height := getLatestHeight(config.GetBostromConfig().RPC + "/status")
-	godotenv.Load()
-	grpcAddr := config.GetBostromConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
-	if err != nil {
-		panic(err)
-	}
-	defer grpcConn.Close()
-
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
@@ -130,71 +117,4 @@ func fetchBostromTokenPrice(apiUrl string) math.LegacyDec {
 	tenDec, _ := math.LegacyNewDecFromStr("10")
 	tokenInUsd := baseDec.Quo(tenDec.Power(powerInt))
 	return tokenInUsd
-}
-
-func fetchValidators(rpcUrl string) config.ValidatorResponse {
-	// Make a GET request to the API
-	response, err := http.Get(rpcUrl)
-	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
-	}
-
-	var data config.ValidatorResponse
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
-	}
-	fmt.Println(data.Pagination.Total)
-	return data
-}
-
-func findValidatorInfoCustomType(validators []config.Validator, address string) int {
-	for key, v := range validators {
-		if v.OperatorAddress == address {
-			return key
-		}
-	}
-	return -1
-}
-
-func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) {
-	// Make a GET request to the API
-	response, err := http.Get(rpcUrl)
-	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
-	}
-
-	var data config.QueryValidatorDelegationsResponse
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
-	}
-
-	fmt.Println(data.Pagination.Total)
-	total, _ := strconv.ParseUint(data.Pagination.Total, 10, 64)
-	return data.DelegationResponses, total
 }
