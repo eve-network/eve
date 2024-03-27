@@ -11,16 +11,16 @@ DENOM=${2:-"ueve"}
 HOME=mytestnet
 
 echo "submit wasm store proposal..."
-$BINARY tx wasm submit-proposal wasm-store scripts/wasm/$CONTRACT.wasm --title "Add $CONTRACT" \
-  --summary "Let's upload this contract 3" \
-  --from $VAL_KEY --keyring-backend test --chain-id $CHAIN_ID -y \
-    --gas auto --gas-adjustment 1.3 > /dev/null
+if ! $BINARY tx wasm submit-proposal wasm-store scripts/wasm/$CONTRACT.wasm --title "Add $CONTRACT" --summary "Let's upload this contract" --from $VAL_KEY --keyring-backend test --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 > /dev/null; then
+    echo "Error submitting proposal"
+    exit 1
+fi
 
 
 echo "deposit ueve to proposal..."
 sleep 5
 # $BINARY query gov proposal $PROPOSAL
-$BINARY tx gov deposit $PROPOSAL 40000000000000000000$DENOM --from $VAL_KEY --keyring-backend test \
+$BINARY tx gov deposit $PROPOSAL "40000000000000000000$DENOM" --from $VAL_KEY --keyring-backend test \
     --chain-id $CHAIN_ID -y -b sync --gas auto --gas-adjustment 1.3 --home $HOME > /dev/null
 
 echo "process to self vote..."

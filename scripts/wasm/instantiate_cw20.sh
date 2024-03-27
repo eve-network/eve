@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 # this is cw20 code from install_contracts.sh, true if this is the first proposal
 CODE=1
@@ -25,8 +25,11 @@ INIT=$(cat <<EOF
 EOF
 )
 
-$BINARY tx wasm instantiate $CODE "$INIT" --label "First Coin" --no-admin --from $VAL_KEY \
-    --keyring-backend test --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 --home $HOME
+if ! $BINARY tx wasm instantiate $CODE "$INIT" --label "First Coin" --no-admin --from $VAL_KEY --keyring-backend test --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 --home $HOME; then
+    echo "Error instantiating contract"
+    exit 1
+fi
+
 # wait the chain to process the tx
 echo "Waiting for tx to be processed..."
 sleep 5
@@ -35,8 +38,7 @@ CONTRACT_POSITION=$1
 if [ -z "$CONTRACT_POSITION" ]; then
     CONTRACT_POSITION=0
 fi
-CONTRACT=$($BINARY q wasm list-contracts-by-creator $VAL --output json | jq -r ".contract_addresses[$CONTRACT_POSITION]" )
-
+CONTRACT=$($BINARY q wasm list-contracts-by-creator "$VAL" --output json | jq -r ".contract_addresses[$CONTRACT_POSITION]" )
 if [ -z "$CONTRACT" ]; then
     echo "No contract found"
     exit 1

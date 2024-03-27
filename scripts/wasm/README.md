@@ -1,5 +1,4 @@
-# Cosmwasm contracts e2e tests
-
+# CosmWasm contracts e2e tests
 ## Guideline
 
 Run local node
