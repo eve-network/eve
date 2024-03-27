@@ -69,11 +69,17 @@ TRANSFER=$(cat <<EOF
 }
 EOF
 )
-$BINARY tx wasm execute $CONTRACT "$TRANSFER" --from $VAL_KEY --keyring-backend test \
-    --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 --home $HOME
+# $BINARY tx wasm execute $CONTRACT "$TRANSFER" --from $VAL_KEY --keyring-backend test \
+#     --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 --home $HOME
+
+if ! $BINARY tx wasm execute $CONTRACT "$TRANSFER" --from $VAL_KEY --keyring-backend test --chain-id $CHAIN_ID -y --gas auto --gas-adjustment 1.3 --home $HOME; then
+    echo "Error executing contract"
+    exit 1
+fi
 # wait the chain to process the tx
 echo "Waiting for tx to be processed..."
 sleep 5
+
 # check final balance
 echo "Validator Balance:"
 $BINARY query wasm contract-state smart $CONTRACT "$QUERY"

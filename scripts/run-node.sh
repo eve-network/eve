@@ -11,7 +11,7 @@ if [ "$CONTINUE" == "true" ]; then
 fi
 
 rm -rf mytestnet
-pkill eved
+pkill -9 eved
 
 # check DENOM is set. If not, set to ueve
 DENOM=${2:-ueve}

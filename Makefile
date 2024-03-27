@@ -154,6 +154,9 @@ test-sim-deterministic: runsim
 test-system: install
 	$(MAKE) -C tests/system/ test
 
+test-wasm:
+	@sh ./scripts/wasm/test_wasm.sh
+
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
