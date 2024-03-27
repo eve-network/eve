@@ -5,18 +5,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
+	"github.com/eve-network/eve/airdrop/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/eve-network/eve/airdrop/config"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func neutron() ([]banktypes.Balance, []config.Reward) {
@@ -27,7 +29,7 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 
 	usd, _ := math.LegacyNewDecFromStr("20")
 
-	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetNeutronConfig().CoinId + "&vs_currencies=usd"
+	apiUrl := API_COINGECKO + config.GetNeutronConfig().CoinId + "&vs_currencies=usd"
 	tokenInUsd := fetchNeutronTokenPrice(apiUrl)
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 	rewardInfo := []config.Reward{}
@@ -73,14 +75,14 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 
 func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
+	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
 	if err != nil {
 		panic(err)
 	}
 	defer grpcConn.Close()
 	bankClient := banktypes.NewQueryClient(grpcConn)
 	var header metadata.MD
-	var addresses *banktypes.QueryDenomOwnersResponse //QueryValidatorDelegationsResponse
+	var addresses *banktypes.QueryDenomOwnersResponse // QueryValidatorDelegationsResponse
 	var paginationKey []byte
 	addressInfo := []*banktypes.DenomOwner{}
 	step := 5000
@@ -117,7 +119,7 @@ func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
 
 func fetchNeutronTokenPrice(apiUrl string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -125,7 +127,7 @@ func fetchNeutronTokenPrice(apiUrl string) math.LegacyDec {
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")

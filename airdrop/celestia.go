@@ -4,25 +4,31 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/eve-network/eve/airdrop/config"
+	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/eve-network/eve/airdrop/config"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 )
 
 func celestia() ([]banktypes.Balance, []config.Reward) {
 	block_height := getLatestHeight(config.GetCelestiaConfig().RPC + "/status")
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading env:", err)
+		panic("")
+	}
 	grpcAddr := config.GetCelestiaConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
+	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
 	if err != nil {
 		panic(err)
 	}
@@ -38,13 +44,13 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 		delegations, total := fetchDelegations(url)
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
-		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
+		fmt.Println("Celestia validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetCelestiaConfig().CoinId + "&vs_currencies=usd"
+	apiUrl := API_COINGECKO + config.GetCelestiaConfig().CoinId + "&vs_currencies=usd"
 	tokenInUsd := fetchCelestiaTokenPrice(apiUrl)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
@@ -98,7 +104,7 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 
 func fetchCelestiaTokenPrice(apiUrl string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -106,7 +112,7 @@ func fetchCelestiaTokenPrice(apiUrl string) math.LegacyDec {
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")

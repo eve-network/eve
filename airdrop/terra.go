@@ -3,15 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/eve-network/eve/airdrop/config"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/eve-network/eve/airdrop/config"
 )
 
 func terra() ([]banktypes.Balance, []config.Reward) {
@@ -26,13 +28,13 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 		delegations, total := fetchDelegations(url)
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
-		fmt.Println("Validator "+strconv.Itoa(validatorIndex)+" ", total)
+		fmt.Println("Terra alidator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegations...)
 	}
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := "https://api.coingecko.com/api/v3/simple/price?ids=" + config.GetTerraConfig().CoinId + "&vs_currencies=usd"
+	apiUrl := API_COINGECKO + config.GetTerraConfig().CoinId + "&vs_currencies=usd"
 	tokenInUsd := fetchTerraTokenPrice(apiUrl)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
@@ -86,7 +88,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 
 func fetchTerraTokenPrice(apiUrl string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -94,7 +96,7 @@ func fetchTerraTokenPrice(apiUrl string) math.LegacyDec {
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")

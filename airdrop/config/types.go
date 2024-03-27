@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"cosmossdk.io/math"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -83,18 +84,20 @@ type Result struct {
 	ValidatorInfo ValidatorInfo `json:"validator_info"`
 }
 
-type NodeInfo struct{}
-type SyncInfo struct {
-	CatchingUp           bool   `json:"catching_up"`
-	EarlieastAppHash     string `json:"earliest_app_hash"`
-	EarlieastBlockHash   string `json:"earliest_block_hash"`
-	EarlieastBlockHeight string `json:"earliest_block_height"`
-	EarlieastBlockTime   string `json:"earliest_block_time"`
-	LatestAppHash        string `json:"latest_app_hash"`
-	LatestBlockHash      string `json:"latest_block_hash"`
-	LatestBlockHeight    string `json:"latest_block_height"`
-	LatestBlockTime      string `json:"latest_block_time"`
-}
+type (
+	NodeInfo struct{}
+	SyncInfo struct {
+		CatchingUp           bool   `json:"catching_up"`
+		EarlieastAppHash     string `json:"earliest_app_hash"`
+		EarlieastBlockHash   string `json:"earliest_block_hash"`
+		EarlieastBlockHeight string `json:"earliest_block_height"`
+		EarlieastBlockTime   string `json:"earliest_block_time"`
+		LatestAppHash        string `json:"latest_app_hash"`
+		LatestBlockHash      string `json:"latest_block_hash"`
+		LatestBlockHeight    string `json:"latest_block_height"`
+		LatestBlockTime      string `json:"latest_block_time"`
+	}
+)
 type ValidatorInfo struct{}
 
 type ValidatorResponse struct {

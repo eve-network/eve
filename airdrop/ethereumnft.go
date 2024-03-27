@@ -3,9 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/eve-network/eve/airdrop/config"
+	"github.com/joho/godotenv"
 
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/math"
@@ -13,9 +17,6 @@ import (
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/eve-network/eve/airdrop/config"
-	"github.com/joho/godotenv"
 )
 
 const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
@@ -52,7 +53,11 @@ func constructMoralisUrl(cursor string) string {
 }
 
 func fetchNftOwners() []config.EthResult {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading env:", err)
+		panic("")
+	}
 	API_KEY := os.Getenv("API_KEY")
 	pageCount := 0
 	cursor := ""
@@ -68,7 +73,7 @@ func fetchNftOwners() []config.EthResult {
 
 		res, _ := http.DefaultClient.Do(req)
 
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		var data config.NftEthResponse
 
 		// Unmarshal the JSON byte slice into the defined struct

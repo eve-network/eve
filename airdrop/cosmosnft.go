@@ -4,13 +4,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
+	"github.com/eve-network/eve/airdrop/config"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/eve-network/eve/airdrop/config"
 )
 
 func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward) {
@@ -41,11 +43,11 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 	return balanceInfo, rewardInfo
 }
 
-func fetchTokenInfo(token string, contract string) config.NftHolder {
+func fetchTokenInfo(token, contract string) config.NftHolder {
 	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
 	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 	apiUrl := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -53,7 +55,7 @@ func fetchTokenInfo(token string, contract string) config.NftHolder {
 	defer response.Body.Close()
 
 	var data config.TokenInfoResponse
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")
@@ -80,7 +82,7 @@ func fetchTokenIds(contract string) []string {
 		queryString := fmt.Sprintf(`{"all_tokens":{"limit":1000,"start_after":"%s"}}`, paginationKey)
 		encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 		apiUrl := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-		response, err := http.Get(apiUrl)
+		response, err := http.Get(apiUrl) //nolint
 		if err != nil {
 			fmt.Println("Error making GET request:", err)
 			panic("")
@@ -88,7 +90,7 @@ func fetchTokenIds(contract string) []string {
 		defer response.Body.Close()
 
 		var data config.TokenIdsResponse
-		responseBody, err := ioutil.ReadAll(response.Body)
+		responseBody, err := io.ReadAll(response.Body)
 		if err != nil {
 			fmt.Println("Error reading response body:", err)
 			panic("")

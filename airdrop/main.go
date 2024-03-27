@@ -5,21 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/eve-network/eve/airdrop/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/eve-network/eve/airdrop/config"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 // got to export genesis state from neutron and bostrom chain
@@ -29,6 +30,7 @@ const (
 	LIMIT_PER_PAGE = 100000000
 	BADKIDS        = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
 	CRYPTONIUM     = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
+	API_COINGECKO  = "https://api.coingecko.com/api/v3/simple/price?ids="
 )
 
 func getValidators(stakingClient stakingtypes.QueryClient, block_height string) []stakingtypes.Validator {
@@ -129,7 +131,7 @@ func main() {
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
 	fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
-	_ = os.WriteFile("balance.json", fileBalance, 0644)
+	_ = os.WriteFile("balance.json", fileBalance, 0o600)
 }
 
 func findValidatorInfo(validators []stakingtypes.Validator, address string) int {
@@ -143,7 +145,7 @@ func findValidatorInfo(validators []stakingtypes.Validator, address string) int 
 
 func getLatestHeight(apiUrl string) string {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -151,7 +153,7 @@ func getLatestHeight(apiUrl string) string {
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")
@@ -178,7 +180,7 @@ func convertBech32Address(otherChainAddress string) string {
 
 func fetchValidators(rpcUrl string) config.ValidatorResponse {
 	// Make a GET request to the API
-	response, err := http.Get(rpcUrl)
+	response, err := http.Get(rpcUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -215,7 +217,7 @@ func findValidatorInfoCustomType(validators []config.Validator, address string) 
 
 func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcUrl)
+	response, err := http.Get(rpcUrl) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -223,7 +225,7 @@ func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) 
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		panic("")
