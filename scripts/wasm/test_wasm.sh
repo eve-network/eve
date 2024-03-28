@@ -2,6 +2,12 @@
 
 # run chain locally, get contract if not exists, upload contract, instantiate contract, query contract
 
+# check if have screen
+if ! [ -x "$(command -v screen)" ]; then
+    echo 'Error: screen is not installed. Please install using apt-get install screen (Linux) or brew install screen(MacOS)' >&2
+    exit 1
+fi
+
 # Run chain
 echo "Starting chain..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
