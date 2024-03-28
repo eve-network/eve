@@ -50,6 +50,7 @@ require (
 	github.com/cosmos/ibc-go/v8 v8.1.1
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
 	github.com/spf13/viper v1.18.2
+	github.com/terra-money/alliance v0.4.3
 )
 
 require (
