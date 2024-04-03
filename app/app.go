@@ -205,7 +205,7 @@ var maccPerms = map[string][]string{
 	tokenfactorytypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.RewardsPoolName: nil,
-	feeabstypes.ModuleName:       nil,
+	feeabstypes.ModuleName:              nil,
 }
 
 var (
@@ -619,7 +619,7 @@ func NewEveApp(
 		app.GetSubspace(feeabstypes.ModuleName),
 		&app.StakingKeeper,
 		app.AccountKeeper,
-		app.BankKeeper,
+		app.BankKeeper.BaseKeeper,
 		app.TransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
@@ -658,8 +658,8 @@ func NewEveApp(
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
 		AddRoute(wasmtypes.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
-		AddRoute(icahosttypes.SubModuleName, icaHostStack)
-	AddRoute(feeabstypes.ModuleName, feeabsIBCModule)
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(feeabstypes.ModuleName, feeabsIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
