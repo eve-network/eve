@@ -1049,6 +1049,7 @@ func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes
 				FeegrantKeeper:  app.FeeGrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+			FeeAbskeeper:          app.FeeabsKeeper,
 			IBCKeeper:             app.IBCKeeper,
 			WasmConfig:            &wasmConfig,
 			WasmKeeper:            &app.WasmKeeper,
