@@ -623,7 +623,7 @@ func NewEveApp(
 		app.TransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
-		app.ScopedFeeabsKeeper,
+		scopedFeeabsKeeper,
 	)
 
 	feeabsIBCModule := feeabsmodule.NewIBCModule(appCodec, app.FeeabsKeeper)
