@@ -3,7 +3,7 @@ module github.com/eve-network/eve
 go 1.22.1
 
 require (
-	github.com/CosmWasm/wasmd v0.51.0-rc.3
+	github.com/CosmWasm/wasmd v0.51.0-rc.5
 	github.com/CosmWasm/wasmvm/v2 v2.0.1
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
 	github.com/cosmos/cosmos-sdk v0.50.5
@@ -31,7 +31,7 @@ require (
 )
 
 require (
-	cosmossdk.io/api v0.7.3
+	cosmossdk.io/api v0.7.4
 	cosmossdk.io/client/v2 v2.0.0-beta.1
 	cosmossdk.io/core v0.12.0
 	cosmossdk.io/log v1.3.1
@@ -42,7 +42,7 @@ require (
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/feegrant v0.1.0
 	cosmossdk.io/x/nft v0.1.0
-	cosmossdk.io/x/tx v0.13.2
+	cosmossdk.io/x/tx v0.13.3-0.20240419091757-db5906b1e894
 	cosmossdk.io/x/upgrade v0.1.1
 	github.com/cometbft/cometbft v0.38.6
 	github.com/cosmos/cosmos-db v1.0.2
