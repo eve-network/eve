@@ -57,11 +57,11 @@ $BINARY keys add $KEY1 --keyring-backend $KEYRING --home $HOME_DIR
 $BINARY keys add $KEY2 --keyring-backend $KEYRING --home $HOME_DIR
 
 # Allocate genesis accounts (cosmos formatted addresses)
-$BINARY genesis add-genesis-account $KEY "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY genesis add-genesis-account $KEY1 "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY genesis add-genesis-account $KEY2 "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY genesis add-genesis-account $KEY "1000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY genesis add-genesis-account $KEY1 "1000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY genesis add-genesis-account $KEY2 "1000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="20s"'
+update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="600s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
