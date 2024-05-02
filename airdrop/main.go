@@ -58,6 +58,7 @@ type balanceFunction func() ([]banktypes.Balance, []config.Reward, int)
 func main() {
 	// Define balance functions with their associated names
 	balanceFunctions := map[string]balanceFunction{
+
 		"akash":      akash,
 		"bostrom":    bostrom,
 		"celestia":   celestia,
@@ -68,47 +69,58 @@ func main() {
 		"stargaze":   stargaze,
 		"terra":      terra,
 		"terrac":     terrac,
-		"cosmosnft_badkids": func() ([]banktypes.Balance, []config.Reward, int) {
+		"badkids": func() ([]banktypes.Balance, []config.Reward, int) {
 			return cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
 		},
-		"cosmosnft_cryptonium": func() ([]banktypes.Balance, []config.Reward, int) {
+		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int) {
 			return cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
 		},
 		// need set coin type on Eve
 		"milady": ethereumnft,
 	}
 
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	balanceAkashInfo := []banktypes.Balance{}
-	total := 0
+	lenBalanceFunctions := len(balanceFunctions)
+	wg := &sync.WaitGroup{}
+	wg.Add(lenBalanceFunctions)
 
 	// Channel to collect balance info from goroutines
-	balanceInfoCh := make(chan []banktypes.Balance)
+	balanceInfoCh := make(chan []banktypes.Balance, lenBalanceFunctions)
+
+	// Channel to collect length of balance info from goroutines
+	lengthBalanceInfoCh := make(chan int, lenBalanceFunctions)
 
 	// Iterate over the balanceFunctions map and run each function in a goroutine
 	for name, fn := range balanceFunctions {
-		wg.Add(1)
 		go func(name string, fn balanceFunction) {
 			defer wg.Done()
 
 			fmt.Println("fetching balance info: ", name)
 
-			info, _, len := fn()  // Call the function
-			balanceInfoCh <- info // Send balance info to channel
-
-			mu.Lock()
-			balanceAkashInfo = append(balanceAkashInfo, info...) // Append to balanceAkashInfo
-			total += len
-			mu.Unlock()
+			info, _, len := fn()       // Call the function
+			balanceInfoCh <- info      // Send balance info to channel
+			lengthBalanceInfoCh <- len // Send length of balance info to channel
 		}(name, fn)
 	}
 
-	// Close the channel after all goroutines are done
 	go func() {
+		// Wait for all goroutines to complete
 		wg.Wait()
+		// Close channels
 		close(balanceInfoCh)
+		close(lengthBalanceInfoCh)
 	}()
+
+	total := 0
+	balanceAkashInfo := []banktypes.Balance{}
+
+	// Collect results from channels
+	for lenCh := range lengthBalanceInfoCh {
+		total += lenCh
+	}
+
+	for infoCh := range balanceInfoCh {
+		balanceAkashInfo = append(balanceAkashInfo, infoCh...)
+	}
 
 	fmt.Println("total: ", total)
 	fmt.Println(len(balanceAkashInfo))
