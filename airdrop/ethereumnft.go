@@ -26,6 +26,12 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward, int) {
 	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
+
+	// Avoid division by 0
+	if len(nftOwners) == 0 {
+		return balanceInfo, rewardInfo, 0
+	}
+
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	eveAirdrop := (allEveAirdrop.MulInt64(int64(config.GetMiladyConfig().Percent))).QuoInt64(100).QuoInt(math.NewInt(int64(len(nftOwners))))
 	fmt.Println("balance ", eveAirdrop)
