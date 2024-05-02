@@ -21,7 +21,7 @@ import (
 
 const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
 
-func ethereumnft() ([]banktypes.Balance, []config.Reward) {
+func ethereumnft() ([]banktypes.Balance, []config.Reward, int) {
 	nftOwners := fetchNftOwners()
 	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
@@ -45,7 +45,7 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward) {
 		})
 	}
 	fmt.Println(testAmount)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func constructMoralisURL(cursor string) string {

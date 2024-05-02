@@ -51,60 +51,43 @@ func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) [
 	return validatorsInfo
 }
 
+// Define a function type that returns balance info, reward info and length
+type balanceFunction func() ([]banktypes.Balance, []config.Reward, int)
+
 func main() {
-	balanceAkashInfo, _ := akash()
-	akashLength := len(balanceAkashInfo)
+	// Define balance functions with their associated names
+	balanceFunctions := map[string]balanceFunction{
+		"akash":      akash,
+		"bostrom":    bostrom,
+		"celestia":   celestia,
+		"composable": composable,
+		"cosmos":     cosmos,
+		"neutron":    neutron,
+		"sentinel":   sentinel,
+		"stargaze":   stargaze,
+		"terra":      terra,
+		"terrac":     terrac,
+		"cosmosnft_badkids": func() ([]banktypes.Balance, []config.Reward, int) {
+			return cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
+		},
+		"cosmosnft_cryptonium": func() ([]banktypes.Balance, []config.Reward, int) {
+			return cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
+		},
+		"milady": ethereumnft,
+	}
 
-	balanceBostromInfo, _ := bostrom()
-	bostromLength := len(balanceBostromInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceBostromInfo...)
+	balanceAkashInfo := []banktypes.Balance{}
+	total := 0
 
-	balanceCelestiaInfo, _ := celestia()
-	celestiaLength := len(balanceCelestiaInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceCelestiaInfo...)
+	// TODO: should implement fetching balances concurrently for better performance.
+	// Iterate over the balanceFunctions map
+	for name, fn := range balanceFunctions {
+		fmt.Println("fetching balance info: ", name)
+		info, _, len := fn()                                 // Call the function
+		balanceAkashInfo = append(balanceAkashInfo, info...) // Append to balanceAkashInfo
+		total += len
+	}
 
-	balanceComposableInfo, _ := composable()
-	composableLength := len(balanceComposableInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceComposableInfo...)
-
-	balanceCosmosInfo, _ := cosmos()
-	cosmosLength := len(balanceCosmosInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceCosmosInfo...)
-
-	balanceNeutronInfo, _ := neutron()
-	neutronLength := len(balanceNeutronInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceNeutronInfo...)
-
-	balanceSentinelInfo, _ := sentinel()
-	sentinelLength := len(balanceSentinelInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceSentinelInfo...)
-
-	balanceStargazeInfo, _ := stargaze()
-	stargazeLength := len(balanceStargazeInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceStargazeInfo...)
-
-	balanceTerraInfo, _ := terra()
-	terraLength := len(balanceTerraInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceTerraInfo...)
-
-	balanceTerracInfo, _ := terrac()
-	terracLength := len(balanceTerracInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceTerracInfo...)
-
-	balanceBadKidsInfo, _ := cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
-	badkidsLength := len(balanceBadKidsInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceBadKidsInfo...)
-
-	balanceCryptoniumInfo, _ := cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
-	cryptoniumLength := len(balanceCryptoniumInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceCryptoniumInfo...)
-
-	// need set coin type on Eve
-	balanceMiladyInfo, _ := ethereumnft()
-	miladyLength := len(balanceMiladyInfo)
-	balanceAkashInfo = append(balanceAkashInfo, balanceMiladyInfo...)
-
-	total := akashLength + bostromLength + celestiaLength + composableLength + cosmosLength + neutronLength + sentinelLength + stargazeLength + terraLength + terracLength + badkidsLength + cryptoniumLength + miladyLength
 	fmt.Println("total: ", total)
 	fmt.Println(len(balanceAkashInfo))
 

@@ -16,7 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func terra() ([]banktypes.Balance, []config.Reward) {
+func terra() ([]banktypes.Balance, []config.Reward, int) {
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
@@ -83,7 +83,7 @@ func terra() ([]banktypes.Balance, []config.Reward) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchTerraTokenPrice(apiURL string) math.LegacyDec {

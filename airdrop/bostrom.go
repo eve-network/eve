@@ -17,7 +17,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func bostrom() ([]banktypes.Balance, []config.Reward) {
+func bostrom() ([]banktypes.Balance, []config.Reward, int) {
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
@@ -84,7 +84,7 @@ func bostrom() ([]banktypes.Balance, []config.Reward) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchBostromTokenPrice(apiURL string) math.LegacyDec {

@@ -21,7 +21,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func neutron() ([]banktypes.Balance, []config.Reward) {
+func neutron() ([]banktypes.Balance, []config.Reward, int) {
 	blockHeight := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
 	addresses, total := fetchBalance(blockHeight)
 	fmt.Println("Response ", len(addresses))
@@ -70,7 +70,7 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {

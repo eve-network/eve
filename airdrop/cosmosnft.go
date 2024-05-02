@@ -15,7 +15,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward) {
+func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward, int) {
 	tokenIds := fetchTokenIds(contract)
 	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
@@ -40,7 +40,7 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 		})
 	}
 	fmt.Println(testAmount)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchTokenInfo(token, contract string) config.NftHolder {

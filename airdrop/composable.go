@@ -23,7 +23,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func composable() ([]banktypes.Balance, []config.Reward) {
+func composable() ([]banktypes.Balance, []config.Reward, int) {
 	blockHeight := getLatestHeight(config.GetComposableConfig().RPC + "/status")
 	err := godotenv.Load()
 	if err != nil {
@@ -112,7 +112,7 @@ func composable() ([]banktypes.Balance, []config.Reward) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchComposableTokenPrice(apiURL string) math.LegacyDec {

@@ -20,7 +20,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func celestia() ([]banktypes.Balance, []config.Reward) {
+func celestia() ([]banktypes.Balance, []config.Reward, int) {
 	blockHeight := getLatestHeight(config.GetCelestiaConfig().RPC + "/status")
 	err := godotenv.Load()
 	if err != nil {
@@ -99,7 +99,7 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo
+	return balanceInfo, rewardInfo, len(balanceInfo)
 }
 
 func fetchCelestiaTokenPrice(apiURL string) math.LegacyDec {
