@@ -10,11 +10,11 @@ import (
 
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -75,7 +75,7 @@ func neutron() ([]banktypes.Balance, []config.Reward, int) {
 
 func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
+	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
