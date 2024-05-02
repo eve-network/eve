@@ -21,7 +21,7 @@ import (
 )
 
 func celestia() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetCelestiaConfig().RPC + "/status")
+	blockHeight := getLatestHeight(config.GetCelestiaConfig().RPC + "/status")
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading env:", err)
@@ -37,10 +37,10 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	validators := getValidators(stakingClient, blockHeight)
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetCelestiaConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		url := config.GetCelestiaConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
 		delegations, total := fetchDelegations(url)
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
@@ -50,8 +50,8 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := API_COINGECKO + config.GetCelestiaConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchCelestiaTokenPrice(apiUrl)
+	apiURL := APICoingecko + config.GetCelestiaConfig().CoinID + "&vs_currencies=usd"
+	tokenInUsd := fetchCelestiaTokenPrice(apiURL)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -67,7 +67,7 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
@@ -84,7 +84,7 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetCelestiaConfig().ChainID,
+			ChainID:         config.GetCelestiaConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -102,9 +102,9 @@ func celestia() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchCelestiaTokenPrice(apiUrl string) math.LegacyDec {
+func fetchCelestiaTokenPrice(apiURL string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

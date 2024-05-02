@@ -19,12 +19,12 @@ import (
 func cosmos() ([]banktypes.Balance, []config.Reward) {
 	delegators := []stakingtypes.DelegationResponse{}
 
-	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse := fetchValidators(rpc)
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LIMIT_PER_PAGE) + "&pagination.count_total=true"
+		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
 		delegations, total := fetchDelegations(url)
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
@@ -34,8 +34,8 @@ func cosmos() ([]banktypes.Balance, []config.Reward) {
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := API_COINGECKO + config.GetCosmosHubConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchCosmosTokenPrice(apiUrl)
+	apiURL := APICoingecko + config.GetCosmosHubConfig().CoinID + "&vs_currencies=usd"
+	tokenInUsd := fetchCosmosTokenPrice(apiURL)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -51,7 +51,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
@@ -68,7 +68,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetCosmosHubConfig().ChainID,
+			ChainID:         config.GetCosmosHubConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -86,9 +86,9 @@ func cosmos() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchCosmosTokenPrice(apiUrl string) math.LegacyDec {
+func fetchCosmosTokenPrice(apiURL string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

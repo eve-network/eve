@@ -14,7 +14,7 @@ type ChainClientConfig struct {
 	GRPCAddr      string `json:"grpc-addr" yaml:"grpc-addr"`
 	AccountPrefix string `json:"account-prefix" yaml:"account-prefix"`
 	Percent       int    `json:"percent" yaml:"percent"`
-	CoinId        string `json:"coin-id" yaml:"coin-id"`
+	CoinID        string `json:"coin-id" yaml:"coin-id"`
 	RPC           string `json:"rpc" yaml:"rpc"`
 	API           string `json:"api" yaml:"api"`
 }
@@ -25,7 +25,7 @@ type Reward struct {
 	Shares          math.LegacyDec `json:"shares"`
 	Token           math.LegacyDec `json:"tokens"`
 	EveAirdropToken math.LegacyDec `json:"eve"`
-	ChainId         string         `json:"chain"`
+	ChainID         string         `json:"chain"`
 }
 
 type ComposablePrice struct {
@@ -73,8 +73,8 @@ type Price struct {
 }
 
 type NodeResponse struct {
-	Id      json.Number `json:"id"`
-	JsonRPC string      `json:"jsonrpc"`
+	ID      json.Number `json:"id"`
+	JSONRPC string      `json:"jsonrpc"`
 	Result  Result      `json:"result"`
 }
 
@@ -134,7 +134,7 @@ type Access struct {
 	Approvals []string `json:"approvals"`
 }
 type Info struct {
-	TokenUri string `json:"token_uri"`
+	TokenURI string `json:"token_uri"`
 }
 type Data struct {
 	Access Access `json:"access"`
@@ -153,11 +153,11 @@ type TokenIdsResponse struct {
 
 type NftHolder struct {
 	Address string
-	TokenId string
+	TokenID string
 }
 
 type EthResult struct {
-	TokenId      string `json:"token_id"`
+	TokenID      string `json:"token_id"`
 	TokenAddress string `json:"token_address"`
 	OwnerOf      string `json:"owner_of"`
 }

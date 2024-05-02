@@ -17,7 +17,7 @@ import (
 
 func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward) {
 	tokenIds := fetchTokenIds(contract)
-	allEveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 	testAmount, _ := math.LegacyNewDecFromStr("0")
@@ -31,7 +31,7 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 			Address:         nftHolders.Address,
 			EveAddress:      eveBech32Address,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetBadKidsConfig().ChainID,
+			ChainID:         config.GetBadKidsConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -46,8 +46,8 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 func fetchTokenInfo(token, contract string) config.NftHolder {
 	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
 	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
-	apiUrl := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-	response, err := http.Get(apiUrl) //nolint
+	apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -68,7 +68,7 @@ func fetchTokenInfo(token, contract string) config.NftHolder {
 	}
 	return config.NftHolder{
 		Address: data.Data.Access.Owner,
-		TokenId: token,
+		TokenID: token,
 	}
 }
 
@@ -78,11 +78,11 @@ func fetchTokenIds(contract string) []string {
 	index := 0
 	tokenIds := []string{}
 	for {
-		index += 1
+		index++
 		queryString := fmt.Sprintf(`{"all_tokens":{"limit":1000,"start_after":"%s"}}`, paginationKey)
 		encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
-		apiUrl := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-		response, err := http.Get(apiUrl) //nolint
+		apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
+		response, err := http.Get(apiURL) //nolint
 		if err != nil {
 			fmt.Println("Error making GET request:", err)
 			panic("")

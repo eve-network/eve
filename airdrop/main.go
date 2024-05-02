@@ -26,22 +26,22 @@ import (
 // got to export genesis state from neutron and bostrom chain
 
 const (
-	EVE_AIRDROP    = "1000000000" // 1,000,000,000
-	LIMIT_PER_PAGE = 100000000
-	BADKIDS        = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
-	CRYPTONIUM     = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
-	API_COINGECKO  = "https://api.coingecko.com/api/v3/simple/price?ids="
+	EveAirdrop   = "1000000000" // 1,000,000,000
+	LimitPerPage = 100000000
+	Badkids      = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
+	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
+	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
 )
 
-func getValidators(stakingClient stakingtypes.QueryClient, block_height string) []stakingtypes.Validator {
+func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) []stakingtypes.Validator {
 	// Get validator
 	var header metadata.MD
 	var totalValidatorsResponse *stakingtypes.QueryValidatorsResponse
 	totalValidatorsResponse, err := stakingClient.Validators(
-		metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+		metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 		&stakingtypes.QueryValidatorsRequest{
 			Pagination: &query.PageRequest{
-				Limit: LIMIT_PER_PAGE,
+				Limit: LimitPerPage,
 			},
 		},
 		grpc.Header(&header),
@@ -91,11 +91,11 @@ func main() {
 	terracLength := len(balanceTerracInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceTerracInfo...)
 
-	balanceBadKidsInfo, _ := cosmosnft(BADKIDS, int64(config.GetBadKidsConfig().Percent))
+	balanceBadKidsInfo, _ := cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
 	badkidsLength := len(balanceBadKidsInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceBadKidsInfo...)
 
-	balanceCryptoniumInfo, _ := cosmosnft(CRYPTONIUM, int64(config.GetCryptoniumConfig().Percent))
+	balanceCryptoniumInfo, _ := cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
 	cryptoniumLength := len(balanceCryptoniumInfo)
 	balanceAkashInfo = append(balanceAkashInfo, balanceCryptoniumInfo...)
 
@@ -143,9 +143,9 @@ func findValidatorInfo(validators []stakingtypes.Validator, address string) int 
 	return -1
 }
 
-func getLatestHeight(apiUrl string) string {
+func getLatestHeight(apiURL string) string {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -178,9 +178,9 @@ func convertBech32Address(otherChainAddress string) string {
 	return newBech32DelAddr
 }
 
-func fetchValidators(rpcUrl string) config.ValidatorResponse {
+func fetchValidators(rpcURL string) config.ValidatorResponse {
 	// Make a GET request to the API
-	response, err := http.Get(rpcUrl) //nolint
+	response, err := http.Get(rpcURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")
@@ -215,9 +215,9 @@ func findValidatorInfoCustomType(validators []config.Validator, address string) 
 	return -1
 }
 
-func fetchDelegations(rpcUrl string) (stakingtypes.DelegationResponses, uint64) {
+func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcUrl) //nolint
+	response, err := http.Get(rpcURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

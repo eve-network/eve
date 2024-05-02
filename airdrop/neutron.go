@@ -22,15 +22,15 @@ import (
 )
 
 func neutron() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
-	addresses, total := fetchBalance(block_height)
+	blockHeight := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
+	addresses, total := fetchBalance(blockHeight)
 	fmt.Println("Response ", len(addresses))
 	fmt.Println("Total ", total)
 
 	usd, _ := math.LegacyNewDecFromStr("20")
 
-	apiUrl := API_COINGECKO + config.GetNeutronConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchNeutronTokenPrice(apiUrl)
+	apiURL := APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
+	tokenInUsd := fetchNeutronTokenPrice(apiURL)
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
@@ -42,7 +42,7 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 		}
 		totalTokenBalance = totalTokenBalance.Add(address.Balance.Amount)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, address := range addresses {
 		if math.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
@@ -55,7 +55,7 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 			EveAddress:      eveBech32Address,
 			Token:           address.Balance.Amount.ToLegacyDec(),
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetNeutronConfig().ChainID,
+			ChainID:         config.GetNeutronConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -73,7 +73,7 @@ func neutron() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
+func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithDefaultCallOptions(grpc.ForceCodec(codec.NewProtoCodec(nil).GRPCCodec())))
 	if err != nil {
@@ -90,10 +90,10 @@ func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
 	// Fetch addresses, 5000 at a time
 	i := 0
 	for {
-		i += 1
+		i++
 		fmt.Println("Fetching addresses", step*i, "to", step*(i+1))
 		addresses, err = bankClient.DenomOwners(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&banktypes.QueryDenomOwnersRequest{
 				Denom: "untrn",
 				Pagination: &query.PageRequest{
@@ -117,9 +117,9 @@ func fetchBalance(block_height string) ([]*banktypes.DenomOwner, uint64) {
 	return addressInfo, total
 }
 
-func fetchNeutronTokenPrice(apiUrl string) math.LegacyDec {
+func fetchNeutronTokenPrice(apiURL string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

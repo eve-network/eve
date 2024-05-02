@@ -24,7 +24,7 @@ import (
 )
 
 func sentinel() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetSentinelConfig().RPC + "/status")
+	blockHeight := getLatestHeight(config.GetSentinelConfig().RPC + "/status")
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading env:", err)
@@ -40,17 +40,17 @@ func sentinel() ([]banktypes.Balance, []config.Reward) {
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	validators := getValidators(stakingClient, blockHeight)
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
 		delegationsResponse, _ := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&stakingtypes.QueryValidatorDelegationsRequest{
 				ValidatorAddr: validator.OperatorAddress,
 				Pagination: &query.PageRequest{
 					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
+					Limit:      LimitPerPage,
 				},
 			},
 			grpc.Header(&header), // Retrieve header from response
@@ -63,8 +63,8 @@ func sentinel() ([]banktypes.Balance, []config.Reward) {
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := API_COINGECKO + config.GetSentinelConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchSentinelTokenPrice(apiUrl)
+	apiURL := APICoingecko + config.GetSentinelConfig().CoinID + "&vs_currencies=usd"
+	tokenInUsd := fetchSentinelTokenPrice(apiURL)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -80,7 +80,7 @@ func sentinel() ([]banktypes.Balance, []config.Reward) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
@@ -97,7 +97,7 @@ func sentinel() ([]banktypes.Balance, []config.Reward) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetSentinelConfig().ChainID,
+			ChainID:         config.GetSentinelConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -115,9 +115,9 @@ func sentinel() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchSentinelTokenPrice(apiUrl string) math.LegacyDec {
+func fetchSentinelTokenPrice(apiURL string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

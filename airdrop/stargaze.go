@@ -24,7 +24,7 @@ import (
 )
 
 func stargaze() ([]banktypes.Balance, []config.Reward) {
-	block_height := getLatestHeight(config.GetStargazeConfig().RPC + "/status")
+	blockHeight := getLatestHeight(config.GetStargazeConfig().RPC + "/status")
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading env:", err)
@@ -40,17 +40,17 @@ func stargaze() ([]banktypes.Balance, []config.Reward) {
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, block_height)
+	validators := getValidators(stakingClient, blockHeight)
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
 		delegationsResponse, _ := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, block_height), // Add metadata to request
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&stakingtypes.QueryValidatorDelegationsRequest{
 				ValidatorAddr: validator.OperatorAddress,
 				Pagination: &query.PageRequest{
 					CountTotal: true,
-					Limit:      LIMIT_PER_PAGE,
+					Limit:      LimitPerPage,
 				},
 			},
 			grpc.Header(&header), // Retrieve header from response
@@ -63,8 +63,8 @@ func stargaze() ([]banktypes.Balance, []config.Reward) {
 
 	usd := math.LegacyMustNewDecFromStr("20")
 
-	apiUrl := API_COINGECKO + config.GetStargazeConfig().CoinId + "&vs_currencies=usd"
-	tokenInUsd := fetchStargazeTokenPrice(apiUrl)
+	apiURL := APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
+	tokenInUsd := fetchStargazeTokenPrice(apiURL)
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -80,7 +80,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
@@ -97,7 +97,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetStargazeConfig().ChainID,
+			ChainID:         config.GetStargazeConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -115,9 +115,9 @@ func stargaze() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func fetchStargazeTokenPrice(apiUrl string) math.LegacyDec {
+func fetchStargazeTokenPrice(apiURL string) math.LegacyDec {
 	// Make a GET request to the API
-	response, err := http.Get(apiUrl) //nolint
+	response, err := http.Get(apiURL) //nolint
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
 		panic("")

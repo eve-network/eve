@@ -23,7 +23,7 @@ const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
 
 func ethereumnft() ([]banktypes.Balance, []config.Reward) {
 	nftOwners := fetchNftOwners()
-	allEveAirdrop := math.LegacyMustNewDecFromStr(EVE_AIRDROP)
+	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 	testAmount, _ := math.LegacyNewDecFromStr("0")
@@ -36,7 +36,7 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward) {
 			Address:         owner.OwnerOf,
 			EveAddress:      eveBech32Address,
 			EveAirdropToken: eveAirdrop,
-			ChainId:         config.GetMiladyConfig().ChainID,
+			ChainID:         config.GetMiladyConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -48,7 +48,7 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward) {
 	return balanceInfo, rewardInfo
 }
 
-func constructMoralisUrl(cursor string) string {
+func constructMoralisURL(cursor string) string {
 	return "https://deep-index.moralis.io/api/v2.2/nft/" + MILADY + "/owners?chain=eth&format=decimal&limit=100&cursor=" + cursor
 }
 
@@ -58,18 +58,18 @@ func fetchNftOwners() []config.EthResult {
 		fmt.Println("Error loading env:", err)
 		panic("")
 	}
-	API_KEY := os.Getenv("API_KEY")
+	apiKey := os.Getenv("API_KEY")
 	pageCount := 0
 	cursor := ""
 	nftOwners := []config.EthResult{}
 	for {
-		pageCount += 1
+		pageCount++
 		fmt.Println("Page ", pageCount)
-		url := constructMoralisUrl(cursor)
+		url := constructMoralisURL(cursor)
 		req, _ := http.NewRequest("GET", url, nil)
 
 		req.Header.Add("Accept", "application/json")
-		req.Header.Add("X-API-Key", API_KEY)
+		req.Header.Add("X-API-Key", apiKey)
 
 		res, _ := http.DefaultClient.Do(req)
 
