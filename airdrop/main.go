@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
@@ -73,20 +74,41 @@ func main() {
 		"cosmosnft_cryptonium": func() ([]banktypes.Balance, []config.Reward, int) {
 			return cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
 		},
+		// need set coin type on Eve
 		"milady": ethereumnft,
 	}
 
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	balanceAkashInfo := []banktypes.Balance{}
 	total := 0
 
-	// TODO: should implement fetching balances concurrently for better performance.
-	// Iterate over the balanceFunctions map
+	// Channel to collect balance info from goroutines
+	balanceInfoCh := make(chan []banktypes.Balance)
+
+	// Iterate over the balanceFunctions map and run each function in a goroutine
 	for name, fn := range balanceFunctions {
-		fmt.Println("fetching balance info: ", name)
-		info, _, len := fn()                                 // Call the function
-		balanceAkashInfo = append(balanceAkashInfo, info...) // Append to balanceAkashInfo
-		total += len
+		wg.Add(1)
+		go func(name string, fn balanceFunction) {
+			defer wg.Done()
+
+			fmt.Println("fetching balance info: ", name)
+
+			info, _, len := fn()  // Call the function
+			balanceInfoCh <- info // Send balance info to channel
+
+			mu.Lock()
+			balanceAkashInfo = append(balanceAkashInfo, info...) // Append to balanceAkashInfo
+			total += len
+			mu.Unlock()
+		}(name, fn)
 	}
+
+	// Close the channel after all goroutines are done
+	go func() {
+		wg.Wait()
+		close(balanceInfoCh)
+	}()
 
 	fmt.Println("total: ", total)
 	fmt.Println(len(balanceAkashInfo))
