@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
@@ -21,16 +22,26 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func neutron() ([]banktypes.Balance, []config.Reward, int) {
-	blockHeight := getLatestHeight(config.GetNeutronConfig().RPC + "/status")
-	addresses, total := fetchBalance(blockHeight)
+func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
+	blockHeight, err := getLatestHeightWithRetry(config.GetNeutronConfig().RPC + "/status")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Neutron: %w", err)
+	}
+
+	addresses, total, err := fetchBalance(blockHeight)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch balance for Neutron: %w", err)
+	}
 	fmt.Println("Response ", len(addresses))
 	fmt.Println("Total ", total)
 
 	usd, _ := math.LegacyNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchNeutronTokenPrice(apiURL)
+	tokenInUsd, err := fetchNeutronTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
+	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
@@ -70,14 +81,14 @@ func neutron() ([]banktypes.Balance, []config.Reward, int) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {
+func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, 0, fmt.Errorf("failed to connect to gRPC Neutron: %w", err)
 	}
 	defer grpcConn.Close()
 	bankClient := banktypes.NewQueryClient(grpcConn)
@@ -104,7 +115,9 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {
 			},
 			grpc.Header(&header), // Retrieve header from response
 		)
-		fmt.Println("err: ", err)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to query all Neutron's denom owners: %w", err)
+		}
 		if total != 0 {
 			total = addresses.Pagination.Total
 		}
@@ -114,23 +127,35 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64) {
 			break
 		}
 	}
-	return addressInfo, total
+	return addressInfo, total, nil
 }
 
-func fetchNeutronTokenPrice(apiURL string) math.LegacyDec {
+func fetchNeutronTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchNeutronTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Neutron token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Neutron token price after %d attempts", MaxRetries)
+}
+
+func fetchNeutronTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Neutron token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Neutron token price: %w", err)
 	}
 
 	var data config.NeutronPrice
@@ -138,10 +163,9 @@ func fetchNeutronTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Neutron token price: %w", err)
 	}
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd
+	return tokenInUsd, nil
 }

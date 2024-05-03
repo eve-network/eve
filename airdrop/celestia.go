@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
@@ -20,28 +21,39 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func celestia() ([]banktypes.Balance, []config.Reward, int) {
-	blockHeight := getLatestHeight(config.GetCelestiaConfig().RPC + "/status")
+func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading env:", err)
-		panic("")
+		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
+
+	blockHeight, err := getLatestHeightWithRetry(config.GetCelestiaConfig().RPC + "/status")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Celestia: %w", err)
+	}
+
 	grpcAddr := config.GetCelestiaConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Celestia: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, blockHeight)
+	validators, err := getValidators(stakingClient, blockHeight)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get Celestia validators: %w", err)
+	}
+
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		url := config.GetCelestiaConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
-		delegations, total := fetchDelegations(url)
+		delegations, total, err := fetchDelegationsWithRetry(url)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Celestia: %w", err)
+		}
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
 		fmt.Println("Celestia validator "+strconv.Itoa(validatorIndex)+" ", total)
@@ -51,7 +63,10 @@ func celestia() ([]banktypes.Balance, []config.Reward, int) {
 	usd := math.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetCelestiaConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchCelestiaTokenPrice(apiURL)
+	tokenInUsd, err := fetchCelestiaTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Celestia token price: %w", err)
+	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -99,23 +114,35 @@ func celestia() ([]banktypes.Balance, []config.Reward, int) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchCelestiaTokenPrice(apiURL string) math.LegacyDec {
+func fetchCelestiaTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchCelestiaTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Celestia token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Celestia token price after %d attempts", MaxRetries)
+}
+
+func fetchCelestiaTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Celestia token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Celestia token price: %w", err)
 	}
 
 	var data config.CelestiaPrice
@@ -123,10 +150,9 @@ func fetchCelestiaTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Celestia token price: %w", err)
 	}
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd
+	return tokenInUsd, nil
 }

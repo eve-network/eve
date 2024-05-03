@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
@@ -23,24 +24,31 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func akash() ([]banktypes.Balance, []config.Reward, int) {
-	blockHeight := getLatestHeight(config.GetAkashConfig().RPC + "/status")
+func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading env:", err)
-		panic("")
+		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
+
+	blockHeight, err := getLatestHeightWithRetry(config.GetAkashConfig().RPC + "/status")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
+	}
+
 	grpcAddr := config.GetAkashConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Akash: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, blockHeight)
+	validators, err := getValidators(stakingClient, blockHeight)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
+	}
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
@@ -64,7 +72,10 @@ func akash() ([]banktypes.Balance, []config.Reward, int) {
 	usd := math.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetAkashConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchAkashTokenPrice(apiURL)
+	tokenInUsd, err := fetchAkashTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
+	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -81,7 +92,10 @@ func akash() ([]banktypes.Balance, []config.Reward, int) {
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
 	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
-	testAmount, _ := math.LegacyNewDecFromStr("0")
+	testAmount, err := math.LegacyNewDecFromStr("0")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)
+	}
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -112,23 +126,35 @@ func akash() ([]banktypes.Balance, []config.Reward, int) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchAkashTokenPrice(apiURL string) math.LegacyDec {
+func fetchAkashTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchAkashTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Akash token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Akash token price after %d attempts", MaxRetries)
+}
+
+func fetchAkashTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Akash token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Akash token price: %w", err)
 	}
 
 	var data config.AkashPrice
@@ -136,10 +162,9 @@ func fetchAkashTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Akash token price: %w", err)
 	}
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd
+	return tokenInUsd, nil
 }

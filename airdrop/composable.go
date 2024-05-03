@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
@@ -23,24 +24,32 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func composable() ([]banktypes.Balance, []config.Reward, int) {
-	blockHeight := getLatestHeight(config.GetComposableConfig().RPC + "/status")
+func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading env:", err)
-		panic("")
+		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
+
+	blockHeight, err := getLatestHeightWithRetry(config.GetComposableConfig().RPC + "/status")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Composable: %w", err)
+	}
+
 	grpcAddr := config.GetComposableConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Composable: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, blockHeight)
+	validators, err := getValidators(stakingClient, blockHeight)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get Composable validators: %w", err)
+	}
+
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
@@ -64,7 +73,10 @@ func composable() ([]banktypes.Balance, []config.Reward, int) {
 	usd := math.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetComposableConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchComposableTokenPrice(apiURL)
+	tokenInUsd, err := fetchComposableTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Composable token price: %w", err)
+	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -112,23 +124,35 @@ func composable() ([]banktypes.Balance, []config.Reward, int) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchComposableTokenPrice(apiURL string) math.LegacyDec {
+func fetchComposableTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchComposableTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Composable token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Composable token price after %d attempts", MaxRetries)
+}
+
+func fetchComposableTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Composable token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Composable token price: %w", err)
 	}
 
 	var data config.ComposablePrice
@@ -136,10 +160,9 @@ func fetchComposableTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Composable token price: %w", err)
 	}
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd
+	return tokenInUsd, nil
 }

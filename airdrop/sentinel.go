@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
@@ -23,28 +24,35 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func sentinel() ([]banktypes.Balance, []config.Reward, int) {
-	blockHeight := getLatestHeight(config.GetSentinelConfig().RPC + "/status")
+func sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading env:", err)
-		panic("")
+		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
+
+	blockHeight, err := getLatestHeightWithRetry(config.GetSentinelConfig().RPC + "/status")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Sentinel: %w", err)
+	}
+
 	grpcAddr := config.GetSentinelConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Sentinel: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators := getValidators(stakingClient, blockHeight)
+	validators, err := getValidators(stakingClient, blockHeight)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to get Sentinel validators: %w", err)
+	}
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
+		delegationsResponse, err := stakingClient.ValidatorDelegations(
 			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&stakingtypes.QueryValidatorDelegationsRequest{
 				ValidatorAddr: validator.OperatorAddress,
@@ -55,6 +63,9 @@ func sentinel() ([]banktypes.Balance, []config.Reward, int) {
 			},
 			grpc.Header(&header), // Retrieve header from response
 		)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Sentinel validator: %w", err)
+		}
 		total := delegationsResponse.Pagination.Total
 		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
 		fmt.Println("Sentinel validator "+strconv.Itoa(validatorIndex)+" ", total)
@@ -64,7 +75,10 @@ func sentinel() ([]banktypes.Balance, []config.Reward, int) {
 	usd := math.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetSentinelConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchSentinelTokenPrice(apiURL)
+	tokenInUsd, err := fetchSentinelTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Sentinel token price: %w", err)
+	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -112,23 +126,35 @@ func sentinel() ([]banktypes.Balance, []config.Reward, int) {
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchSentinelTokenPrice(apiURL string) math.LegacyDec {
+func fetchSentinelTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchSentinelTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Sentinel token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Sentinel token price after %d attempts", MaxRetries)
+}
+
+func fetchSentinelTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Sentinel token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Sentinel token price: %w", err)
 	}
 
 	var data config.SentinelPrice
@@ -136,10 +162,9 @@ func fetchSentinelTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Sentinel token price: %w", err)
 	}
 
 	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd
+	return tokenInUsd, nil
 }

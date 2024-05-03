@@ -9,9 +9,9 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
 	"cosmossdk.io/math"
@@ -32,33 +32,16 @@ const (
 	Badkids      = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
 	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
 	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
+	MaxRetries   = 5
+	Backoff      = 200
 )
 
-func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) []stakingtypes.Validator {
-	// Get validator
-	var header metadata.MD
-	var totalValidatorsResponse *stakingtypes.QueryValidatorsResponse
-	totalValidatorsResponse, err := stakingClient.Validators(
-		metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
-		&stakingtypes.QueryValidatorsRequest{
-			Pagination: &query.PageRequest{
-				Limit: LimitPerPage,
-			},
-		},
-		grpc.Header(&header),
-	)
-	fmt.Println(err)
-	validatorsInfo := totalValidatorsResponse.Validators
-	return validatorsInfo
-}
-
 // Define a function type that returns balance info, reward info and length
-type balanceFunction func() ([]banktypes.Balance, []config.Reward, int)
+type balanceFunction func() ([]banktypes.Balance, []config.Reward, int, error)
 
 func main() {
 	// Define balance functions with their associated names
 	balanceFunctions := map[string]balanceFunction{
-
 		"akash":      akash,
 		"bostrom":    bostrom,
 		"celestia":   celestia,
@@ -69,10 +52,10 @@ func main() {
 		"stargaze":   stargaze,
 		"terra":      terra,
 		"terrac":     terrac,
-		"badkids": func() ([]banktypes.Balance, []config.Reward, int) {
+		"badkids": func() ([]banktypes.Balance, []config.Reward, int, error) {
 			return cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
 		},
-		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int) {
+		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int, error) {
 			return cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
 		},
 		// need set coin type on Eve
@@ -95,8 +78,8 @@ func main() {
 			defer wg.Done()
 
 			fmt.Println("fetching balance info: ", name)
-
-			info, _, len := fn()       // Call the function
+			//TODO: need handle error
+			info, _, len, _ := fn()    // Call the function
 			balanceInfoCh <- info      // Send balance info to channel
 			lengthBalanceInfoCh <- len // Send length of balance info to channel
 		}(name, fn)
@@ -160,33 +143,45 @@ func findValidatorInfo(validators []stakingtypes.Validator, address string) int 
 	return -1
 }
 
-func getLatestHeight(apiURL string) string {
+func getLatestHeightWithRetry(rpcURL string) (string, error) {
+	var latestBlockHeight string
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		latestBlockHeight, err = getLatestHeight(rpcURL)
+		if err == nil {
+			return latestBlockHeight, nil
+		}
+		fmt.Printf("error get latest height (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return "", fmt.Errorf("failed to get latest height after %d attempts", MaxRetries)
+}
+
+func getLatestHeight(apiURL string) (string, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return "", fmt.Errorf("error making GET request: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return "", fmt.Errorf("error reading response body: %w", err)
 	}
 
-	// Print the response body
+	// Parse the response body into a NodeResponse struct
 	var data config.NodeResponse
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+	if err := json.Unmarshal(responseBody, &data); err != nil {
+		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
-	fmt.Println("Block height: ", data.Result.SyncInfo.LatestBlockHeight)
-	return data.Result.SyncInfo.LatestBlockHeight
+
+	// Extract the latest block height from the response
+	latestBlockHeight := data.Result.SyncInfo.LatestBlockHeight
+	fmt.Println("Block height:", latestBlockHeight)
+
+	return latestBlockHeight, nil
 }
 
 func convertBech32Address(otherChainAddress string) string {
@@ -195,20 +190,32 @@ func convertBech32Address(otherChainAddress string) string {
 	return newBech32DelAddr
 }
 
-func fetchValidators(rpcURL string) config.ValidatorResponse {
+func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
+	var data config.ValidatorResponse
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchValidators(rpcURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
+}
+
+func fetchValidators(rpcURL string) (config.ValidatorResponse, error) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcURL) //nolint
+	response, err := http.Get(rpcURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return config.ValidatorResponse{}, fmt.Errorf("error making GET request: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return config.ValidatorResponse{}, fmt.Errorf("error reading response body: %w", err)
 	}
 
 	var data config.ValidatorResponse
@@ -216,11 +223,11 @@ func fetchValidators(rpcURL string) config.ValidatorResponse {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return config.ValidatorResponse{}, fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
+
 	fmt.Println(data.Pagination.Total)
-	return data
+	return data, nil
 }
 
 func findValidatorInfoCustomType(validators []config.Validator, address string) int {
@@ -232,20 +239,33 @@ func findValidatorInfoCustomType(validators []config.Validator, address string) 
 	return -1
 }
 
-func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64) {
+func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
+	var data stakingtypes.DelegationResponses
+	var err error
+	var total uint64
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, total, err = fetchDelegations(rpcURL)
+		if err == nil {
+			return data, total, nil
+		}
+		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
+}
+
+func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcURL) //nolint
+	response, err := http.Get(rpcURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return nil, 0, fmt.Errorf("error making GET request: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return nil, 0, fmt.Errorf("error reading response body: %w", err)
 	}
 
 	var data config.QueryValidatorDelegationsResponse
@@ -253,11 +273,36 @@ func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64) 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return nil, 0, fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
 	fmt.Println(data.Pagination.Total)
-	total, _ := strconv.ParseUint(data.Pagination.Total, 10, 64)
-	return data.DelegationResponses, total
+	total, err := strconv.ParseUint(data.Pagination.Total, 10, 64)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error parsing total from pagination: %w", err)
+	}
+
+	return data.DelegationResponses, total, nil
+}
+
+func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) ([]stakingtypes.Validator, error) {
+	// Get validator
+	ctx := metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight)
+	req := &stakingtypes.QueryValidatorsRequest{
+		Pagination: &query.PageRequest{
+			Limit: LimitPerPage,
+		},
+	}
+
+	resp, err := stakingClient.Validators(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get validators: %w", err)
+	}
+
+	validatorsInfo := resp.Validators
+	if validatorsInfo == nil {
+		return nil, fmt.Errorf("validators response is nil")
+	}
+
+	return validatorsInfo, nil
 }

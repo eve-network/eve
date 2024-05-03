@@ -21,15 +21,18 @@ import (
 
 const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
 
-func ethereumnft() ([]banktypes.Balance, []config.Reward, int) {
-	nftOwners := fetchNftOwners()
+func ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
+	nftOwners, err := fetchNftOwners()
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch nft owners: %w", err)
+	}
 	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 
 	// Avoid division by 0
 	if len(nftOwners) == 0 {
-		return balanceInfo, rewardInfo, 0
+		return balanceInfo, rewardInfo, 0, nil
 	}
 
 	testAmount, _ := math.LegacyNewDecFromStr("0")
@@ -51,18 +54,17 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward, int) {
 		})
 	}
 	fmt.Println(testAmount)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
 func constructMoralisURL(cursor string) string {
 	return "https://deep-index.moralis.io/api/v2.2/nft/" + MILADY + "/owners?chain=eth&format=decimal&limit=100&cursor=" + cursor
 }
 
-func fetchNftOwners() []config.EthResult {
+func fetchNftOwners() ([]config.EthResult, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading env:", err)
-		panic("")
+		return nil, fmt.Errorf("failed to load env: %w", err)
 	}
 	apiKey := os.Getenv("API_KEY")
 	pageCount := 0
@@ -85,8 +87,7 @@ func fetchNftOwners() []config.EthResult {
 		// Unmarshal the JSON byte slice into the defined struct
 		err := json.Unmarshal(body, &data)
 		if err != nil {
-			fmt.Println("Error unmarshalling JSON:", err)
-			panic("")
+			return nil, fmt.Errorf("error error unmarshalling JSON when fetch nft owners: %w", err)
 		}
 		defer res.Body.Close()
 
@@ -97,7 +98,7 @@ func fetchNftOwners() []config.EthResult {
 			cursor = data.Cursor
 		}
 	}
-	return nftOwners
+	return nftOwners, nil
 }
 
 func convertEvmAddress(evmAddress string) string {

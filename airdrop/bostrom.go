@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 
@@ -17,16 +18,22 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func bostrom() ([]banktypes.Balance, []config.Reward, int) {
+func bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
-	validatorsResponse := fetchValidators(rpc)
+	validatorsResponse, err := fetchValidators(rpc)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch validators for Bostrom: %w", err)
+	}
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		url := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
-		delegations, total := fetchDelegations(url)
+		delegations, total, err := fetchDelegationsWithRetry(url)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Bostrom: %w", err)
+		}
 		fmt.Println(validator.OperatorAddress)
 		fmt.Println("Response ", len(delegations))
 		fmt.Println("Bostrom validator "+strconv.Itoa(validatorIndex)+" ", total)
@@ -36,7 +43,10 @@ func bostrom() ([]banktypes.Balance, []config.Reward, int) {
 	usd := math.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetBostromConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd := fetchBostromTokenPrice(apiURL)
+	tokenInUsd, err := fetchBostromTokenPriceWithRetry(apiURL)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to fetch Bostrom token price: %w", err)
+	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
@@ -77,30 +87,42 @@ func bostrom() ([]banktypes.Balance, []config.Reward, int) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("bostrom ", testAmount)
+	fmt.Println("Bostrom ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
-	return balanceInfo, rewardInfo, len(balanceInfo)
+	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchBostromTokenPrice(apiURL string) math.LegacyDec {
+func fetchBostromTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
+	var data math.LegacyDec
+	var err error
+	for attempt := 1; attempt <= MaxRetries; attempt++ {
+		data, err = fetchBostromTokenPrice(apiURL)
+		if err == nil {
+			return data, nil
+		}
+		fmt.Printf("error fetching Bostrom token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+	}
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Bostrom token price after %d attempts", MaxRetries)
+}
+
+func fetchBostromTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Println("Error making GET request:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Bostrom token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error reading response body for Bostrom token price: %w", err)
 	}
 
 	var data config.BostromPrice
@@ -108,8 +130,7 @@ func fetchBostromTokenPrice(apiURL string) math.LegacyDec {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		panic("")
+		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Bostrom token price: %w", err)
 	}
 	rawPrice := strings.Split(data.Token.USD.String(), "e-")
 	base := rawPrice[0]
@@ -118,5 +139,5 @@ func fetchBostromTokenPrice(apiURL string) math.LegacyDec {
 	baseDec, _ := math.LegacyNewDecFromStr(base)
 	tenDec, _ := math.LegacyNewDecFromStr("10")
 	tokenInUsd := baseDec.Quo(tenDec.Power(powerInt))
-	return tokenInUsd
+	return tokenInUsd, nil
 }
