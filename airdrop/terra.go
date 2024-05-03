@@ -75,7 +75,10 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 			continue
 		}
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetTerraConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
-		eveBech32Address := convertBech32Address(delegator.Delegation.DelegatorAddress)
+		eveBech32Address, err := convertBech32Address(delegator.Delegation.DelegatorAddress)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
+		}
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
 			EveAddress:      eveBech32Address,
@@ -103,15 +106,24 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 func fetchTerraTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
 	var data math.LegacyDec
 	var err error
+
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
 		data, err = fetchTerraTokenPrice(apiURL)
 		if err == nil {
 			return data, nil
 		}
+
 		fmt.Printf("error fetching Terra token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(Backoff.Seconds() * float64(attempt))
+			fmt.Printf("retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
-	return math.LegacyDec{}, fmt.Errorf("failed to fetch Terra token price after %d attempts", MaxRetries)
+
+	return math.LegacyDec{}, fmt.Errorf("failed to fetch Terra token price after %d attempts: %v", MaxRetries, err)
 }
 
 func fetchTerraTokenPrice(apiURL string) (math.LegacyDec, error) {

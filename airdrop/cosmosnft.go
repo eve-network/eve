@@ -33,7 +33,10 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 			return nil, nil, 0, fmt.Errorf("failed to fetch token info: %w", err)
 		}
 		fmt.Println(index)
-		eveBech32Address := convertBech32Address(nftHolders.Address)
+		eveBech32Address, err := convertBech32Address(nftHolders.Address)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
+		}
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         nftHolders.Address,
 			EveAddress:      eveBech32Address,
@@ -59,7 +62,7 @@ func fetchTokenInfoWithRetry(token, contract string) (config.NftHolder, error) {
 			return data, nil
 		}
 		fmt.Printf("error fetch token info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
 	}
 	return config.NftHolder{}, fmt.Errorf("failed to fetch token info after %d attempts", MaxRetries)
 }
@@ -99,7 +102,7 @@ func fetchTokenIdsWithRetry(contract string) ([]string, error) {
 			return tokenIds, nil
 		}
 		fmt.Printf("error fetch token ids (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
 	}
 	return nil, fmt.Errorf("failed to fetch token ids after %d attempts", MaxRetries)
 }

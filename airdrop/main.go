@@ -33,7 +33,7 @@ const (
 	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
 	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
 	MaxRetries   = 5
-	Backoff      = 200
+	Backoff      = 200 * time.Millisecond
 )
 
 // Define a function type that returns balance info, reward info and length
@@ -146,14 +146,23 @@ func findValidatorInfo(validators []stakingtypes.Validator, address string) int 
 func getLatestHeightWithRetry(rpcURL string) (string, error) {
 	var latestBlockHeight string
 	var err error
+
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
 		latestBlockHeight, err = getLatestHeight(rpcURL)
 		if err == nil {
 			return latestBlockHeight, nil
 		}
+
 		fmt.Printf("error get latest height (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(Backoff.Seconds() * float64(attempt))
+			fmt.Printf("retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
+
 	return "", fmt.Errorf("failed to get latest height after %d attempts", MaxRetries)
 }
 
@@ -184,10 +193,16 @@ func getLatestHeight(apiURL string) (string, error) {
 	return latestBlockHeight, nil
 }
 
-func convertBech32Address(otherChainAddress string) string {
-	_, bz, _ := bech32.DecodeAndConvert(otherChainAddress)
-	newBech32DelAddr, _ := bech32.ConvertAndEncode("eve", bz)
-	return newBech32DelAddr
+func convertBech32Address(otherChainAddress string) (string, error) {
+	_, bz, err := bech32.DecodeAndConvert(otherChainAddress)
+	if err != nil {
+		return "", fmt.Errorf("error decoding address: %w", err)
+	}
+	newBech32DelAddr, err := bech32.ConvertAndEncode("eve", bz)
+	if err != nil {
+		return "", fmt.Errorf("error converting address: %w", err)
+	}
+	return newBech32DelAddr, nil
 }
 
 func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
@@ -199,7 +214,7 @@ func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 			return data, nil
 		}
 		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
 	}
 	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
 }
@@ -249,7 +264,7 @@ func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses,
 			return data, total, nil
 		}
 		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(time.Duration(attempt * Backoff).Milliseconds()))
+		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
 	}
 	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
 }
