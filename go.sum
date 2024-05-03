@@ -1239,6 +1239,7 @@ github.com/ory/dockertest v3.3.5+incompatible h1:iLLK6SQwIhcbrG783Dghaaa3WPzGc+4
 github.com/ory/dockertest v3.3.5+incompatible/go.mod h1:1vX4m9wsvi00u5bseYwXaSnhNrne+V0E6LAcBILJdPs=
 github.com/osmosis-labs/fee-abstraction/v8 v8.0.0-20240422060742-4048791ba065 h1:VOOi96gp4KUlI4BKRtvM0UpQmvVJP9PUo54wvwoykmg=
 github.com/osmosis-labs/fee-abstraction/v8 v8.0.0-20240422060742-4048791ba065/go.mod h1:km94uuc2nPgn0hCaMantXJqeMnYavOeBMVUg3qp3vIw=
+github.com/osmosis-labs/fee-abstraction/v8 v8.0.0/go.mod h1:km94uuc2nPgn0hCaMantXJqeMnYavOeBMVUg3qp3vIw=
 github.com/pascaldekloe/goe v0.1.0 h1:cBOtyMzM9HTpWjXfbbunk26uA6nG3a8n06Wieeh0MwY=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
