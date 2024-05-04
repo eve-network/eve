@@ -243,4 +243,6 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20240503205555-9fb96066d68e
 )
