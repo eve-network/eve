@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
+	"math"
 	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -21,11 +21,11 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch token ids: %w", err)
 	}
-	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
+	allEveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
-	testAmount, _ := math.LegacyNewDecFromStr("0")
-	eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(math.NewInt(int64(len(tokenIds))))
+	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(sdkmath.NewInt(int64(len(tokenIds))))
 	fmt.Println("balance ", eveAirdrop)
 	for index, token := range tokenIds {
 		nftHolders, err := fetchTokenInfoWithRetry(token, contract)
@@ -62,7 +62,7 @@ func fetchTokenInfoWithRetry(token, contract string) (config.NftHolder, error) {
 			return data, nil
 		}
 		fmt.Printf("error fetch token info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
+		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return config.NftHolder{}, fmt.Errorf("failed to fetch token info after %d attempts", MaxRetries)
 }
@@ -71,7 +71,7 @@ func fetchTokenInfo(token, contract string) (config.NftHolder, error) {
 	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
 	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 	apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-	response, err := http.Get(apiURL)
+	response, err := makeGetRequest(apiURL)
 	if err != nil {
 		return config.NftHolder{}, fmt.Errorf("error making GET request to fetch token info: %w", err)
 	}
@@ -102,7 +102,7 @@ func fetchTokenIdsWithRetry(contract string) ([]string, error) {
 			return tokenIds, nil
 		}
 		fmt.Printf("error fetch token ids (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
+		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return nil, fmt.Errorf("failed to fetch token ids after %d attempts", MaxRetries)
 }
@@ -117,7 +117,7 @@ func fetchTokenIds(contract string) ([]string, error) {
 		queryString := fmt.Sprintf(`{"all_tokens":{"limit":1000,"start_after":"%s"}}`, paginationKey)
 		encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 		apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-		response, err := http.Get(apiURL)
+		response, err := makeGetRequest(apiURL)
 		if err != nil {
 			return nil, fmt.Errorf("error making GET request to fetch token ids: %w", err)
 		}

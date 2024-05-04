@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc/metadata"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
@@ -120,7 +121,7 @@ func main() {
 		checkBalance += amount
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", math.NewInt(int64(amount)))),
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", sdkmath.NewInt(int64(amount)))),
 		})
 	}
 
@@ -157,7 +158,7 @@ func getLatestHeightWithRetry(rpcURL string) (string, error) {
 
 		if attempt < MaxRetries {
 			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * float64(attempt))
+			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
 			fmt.Printf("retrying after %s...\n", backoffDuration)
 			time.Sleep(backoffDuration)
 		}
@@ -168,7 +169,7 @@ func getLatestHeightWithRetry(rpcURL string) (string, error) {
 
 func getLatestHeight(apiURL string) (string, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL)
+	response, err := makeGetRequest(apiURL)
 	if err != nil {
 		return "", fmt.Errorf("error making GET request: %w", err)
 	}
@@ -214,14 +215,14 @@ func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 			return data, nil
 		}
 		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
+		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
 }
 
 func fetchValidators(rpcURL string) (config.ValidatorResponse, error) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcURL)
+	response, err := makeGetRequest(rpcURL)
 	if err != nil {
 		return config.ValidatorResponse{}, fmt.Errorf("error making GET request: %w", err)
 	}
@@ -264,14 +265,14 @@ func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses,
 			return data, total, nil
 		}
 		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * float64(attempt)))
+		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
 }
 
 func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
 	// Make a GET request to the API
-	response, err := http.Get(rpcURL)
+	response, err := makeGetRequest(rpcURL)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error making GET request: %w", err)
 	}
@@ -320,4 +321,20 @@ func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) (
 	}
 
 	return validatorsInfo, nil
+}
+
+func makeGetRequest(uri string) (*http.Response, error) {
+	// Create a new HTTP request
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
+	}
+
+	// Send the HTTP request and get the response
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send HTTP request: %w", err)
+	}
+
+	return res, nil
 }

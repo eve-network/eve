@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
+	"math"
 	"strconv"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
@@ -73,7 +73,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
-	usd := math.LegacyMustNewDecFromStr("20")
+	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := fetchStargazeTokenPriceWithRetry(apiURL)
@@ -85,7 +85,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 
-	totalTokenDelegate := math.LegacyMustNewDecFromStr("0")
+	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -95,8 +95,8 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
-	testAmount, _ := math.LegacyNewDecFromStr("0")
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -133,8 +133,8 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchStargazeTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
-	var data math.LegacyDec
+func fetchStargazeTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
+	var data sdkmath.LegacyDec
 	var err error
 
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
@@ -147,27 +147,27 @@ func fetchStargazeTokenPriceWithRetry(apiURL string) (math.LegacyDec, error) {
 
 		if attempt < MaxRetries {
 			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * float64(attempt))
+			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
 			fmt.Printf("retrying after %s...\n", backoffDuration)
 			time.Sleep(backoffDuration)
 		}
 	}
 
-	return math.LegacyDec{}, fmt.Errorf("failed to fetch Stargaze token price after %d attempts: %v", MaxRetries, err)
+	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch Stargaze token price after %d attempts: %v", MaxRetries, err)
 }
 
-func fetchStargazeTokenPrice(apiURL string) (math.LegacyDec, error) {
+func fetchStargazeTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL)
+	response, err := makeGetRequest(apiURL)
 	if err != nil {
-		return math.LegacyDec{}, fmt.Errorf("error making GET request to fetch Stargaze token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Stargaze token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return math.LegacyDec{}, fmt.Errorf("error reading response body for Stargaze token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Stargaze token price: %w", err)
 	}
 
 	var data config.StargazePrice
@@ -175,9 +175,9 @@ func fetchStargazeTokenPrice(apiURL string) (math.LegacyDec, error) {
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		return math.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Stargaze token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Stargaze token price: %w", err)
 	}
 
-	tokenInUsd := math.LegacyMustNewDecFromStr(data.Token.USD.String())
+	tokenInUsd := sdkmath.LegacyMustNewDecFromStr(data.Token.USD.String())
 	return tokenInUsd, nil
 }
