@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
-	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 
@@ -42,7 +40,8 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetCosmosHubConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := fetchCosmosTokenPriceWithRetry(apiURL)
+	fetchTokenPrice := fetchTokenPriceWithRetry(fetchCosmosTokenPrice)
+	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Cosmos token price: %w", err)
 	}
@@ -97,29 +96,6 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
-}
-
-func fetchCosmosTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
-	var data sdkmath.LegacyDec
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchCosmosTokenPrice(apiURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("error fetching Cosmos token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch Cosmos token price after %d attempts: %v", MaxRetries, err)
 }
 
 func fetchCosmosTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {

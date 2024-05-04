@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
-	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 
@@ -43,7 +41,8 @@ func terrac() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetTerracConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := fetchTerracTokenPriceWithRetry(apiURL)
+	fetchTokenPrice := fetchTokenPriceWithRetry(fetchTerracTokenPrice)
+	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch TerraC token price: %w", err)
 	}
@@ -101,29 +100,6 @@ func terrac() ([]banktypes.Balance, []config.Reward, int, error) {
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
-}
-
-func fetchTerracTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
-	var data sdkmath.LegacyDec
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchTerracTokenPrice(apiURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("error fetching TerraC token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch TerraC token price after %d attempts: %v", MaxRetries, err)
 }
 
 func fetchTerracTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {

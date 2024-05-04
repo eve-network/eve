@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
-	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/joho/godotenv"
@@ -52,7 +50,7 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
-		delegationsResponse, _ := stakingClient.ValidatorDelegations(
+		delegationsResponse, err := stakingClient.ValidatorDelegations(
 			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&stakingtypes.QueryValidatorDelegationsRequest{
 				ValidatorAddr: validator.OperatorAddress,
@@ -63,6 +61,9 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 			},
 			grpc.Header(&header), // Retrieve header from response
 		)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Akash validator: %w", err)
+		}
 		total := delegationsResponse.Pagination.Total
 		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
 		fmt.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
@@ -72,7 +73,8 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetAkashConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := fetchAkashTokenPriceWithRetry(apiURL)
+	fetchTokenPrice := fetchTokenPriceWithRetry(fetchAkashTokenPrice)
+	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
 	}
@@ -130,29 +132,6 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
-}
-
-func fetchAkashTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
-	var data sdkmath.LegacyDec
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchAkashTokenPrice(apiURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("error fetching Akash token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch Akash token price after %d attempts: %v", MaxRetries, err)
 }
 
 func fetchAkashTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {

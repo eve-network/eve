@@ -8,11 +8,14 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/metadata"
 
 	sdkmath "cosmossdk.io/math"
@@ -337,4 +340,32 @@ func makeGetRequest(uri string) (*http.Response, error) {
 	}
 
 	return res, nil
+}
+
+// Define a function type that returns token price from a price source
+type tokenPriceFunction func(apiURL string) (sdkmath.LegacyDec, error)
+
+func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
+	return func(apiURL string) (sdkmath.LegacyDec, error) {
+		for attempt := 1; attempt <= MaxRetries; attempt++ {
+			data, err := fn(apiURL)
+			if err == nil {
+				return data, nil
+			}
+
+			fmt.Printf("failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
+
+			if attempt < MaxRetries {
+				// Calculate backoff duration using exponential backoff strategy
+				backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
+				fmt.Printf("retrying after %s...\n", backoffDuration)
+				time.Sleep(backoffDuration)
+			}
+		}
+		return sdkmath.LegacyDec{}, errors.Errorf("maximum retries reached for function %s", getFunctionName(fn))
+	}
+}
+
+func getFunctionName(fn interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 }

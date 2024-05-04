@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
-	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 
@@ -44,7 +41,8 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetTerraConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := fetchTerraTokenPriceWithRetry(apiURL)
+	fetchTokenPrice := fetchTokenPriceWithRetry(fetchTerraTokenPrice)
+	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Terra token price: %w", err)
 	}
@@ -104,32 +102,9 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchTerraTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
-	var data sdkmath.LegacyDec
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchTerraTokenPrice(apiURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("error fetching Terra token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch Terra token price after %d attempts: %v", MaxRetries, err)
-}
-
 func fetchTerraTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := http.Get(apiURL) //nolint
+	response, err := makeGetRequest(apiURL)
 	if err != nil {
 		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Terra token price: %w", err)
 	}

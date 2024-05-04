@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
-	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
@@ -38,7 +36,8 @@ func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd, _ := sdkmath.LegacyNewDecFromStr("20")
 
 	apiURL := APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := fetchNeutronTokenPriceWithRetry(apiURL)
+	fetchTokenPrice := fetchTokenPriceWithRetry(fetchNeutronTokenPrice)
+	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
 	}
@@ -131,29 +130,6 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 		}
 	}
 	return addressInfo, total, nil
-}
-
-func fetchNeutronTokenPriceWithRetry(apiURL string) (sdkmath.LegacyDec, error) {
-	var data sdkmath.LegacyDec
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchNeutronTokenPrice(apiURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("error fetching Neutron token price (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch Neutron token price after %d attempts: %v", MaxRetries, err)
 }
 
 func fetchNeutronTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
