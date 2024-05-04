@@ -37,7 +37,7 @@ const (
 	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
 	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
 	MaxRetries   = 5
-	Backoff      = 200 * time.Millisecond
+	BackOff      = 200 * time.Millisecond
 )
 
 // Define a function type that returns balance info, reward info and length
@@ -161,7 +161,7 @@ func getLatestHeightWithRetry(rpcURL string) (string, error) {
 
 		if attempt < MaxRetries {
 			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
+			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
 			fmt.Printf("retrying after %s...\n", backoffDuration)
 			time.Sleep(backoffDuration)
 		}
@@ -218,7 +218,7 @@ func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 			return data, nil
 		}
 		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
+		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
 }
@@ -268,7 +268,7 @@ func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses,
 			return data, total, nil
 		}
 		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
+		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
 }
@@ -357,7 +357,7 @@ func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
 
 			if attempt < MaxRetries {
 				// Calculate backoff duration using exponential backoff strategy
-				backoffDuration := time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt)))
+				backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
 				fmt.Printf("retrying after %s...\n", backoffDuration)
 				time.Sleep(backoffDuration)
 			}

@@ -62,7 +62,7 @@ func fetchTokenInfoWithRetry(token, contract string) (config.NftHolder, error) {
 			return data, nil
 		}
 		fmt.Printf("error fetch token info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
+		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return config.NftHolder{}, fmt.Errorf("failed to fetch token info after %d attempts", MaxRetries)
 }
@@ -102,7 +102,7 @@ func fetchTokenIdsWithRetry(contract string) ([]string, error) {
 			return tokenIds, nil
 		}
 		fmt.Printf("error fetch token ids (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(Backoff.Seconds() * math.Pow(2, float64(attempt))))
+		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
 	}
 	return nil, fmt.Errorf("failed to fetch token ids after %d attempts", MaxRetries)
 }
