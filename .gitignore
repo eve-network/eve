@@ -46,13 +46,10 @@ dependency-graph.png
 *.out
 *.synctex.gz
 contract_tests/*
-<<<<<<< HEAD
 
 #Airdrop tool
 balance.json
 rewards.json
 balancenft.json
 .env
-=======
 scripts/wasm/*.wasm
->>>>>>> origin/main
