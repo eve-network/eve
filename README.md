@@ -8,18 +8,16 @@ Eve won't compete with your contracts, and views herself as a beautiful, fertile
 
 ## Software at launch
 
-Note: it is possible that we fall back to v0.47.x if simply avoiding vote extensions proves to be ineffective in stopping the issues seen in deployments of comet v0.38.x
-
-* cosmos-sdk v0.50.x without vote extensions
-* cometbft v0.38.x without vote extensions
-* CosmWasm v0.50.x
+* cosmos-sdk v0.50.x 
+* cometbft v0.38.x 
+* CosmWasm v0.51.x
 * WasmVM v2.0.x
 * IBC-go v8.1.x
 * Token Factory
-* Packet Forward Middleware
 * IBC Hooks
 
-this also means fhat Eve, as loving mother and repeatable template, is committed to ensuring that the modules amd middlewares above are kept up to date rigorously, with up to date being defined as supporting the latest release of cosmos-sdk, **regardless of the decisions of other teams**.  Eve is very confident in the current cosmos-sdk and ibc-go maintenance teams and smiles warmly at them.
+This also means that Eve, as a loving mother and repeatable template, is committed to ensuring that the modules and middlewares above are kept up to date rigorously, with "up to date" being defined as supporting the latest release of cosmos-sdk, **regardless of the decisions of other teams**.  Eve is very confident in the current cosmos-sdk and ibc-go maintenance teams and smiles warmly at them.
+
 
 ## Planned software
 
