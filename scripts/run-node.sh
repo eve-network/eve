@@ -38,11 +38,9 @@ if [ -z "$BINARY" ]; then
     BINARY=build/eved
 fi
 
-CHAIN_ID="local-eve"
+CHAIN_ID="evenetwork-1"
 KEYRING="test"
 KEY="test0"
-KEY1="test1"
-KEY2="test2"
 
 # Function updates the config based on a jq argument as a string
 update_test_genesis () {
@@ -53,15 +51,10 @@ update_test_genesis () {
 $BINARY init --chain-id $CHAIN_ID moniker --home $HOME_DIR
 
 $BINARY keys add $KEY --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY keys add $KEY1 --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY keys add $KEY2 --keyring-backend $KEYRING --home $HOME_DIR
-
 # Allocate genesis accounts (cosmos formatted addresses)
-$BINARY genesis add-genesis-account $KEY "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY genesis add-genesis-account $KEY1 "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
-$BINARY genesis add-genesis-account $KEY2 "1000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY genesis add-genesis-account $KEY "1000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="20s"'
+update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="600s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
