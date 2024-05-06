@@ -16,8 +16,8 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/osmosis-labs/fee-abstraction/v8 v8.0.0-20240422060742-4048791ba065
-	github.com/pkg/errors v0.9.1
+	github.com/osmosis-labs/fee-abstraction/v8 v8.0.0
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.19.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
@@ -246,4 +246,6 @@ replace (
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20240503205555-9fb96066d68e
 )
