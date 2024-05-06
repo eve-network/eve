@@ -26,7 +26,6 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 	balanceInfo := []banktypes.Balance{}
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(sdkmath.NewInt(int64(len(tokenIds))))
-	fmt.Println("balance ", eveAirdrop)
 	for index, token := range tokenIds {
 		nftHolders, err := fetchTokenInfoWithRetry(token, contract)
 		if err != nil {
@@ -61,8 +60,15 @@ func fetchTokenInfoWithRetry(token, contract string) (config.NftHolder, error) {
 		if err == nil {
 			return data, nil
 		}
-		fmt.Printf("error fetch token info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
+
+		fmt.Printf("Error fetch token info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
+			fmt.Printf("Retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
 	return config.NftHolder{}, fmt.Errorf("failed to fetch token info after %d attempts", MaxRetries)
 }
@@ -101,8 +107,15 @@ func fetchTokenIdsWithRetry(contract string) ([]string, error) {
 		if err == nil {
 			return tokenIds, nil
 		}
-		fmt.Printf("error fetch token ids (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
+
+		fmt.Printf("Error fetch token ids (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
+			fmt.Printf("Retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
 	return nil, fmt.Errorf("failed to fetch token ids after %d attempts", MaxRetries)
 }

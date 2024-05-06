@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/metadata"
 
 	sdkmath "cosmossdk.io/math"
@@ -43,7 +42,24 @@ const (
 // Define a function type that returns balance info, reward info and length
 type balanceFunction func() ([]banktypes.Balance, []config.Reward, int, error)
 
+// Retryable function to wrap balanceFunction with retry logic
+func retryable(fn balanceFunction) balanceFunction {
+	return func() ([]banktypes.Balance, []config.Reward, int, error) {
+		for attempt := 1; attempt <= MaxRetries; attempt++ {
+			balances, rewards, length, err := fn()
+			if err == nil {
+				return balances, rewards, length, nil
+			}
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
+		}
+		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", getFunctionName(fn))
+	}
+}
+
 func main() {
+	// Capture start time
+	startTime := time.Now()
+
 	// Define balance functions with their associated names
 	balanceFunctions := map[string]balanceFunction{
 		"akash":      akash,
@@ -76,14 +92,20 @@ func main() {
 	// Channel to collect length of balance info from goroutines
 	lengthBalanceInfoCh := make(chan int, lenBalanceFunctions)
 
+	// Channel to collect name of error balanceFunction from goroutines
+	errFuncCh := make(chan string, lenBalanceFunctions)
+
 	// Iterate over the balanceFunctions map and run each function in a goroutine
 	for name, fn := range balanceFunctions {
 		go func(name string, fn balanceFunction) {
 			defer wg.Done()
-
-			fmt.Println("fetching balance info: ", name)
-			//TODO: need handle error
-			info, _, len, _ := fn()    // Call the function
+			fmt.Println("Fetching balance info: ", name)
+			info, _, len, err := fn() // Call the function
+			if err != nil {
+				fmt.Printf("Error executing balanceFunction %s: %v\n", name, err)
+				errFuncCh <- name // Send the error function's name to channel
+				return
+			}
 			balanceInfoCh <- info      // Send balance info to channel
 			lengthBalanceInfoCh <- len // Send length of balance info to channel
 		}(name, fn)
@@ -95,6 +117,7 @@ func main() {
 		// Close channels
 		close(balanceInfoCh)
 		close(lengthBalanceInfoCh)
+		close(errFuncCh)
 	}()
 
 	total := 0
@@ -109,7 +132,20 @@ func main() {
 		balanceAkashInfo = append(balanceAkashInfo, infoCh...)
 	}
 
-	fmt.Println("total: ", total)
+	for funcCh := range errFuncCh {
+		// Retrieve the error function's name from the channel
+		errFuncName := funcCh
+		// Retry the failed balance function
+		fmt.Println("Retry the failed balance function: ", errFuncName)
+		info, _, len, err := retryable(balanceFunctions[errFuncName])()
+		if err != nil {
+			panic(fmt.Sprintf("error executing balanceFunction %s: %v", errFuncName, err))
+		}
+		total += len
+		balanceAkashInfo = append(balanceAkashInfo, info...)
+	}
+
+	fmt.Println("Total: ", total)
 	fmt.Println(len(balanceAkashInfo))
 
 	airdropMap := make(map[string]int)
@@ -136,6 +172,10 @@ func main() {
 
 	fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	_ = os.WriteFile("balance.json", fileBalance, 0o600)
+
+	// Calculate and print total time duration
+	duration := time.Since(startTime)
+	fmt.Printf("Total time taken: %v\n", duration)
 }
 
 func findValidatorInfo(validators []stakingtypes.Validator, address string) int {
@@ -157,12 +197,12 @@ func getLatestHeightWithRetry(rpcURL string) (string, error) {
 			return latestBlockHeight, nil
 		}
 
-		fmt.Printf("error get latest height (attempt %d/%d): %v\n", attempt, MaxRetries, err)
+		fmt.Printf("Error get latest height (attempt %d/%d): %v\n", attempt, MaxRetries, err)
 
 		if attempt < MaxRetries {
 			// Calculate backoff duration using exponential backoff strategy
 			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("retrying after %s...\n", backoffDuration)
+			fmt.Printf("Retrying after %s...\n", backoffDuration)
 			time.Sleep(backoffDuration)
 		}
 	}
@@ -217,8 +257,15 @@ func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 		if err == nil {
 			return data, nil
 		}
+
 		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
+			fmt.Printf("Retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
 	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
 }
@@ -267,8 +314,15 @@ func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses,
 		if err == nil {
 			return data, total, nil
 		}
+
 		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-		time.Sleep(time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt))))
+
+		if attempt < MaxRetries {
+			// Calculate backoff duration using exponential backoff strategy
+			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
+			fmt.Printf("Retrying after %s...\n", backoffDuration)
+			time.Sleep(backoffDuration)
+		}
 	}
 	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
 }
@@ -353,16 +407,16 @@ func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
 				return data, nil
 			}
 
-			fmt.Printf("failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
 
 			if attempt < MaxRetries {
 				// Calculate backoff duration using exponential backoff strategy
 				backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-				fmt.Printf("retrying after %s...\n", backoffDuration)
+				fmt.Printf("Retrying after %s...\n", backoffDuration)
 				time.Sleep(backoffDuration)
 			}
 		}
-		return sdkmath.LegacyDec{}, errors.Errorf("maximum retries reached for function %s", getFunctionName(fn))
+		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", getFunctionName(fn))
 	}
 }
 
