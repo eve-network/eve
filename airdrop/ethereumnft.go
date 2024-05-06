@@ -37,10 +37,12 @@ func ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	eveAirdrop := (allEveAirdrop.MulInt64(int64(config.GetMiladyConfig().Percent))).QuoInt64(100).QuoInt(math.NewInt(int64(len(nftOwners))))
-	fmt.Println("balance ", eveAirdrop)
 	for index, owner := range nftOwners {
 		fmt.Println(index)
-		eveBech32Address := convertEvmAddress(owner.OwnerOf)
+		eveBech32Address, err := convertEvmAddress(owner.OwnerOf)
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("failed to convert evm address: %w", err)
+		}
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         owner.OwnerOf,
 			EveAddress:      eveBech32Address,
@@ -101,14 +103,14 @@ func fetchNftOwners() ([]config.EthResult, error) {
 	return nftOwners, nil
 }
 
-func convertEvmAddress(evmAddress string) string {
+func convertEvmAddress(evmAddress string) (string, error) {
 	addr := common.HexToAddress(evmAddress)
 	accCodec := addresscodec.NewBech32Codec("eve")
 	eveAddress, err := StringFromEthAddress(accCodec, addr)
 	if err != nil {
-		fmt.Println("err ", err)
+		return "", err
 	}
-	return eveAddress
+	return eveAddress, nil
 }
 
 // EthAddressFromString converts a Cosmos SDK address string to an Ethereum `Address`.
