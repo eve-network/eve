@@ -31,6 +31,10 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch token info: %w", err)
 		}
+		if nftHolders.Address == "" {
+			fmt.Printf("Token id: %s is not NFT\n", token)
+			continue
+		}
 		fmt.Println(index)
 		eveBech32Address, err := convertBech32Address(nftHolders.Address)
 		if err != nil {
