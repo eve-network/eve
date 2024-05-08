@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sync"
 	"time"
 
-	"github.com/eve-network/eve/airdrop/config"
-
 	sdkmath "cosmossdk.io/math"
+	"github.com/eve-network/eve/airdrop/config"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -21,39 +21,86 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch token ids: %w", err)
 	}
-	allEveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
-	rewardInfo := []config.Reward{}
-	balanceInfo := []banktypes.Balance{}
-	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
-	eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(sdkmath.NewInt(int64(len(tokenIds))))
-	for index, token := range tokenIds {
-		nftHolders, err := fetchTokenInfoWithRetry(token, contract)
-		if err != nil {
-			return nil, nil, 0, fmt.Errorf("failed to fetch token info: %w", err)
-		}
-		if nftHolders.Address == "" {
-			fmt.Printf("Token id: %s is not NFT\n", token)
-			continue
-		}
-		fmt.Println(index)
-		eveBech32Address, err := convertBech32Address(nftHolders.Address)
-		if err != nil {
-			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
-		}
-		rewardInfo = append(rewardInfo, config.Reward{
-			Address:         nftHolders.Address,
-			EveAddress:      eveBech32Address,
-			EveAirdropToken: eveAirdrop,
-			ChainID:         config.GetBadKidsConfig().ChainID,
-		})
-		testAmount = eveAirdrop.Add(testAmount)
-		balanceInfo = append(balanceInfo, banktypes.Balance{
-			Address: eveBech32Address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
-		})
+
+	// Create channels to receive balance info and rewards
+	balanceCh := make(chan banktypes.Balance)
+	rewardCh := make(chan config.Reward)
+	doneCh := make(chan struct{})
+
+	// Use a buffered channel as a semaphore to limit concurrency
+	semaphore := make(chan struct{}, 10) // Limit to 10 concurrent goroutines
+
+	wg := &sync.WaitGroup{}
+	wg.Add(len(tokenIds))
+
+	for _, token := range tokenIds {
+		semaphore <- struct{}{} // Acquire semaphore
+		go func(token string) {
+			defer func() { <-semaphore }() // Release semaphore when done
+			defer wg.Done()
+
+			nftHolders, err := fetchTokenInfoWithRetry(token, contract)
+			if err != nil {
+				fmt.Printf("Error fetching token info for %s: %v\n", token, err)
+				return
+			}
+
+			if nftHolders.Address == "" {
+				fmt.Printf("Token id: %s is not NFT\n", token)
+				return
+			}
+
+			eveBech32Address, err := convertBech32Address(nftHolders.Address)
+			if err != nil {
+				fmt.Printf("Error converting Bech32Address for %s: %v\n", nftHolders.Address, err)
+				return
+			}
+
+			allEveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+			eveAirdrop := (allEveAirdrop.MulInt64(percent)).QuoInt64(100).QuoInt(sdkmath.NewInt(int64(len(tokenIds))))
+			rewardCh <- config.Reward{
+				Address:         nftHolders.Address,
+				EveAddress:      eveBech32Address,
+				EveAirdropToken: eveAirdrop,
+				ChainID:         config.GetBadKidsConfig().ChainID,
+			}
+
+			balanceCh <- banktypes.Balance{
+				Address: eveBech32Address,
+				Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
+			}
+		}(token)
 	}
-	fmt.Println(testAmount)
-	return balanceInfo, rewardInfo, len(balanceInfo), nil
+
+	// Close channels once all goroutines are done
+	go func() {
+		wg.Wait()
+		close(balanceCh)
+		close(rewardCh)
+		close(doneCh)
+	}()
+
+	var balanceInfo []banktypes.Balance
+	var rewardInfo []config.Reward
+
+	for {
+		select {
+		case balance, ok := <-balanceCh:
+			if !ok {
+				balanceCh = nil
+			} else {
+				balanceInfo = append(balanceInfo, balance)
+			}
+		case reward, ok := <-rewardCh:
+			if !ok {
+				rewardCh = nil
+			} else {
+				rewardInfo = append(rewardInfo, reward)
+			}
+		case <-doneCh:
+			return balanceInfo, rewardInfo, len(balanceInfo), nil
+		}
+	}
 }
 
 func fetchTokenInfoWithRetry(token, contract string) (config.NftHolder, error) {
