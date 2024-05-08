@@ -9,8 +9,9 @@ import (
 	"sync"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/eve-network/eve/airdrop/config"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
