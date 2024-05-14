@@ -52,13 +52,13 @@ eved keys add KEY_NAME
 Fund yourself `1000000000ueve`
 
 ```bash
-eved add-genesis-account $(eved keys show KEY_NAME -a) 1000000000ueve
+eved genesis add-genesis-account $(eved keys show KEY_NAME -a) 1000000000ueve
 ```
 
 Use half (`1000000ueve`) for self-delegation
 
 ```bash
-eved gentx KEY_NAME 1000000ueve --chain-id=narwhal-1
+eved genesis gentx KEY_NAME 1000000ueve --chain-id=evenetwork-1
 ```
 
 If all goes well, you will see a message similar to the following:
