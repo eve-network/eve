@@ -1,6 +1,6 @@
-# Eve Network Testnet
+# Eve Testnet
 
-This testnet will start with the node version `0.0.2`.
+This testnet will start with the node version `v0.0.3`.
 
 ## Minimum hardware requirements
 
@@ -15,55 +15,61 @@ This testnet will start with the node version `0.0.2`.
 ```bash
 git clone https://github.com/eve-network/eve.git
 cd eve
-git checkout v0.0.2
+git checkout v0.0.3
 make install
 ```
 
 ### Check Node version
 
 ```bash
-# Get node version (should be v0.0.2)
+# Get node version (should be v0.0.3)
 eved version
 
-# Get node long version (should be 25e1602d5a29e4ab49addda7e4178b50894999df)
+# Get node long version (should be 1f0f1f82a8225b23341bbabd2a034ce7415d7e3d)
 eved version --long | grep commit
 ```
 
 ### Initialize Chain
 
 ```bash
-rm -rf ~/.eved
-eved init develop --chain-id=evenetwork-1
+eved init MONIKER --chain-id=evenetwork-1
 ```
 
-### Replace pre-genesis
+### Download pre-genesis
 
 ```bash
-# Download the file
-curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/genesis.json > ~/.eved/config/genesis.json
-
-# Calculate the SHA256 checksum
-calculated_checksum=$(shasum -a 256 ~/.eved/config/genesis.json | awk '{ print $1 }')
-
-# Compare with the expected checksum
-expected_checksum="244d5a3999dd0851eb338b032a57fbea24a89b4016a7907a9d20c2045c689857"
-if [ "$calculated_checksum" = "$expected_checksum" ]; then
-    echo "---> Checksum is CORRECT."
-else
-    echo "---> Checksum is INCORRECT."
-fi
+curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/pre_genesis.json > ~/.eved/config/genesis.json
 ```
 
-## Run node
+## Create gentx
 
-### Setup seeds
+Create wallet
 
 ```bash
-export PERSISTENT_SEEDS="5dd0e206e75e05a21188daffc11440969358fa81@94.130.64.229:26656"
+eved keys add KEY_NAME
 ```
 
-### Run node with persistent peers
+Fund yourself `1000000000ueve`
 
 ```bash
-eved start --p2p.persistent_peers=$PERSISTENT_SEEDS
+eved genesis add-genesis-account $(eved keys show KEY_NAME -a) 1000000000ueve
 ```
+
+Use half (`1000000ueve`) for self-delegation
+
+```bash
+eved genesis gentx KEY_NAME 1000000ueve --chain-id=evenetwork-1
+```
+
+If all goes well, you will see a message similar to the following:
+
+```bash
+Genesis transaction written to "/home/user/.eved/config/gentx/gentx-******.json"
+```
+
+### Submit genesis transaction
+
+- Fork this repo
+- Copy the generated gentx json file to `testnets/gentx/`
+- Commit and push to your repo
+- Create a PR on this repo
