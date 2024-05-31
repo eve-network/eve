@@ -63,7 +63,7 @@ func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Celestia token price: %w", err)
 	}
-	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
+	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
