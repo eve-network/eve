@@ -330,7 +330,7 @@ func FetchTokenInfo(token, contractAddress, apiFromConfig string) (config.NftHol
 	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
 	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 	apiURL := apiFromConfig + "/cosmwasm/wasm/v1/contract/" + contractAddress + "/smart/" + encodedQuery
-	
+
 	ctx := context.Background()
 
 	var response *http.Response
@@ -347,7 +347,7 @@ func FetchTokenInfo(token, contractAddress, apiFromConfig string) (config.NftHol
 	if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
 		return config.NftHolder{}, fmt.Errorf("error making GET request to fetch token info: %w", err)
 	}
-	
+
 	defer response.Body.Close()
 
 	var data config.TokenInfoResponse
@@ -366,7 +366,7 @@ func FetchTokenInfo(token, contractAddress, apiFromConfig string) (config.NftHol
 	}, nil
 }
 
-func FetchTokenIds(contractAddress string, apiFromConfig string) ([]string, error) {
+func FetchTokenIds(contractAddress, apiFromConfig string) ([]string, error) {
 	// Make a GET request to the API
 	paginationKey := "0"
 	index := 0
