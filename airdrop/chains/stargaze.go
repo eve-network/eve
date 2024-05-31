@@ -1,7 +1,6 @@
 package chains
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -10,13 +9,10 @@ import (
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -49,18 +45,7 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		var header metadata.MD
-		delegationsResponse, err := stakingClient.ValidatorDelegations(
-			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
-			&stakingtypes.QueryValidatorDelegationsRequest{
-				ValidatorAddr: validator.OperatorAddress,
-				Pagination: &query.PageRequest{
-					CountTotal: true,
-					Limit:      config.LimitPerPage,
-				},
-			},
-			grpc.Header(&header), // Retrieve header from response
-		)
+		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Stargaze validator: %w", err)
 		}
