@@ -22,7 +22,7 @@ import (
 )
 
 func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
-	blockHeight, err := getLatestHeightWithRetry(config.GetNeutronConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetNeutronConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Neutron: %w", err)
 	}

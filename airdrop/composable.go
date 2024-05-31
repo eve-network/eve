@@ -29,7 +29,7 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := getLatestHeightWithRetry(config.GetComposableConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetComposableConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Composable: %w", err)
 	}

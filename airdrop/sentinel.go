@@ -29,7 +29,7 @@ func sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := getLatestHeightWithRetry(config.GetSentinelConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetSentinelConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Sentinel: %w", err)
 	}

@@ -29,7 +29,7 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := getLatestHeightWithRetry(config.GetAkashConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetAkashConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
 	}

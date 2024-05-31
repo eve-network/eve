@@ -29,7 +29,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := getLatestHeightWithRetry(config.GetStargazeConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetStargazeConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Stargaze: %w", err)
 	}

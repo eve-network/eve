@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"math"
 	"os"
-	"strconv"
 	"sync"
 	"time"
 
@@ -17,7 +15,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // got to export genesis state from neutron and bostrom chain
@@ -168,103 +165,6 @@ func main() {
 	// Calculate and print total time duration
 	duration := time.Since(startTime)
 	fmt.Printf("Total time taken: %v\n", duration)
-}
-
-func getLatestHeightWithRetry(rpcURL string) (string, error) {
-	var latestBlockHeight string
-	var err error
-
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		latestBlockHeight, err = utils.GetLatestHeight(rpcURL)
-		if err == nil {
-			return latestBlockHeight, nil
-		}
-
-		fmt.Printf("Error get latest height (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("Retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-
-	return "", fmt.Errorf("failed to get latest height after %d attempts", MaxRetries)
-}
-
-func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
-	var data config.ValidatorResponse
-	var err error
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = utils.FetchValidators(rpcURL)
-		if err == nil {
-			return data, nil
-		}
-
-		fmt.Printf("Error fetching validator info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("Retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
-}
-
-func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
-	var data stakingtypes.DelegationResponses
-	var err error
-	var total uint64
-	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, total, err = fetchDelegations(rpcURL)
-		if err == nil {
-			return data, total, nil
-		}
-
-		fmt.Printf("Error fetching delegations info (attempt %d/%d): %v\n", attempt, MaxRetries, err)
-
-		if attempt < MaxRetries {
-			// Calculate backoff duration using exponential backoff strategy
-			backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-			fmt.Printf("Retrying after %s...\n", backoffDuration)
-			time.Sleep(backoffDuration)
-		}
-	}
-	return stakingtypes.DelegationResponses{}, 0, fmt.Errorf("failed to fetch delegations info after %d attempts", MaxRetries)
-}
-
-func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
-	// Make a GET request to the API
-	response, err := utils.MakeGetRequest(rpcURL)
-	if err != nil {
-		return nil, 0, fmt.Errorf("error making GET request: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, 0, fmt.Errorf("error reading response body: %w", err)
-	}
-
-	var data config.QueryValidatorDelegationsResponse
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		return nil, 0, fmt.Errorf("error unmarshalling JSON: %w", err)
-	}
-
-	fmt.Println(data.Pagination.Total)
-	total, err := strconv.ParseUint(data.Pagination.Total, 10, 64)
-	if err != nil {
-		return nil, 0, fmt.Errorf("error parsing total from pagination: %w", err)
-	}
-
-	return data.DelegationResponses, total, nil
 }
 
 // Define a function type that returns token price from a price source

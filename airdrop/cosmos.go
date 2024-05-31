@@ -20,7 +20,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	delegators := []stakingtypes.DelegationResponse{}
 
 	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
-	validatorsResponse, err := fetchValidatorsWithRetry(rpc)
+	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch validator for Cosmos: %w", err)
 	}
@@ -28,7 +28,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
-		delegations, total, err := fetchDelegationsWithRetry(url)
+		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch Delegations for Cosmos: %w", err)
 		}
