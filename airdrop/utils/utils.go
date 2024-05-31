@@ -11,19 +11,20 @@ import (
 	"strconv"
 	"strings"
 
-	sdkmath "cosmossdk.io/math"
-
 	"github.com/cenkalti/backoff/v4"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	airdropBackoff "github.com/eve-network/eve/airdrop/backoff"
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/types/bech32"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func MakeGetRequest(uri string) (*http.Response, error) {
@@ -124,7 +125,7 @@ func GetValidators(stakingClient stakingtypes.QueryClient, blockHeight string) (
 	return resp.Validators, nil
 }
 
-func GetValidatorDelegations(stakingClient stakingtypes.QueryClient, validatorAddr string, blockHeight string) (
+func GetValidatorDelegations(stakingClient stakingtypes.QueryClient, validatorAddr, blockHeight string) (
 	*stakingtypes.QueryValidatorDelegationsResponse, error,
 ) {
 	ctx := metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight)
