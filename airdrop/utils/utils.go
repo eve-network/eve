@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -227,7 +228,7 @@ func FetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, 
 	}
 
 	if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
-		return nil, 0, fmt.Errorf("error making GET request to get fetch delegations: %w", err)
+		return nil, 0, fmt.Errorf("error making GET request to fetch delegations: %w", err)
 	}
 	defer response.Body.Close()
 
@@ -323,4 +324,99 @@ func FetchTokenPrice(apiURL, coinID string) (sdkmath.LegacyDec, error) {
 
 func SetupGRPCConnection(address string) (*grpc.ClientConn, error) {
 	return grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+}
+
+func FetchTokenInfo(token, contractAddress, apiFromConfig string) (config.NftHolder, error) {
+	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
+	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
+	apiURL := apiFromConfig + "/cosmwasm/wasm/v1/contract/" + contractAddress + "/smart/" + encodedQuery
+	
+	ctx := context.Background()
+
+	var response *http.Response
+	var err error
+
+	exponentialBackoff := airdropBackoff.NewBackoff(ctx)
+
+	retryableRequest := func() error {
+		// Make a GET request to the API
+		response, err = MakeGetRequest(apiURL)
+		return err
+	}
+
+	if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
+		return config.NftHolder{}, fmt.Errorf("error making GET request to fetch token info: %w", err)
+	}
+	
+	defer response.Body.Close()
+
+	var data config.TokenInfoResponse
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return config.NftHolder{}, fmt.Errorf("error reading response body when fetch token info: %w", err)
+	}
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		return config.NftHolder{}, fmt.Errorf("error unmarshalling JSON when fetch token info: %w", err)
+	}
+	return config.NftHolder{
+		Address: data.Data.Access.Owner,
+		TokenID: token,
+	}, nil
+}
+
+func FetchTokenIds(contractAddress string, apiFromConfig string) ([]string, error) {
+	// Make a GET request to the API
+	paginationKey := "0"
+	index := 0
+	tokenIds := []string{}
+	for {
+		index++
+		queryString := fmt.Sprintf(`{"all_tokens":{"limit":1000,"start_after":"%s"}}`, paginationKey)
+		encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
+		apiURL := apiFromConfig + "/cosmwasm/wasm/v1/contract/" + contractAddress + "/smart/" + encodedQuery
+		ctx := context.Background()
+
+		var response *http.Response
+		var err error
+
+		exponentialBackoff := airdropBackoff.NewBackoff(ctx)
+
+		retryableRequest := func() error {
+			// Make a GET request to the API
+			response, err = MakeGetRequest(apiURL)
+			return err
+		}
+
+		if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
+			return nil, fmt.Errorf("error making GET request to fetch token ids: %w", err)
+		}
+
+		defer response.Body.Close()
+
+		var data config.TokenIdsResponse
+		responseBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading response body when fetch token ids: %w", err)
+		}
+		// Unmarshal the JSON byte slice into the defined struct
+		err = json.Unmarshal(responseBody, &data)
+		if err != nil {
+			return nil, fmt.Errorf("error error unmarshalling JSON when fetch token ids: %w", err)
+		}
+		tokenIds = append(tokenIds, data.Data.Token...)
+		if len(data.Data.Token) == 0 {
+			break
+		} else {
+			paginationKey = data.Data.Token[len(data.Data.Token)-1]
+			fmt.Println("pagination key:", paginationKey)
+			if len(paginationKey) == 0 {
+				break
+			}
+		}
+	}
+
+	fmt.Println(len(tokenIds))
+	return tokenIds, nil
 }

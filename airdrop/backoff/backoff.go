@@ -12,7 +12,7 @@ var globalBackoffOptions = []backoff.ExponentialBackOffOpts{
 		b.InitialInterval = 1 * time.Second
 	},
 	func(b *backoff.ExponentialBackOff) {
-		b.MaxInterval = 32 * time.Second
+		b.MaxInterval = 15 * time.Second
 	},
 	func(b *backoff.ExponentialBackOff) {
 		b.Multiplier = 2
