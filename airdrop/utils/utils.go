@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"reflect"
 	"runtime"
 	"strconv"
-	"time"
+	"strings"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -252,30 +251,6 @@ func FetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, 
 	return data.DelegationResponses, total, nil
 }
 
-// Define a function type that returns token price from a price source
-type tokenPriceFunction func(apiURL string) (sdkmath.LegacyDec, error)
-
-func FetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
-	return func(apiURL string) (sdkmath.LegacyDec, error) {
-		for attempt := 1; attempt <= config.MaxRetries; attempt++ {
-			data, err := fn(apiURL)
-			if err == nil {
-				return data, nil
-			}
-
-			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, GetFunctionName(fn), err)
-
-			if attempt < config.MaxRetries {
-				// Calculate backoff duration using exponential backoff strategy
-				backoffDuration := time.Duration(config.BackOff.Seconds() * math.Pow(2, float64(attempt)))
-				fmt.Printf("Retrying after %s...\n", backoffDuration)
-				time.Sleep(backoffDuration)
-			}
-		}
-		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", GetFunctionName(fn))
-	}
-}
-
 // Define a function type that returns balance info, reward info and length
 type BalanceFunction func() ([]banktypes.Balance, []config.Reward, int, error)
 
@@ -291,4 +266,54 @@ func RetryableBalanceFunc(fn BalanceFunction) BalanceFunction {
 		}
 		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", GetFunctionName(fn))
 	}
+}
+
+func FetchTokenPrice(apiURL, coinID string) (sdkmath.LegacyDec, error) {
+	ctx := context.Background()
+
+	var response *http.Response
+	var err error
+
+	exponentialBackoff := airdropBackoff.NewBackoff(ctx)
+
+	retryableRequest := func() error {
+		// Make a GET request to the API
+		response, err = MakeGetRequest(apiURL)
+		return err
+	}
+
+	if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
+		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch token price: %w", err)
+	}
+
+	defer response.Body.Close()
+
+	// Read the response body
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for token price: %w", err)
+	}
+
+	var data interface{}
+	// Unmarshal the JSON byte slice into the defined struct
+	err = json.Unmarshal(responseBody, &data)
+	if err != nil {
+		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for token price: %w", err)
+	}
+	tokenPrice := data.(map[string]interface{})
+	priceInUsd := fmt.Sprintf("%v", tokenPrice[coinID].(map[string]interface{})["usd"])
+	var tokenPriceInUsd sdkmath.LegacyDec
+
+	if strings.Contains(priceInUsd, "e-") {
+		rawPrice := strings.Split(priceInUsd, "e-")
+		base := rawPrice[0]
+		power := rawPrice[1]
+		powerInt, _ := strconv.ParseUint(power, 10, 64)
+		baseDec, _ := sdkmath.LegacyNewDecFromStr(base)
+		tenDec, _ := sdkmath.LegacyNewDecFromStr("10")
+		tokenPriceInUsd = baseDec.Quo(tenDec.Power(powerInt))
+	} else {
+		tokenPriceInUsd = sdkmath.LegacyMustNewDecFromStr(priceInUsd)
+	}
+	return tokenPriceInUsd, nil
 }

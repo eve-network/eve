@@ -28,50 +28,6 @@ type Reward struct {
 	ChainID         string         `json:"chain"`
 }
 
-type ComposablePrice struct {
-	Token Price `json:"picasso"`
-}
-
-type AkashPrice struct {
-	Token Price `json:"akash-network"`
-}
-
-type CelestiaPrice struct {
-	Token Price `json:"celestia"`
-}
-
-type CosmosPrice struct {
-	Token Price `json:"cosmos"`
-}
-
-type NeutronPrice struct {
-	Token Price `json:"neutron-3"`
-}
-
-type SentinelPrice struct {
-	Token Price `json:"sentinel"`
-}
-
-type StargazePrice struct {
-	Token Price `json:"stargaze"`
-}
-
-type TerraPrice struct {
-	Token Price `json:"terra-luna-2"`
-}
-
-type TerracPrice struct {
-	Token Price `json:"terra-luna"`
-}
-
-type BostromPrice struct {
-	Token Price `json:"bostrom"`
-}
-
-type Price struct {
-	USD json.Number `json:"usd"`
-}
-
 type NodeResponse struct {
 	ID      json.Number `json:"id"`
 	JSONRPC string      `json:"jsonrpc"`

@@ -1,9 +1,7 @@
 package chains
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -41,8 +39,7 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := config.APICoingecko + config.GetCosmosHubConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchCosmosTokenPrice)
-	tokenInUsd, err := fetchTokenPrice(apiURL)
+	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetCosmosHubConfig().CoinID)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Cosmos token price: %w", err)
 	}
@@ -97,30 +94,4 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
 	// _ = os.WriteFile("balance.json", fileBalance, 0644)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
-}
-
-func fetchCosmosTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
-	// Make a GET request to the API
-	response, err := utils.MakeGetRequest(apiURL)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Cosmos token price: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Cosmos token price: %w", err)
-	}
-
-	var data config.CosmosPrice
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Cosmos token price: %w", err)
-	}
-
-	tokenInUsd := sdkmath.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd, nil
 }

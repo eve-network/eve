@@ -3,9 +3,7 @@ package chains
 // code = Unimplemented desc = unknown service cosmos.staking.v1beta1.Query
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -37,8 +35,7 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	usd, _ := sdkmath.LegacyNewDecFromStr("20")
 
 	apiURL := config.APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchNeutronTokenPrice)
-	tokenInUsd, err := fetchTokenPrice(apiURL)
+	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetNeutronConfig().CoinID)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
 	}
@@ -131,30 +128,4 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 		}
 	}
 	return addressInfo, total, nil
-}
-
-func fetchNeutronTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
-	// Make a GET request to the API
-	response, err := utils.MakeGetRequest(apiURL)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Neutron token price: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Neutron token price: %w", err)
-	}
-
-	var data config.NeutronPrice
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Neutron token price: %w", err)
-	}
-
-	tokenInUsd := sdkmath.LegacyMustNewDecFromStr(data.Token.USD.String())
-	return tokenInUsd, nil
 }
