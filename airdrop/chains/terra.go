@@ -73,6 +73,10 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
+		
+		 if totalTokenDelegate.IsZero() {
+			return nil, nil, 0, fmt.Errorf("total token delegate is zero, cannot proceed with airdrop calculation")
+		}
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetTerraConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
