@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -18,17 +19,20 @@ import (
 func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
+		log.Printf("Error loading environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
 	blockHeight, err := utils.GetLatestHeight(config.GetAkashConfig().RPC + "/status")
 	if err != nil {
+		log.Printf("Failed to get latest height for Akash: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
 	}
 
 	grpcAddr := config.GetAkashConfig().GRPCAddr
 	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
+		log.Printf("Failed to connect to gRPC Akash: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Akash: %w", err)
 	}
 	defer grpcConn.Close()
@@ -38,17 +42,18 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
+		log.Printf("Failed to connect to get Akash validators: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
 	}
-	fmt.Println("Validators: ", len(validators))
+	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Akash validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
-		fmt.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Println("Response ", len(delegationsResponse.DelegationResponses))
+		log.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
@@ -102,7 +107,7 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Akash balance: ", testAmount)
+	log.Println("Akash balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -38,7 +39,7 @@ func Ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 	testAmount, _ := math.LegacyNewDecFromStr("0")
 	eveAirdrop := (allEveAirdrop.MulInt64(int64(config.GetMiladyConfig().Percent))).QuoInt64(100).QuoInt(math.NewInt(int64(len(nftOwners))))
 	for index, owner := range nftOwners {
-		fmt.Println(index)
+		log.Println(index)
 		eveBech32Address, err := convertEvmAddress(owner.OwnerOf)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert evm address: %w", err)
@@ -55,7 +56,7 @@ func Ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println(testAmount)
+	log.Println(testAmount)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
@@ -74,7 +75,7 @@ func fetchNftOwners() ([]config.EthResult, error) {
 	nftOwners := []config.EthResult{}
 	for {
 		pageCount++
-		fmt.Println("Page ", pageCount)
+		log.Println("Page ", pageCount)
 		url := constructMoralisURL(cursor)
 		req, _ := http.NewRequest("GET", url, nil)
 

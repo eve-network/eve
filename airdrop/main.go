@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -67,10 +68,10 @@ func main() {
 	for name, fn := range balanceFunctions {
 		go func(name string, fn utils.BalanceFunction) {
 			defer wg.Done()
-			fmt.Println("Fetching balance info: ", name)
+			log.Println("Fetching balance info: ", name)
 			info, _, len, err := fn() // Call the function
 			if err != nil {
-				fmt.Printf("Error executing balanceFunction %s: %v\n", name, err)
+				log.Printf("Error executing balanceFunction %s: %v\n", name, err)
 				errFuncCh <- name // Send the error function's name to channel
 				return
 			}
@@ -104,7 +105,7 @@ func main() {
 		// Retrieve the error function's name from the channel
 		errFuncName := funcCh
 		// Retry the failed balance function
-		fmt.Println("Retry the failed balance function: ", errFuncName)
+		log.Println("Retry the failed balance function: ", errFuncName)
 		info, _, len, err := utils.RetryableBalanceFunc(balanceFunctions[errFuncName])()
 		if err != nil {
 			panic(fmt.Sprintf("error executing balanceFunction %s: %v", errFuncName, err))
@@ -113,8 +114,8 @@ func main() {
 		balanceAkashInfo = append(balanceAkashInfo, info...)
 	}
 
-	fmt.Println("Total: ", total)
-	fmt.Println(len(balanceAkashInfo))
+	log.Println("Total: ", total)
+	log.Println(len(balanceAkashInfo))
 
 	airdropMap := make(map[string]int)
 	for _, info := range balanceAkashInfo {
@@ -135,7 +136,7 @@ func main() {
 		})
 	}
 
-	fmt.Println("Check balance: ", checkBalance)
+	log.Println("Check balance: ", checkBalance)
 
 	// // Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardComposableInfo, "", " ")
@@ -146,5 +147,5 @@ func main() {
 
 	// Calculate and print total time duration
 	duration := time.Since(startTime)
-	fmt.Printf("Total time taken: %v\n", duration)
+	log.Printf("Total time taken: %v\n", duration)
 }

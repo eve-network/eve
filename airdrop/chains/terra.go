@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -24,16 +25,16 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	}
 
 	validators := validatorsResponse.Validators
-	fmt.Println("Validators: ", len(validators))
+	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Terra: %w", err)
 		}
-		fmt.Println(validator.OperatorAddress)
-		fmt.Println("Response ", len(delegations))
-		fmt.Println("Terra validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Println(validator.OperatorAddress)
+		log.Println("Response ", len(delegations))
+		log.Println("Terra validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegations...)
 	}
 
@@ -87,7 +88,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Terra balance: ", testAmount)
+	log.Println("Terra balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)

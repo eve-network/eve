@@ -4,6 +4,7 @@ package chains
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -28,8 +29,8 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch balance for Neutron: %w", err)
 	}
-	fmt.Println("Response ", len(addresses))
-	fmt.Println("Total ", total)
+	log.Println("Response ", len(addresses))
+	log.Println("Total ", total)
 
 	usd, _ := sdkmath.LegacyNewDecFromStr("20")
 
@@ -70,7 +71,7 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Neutron balance: ", testAmount)
+	log.Println("Neutron balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
@@ -98,7 +99,7 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 	i := 0
 	for {
 		i++
-		fmt.Println("Fetching addresses", step*i, "to", step*(i+1))
+		log.Println("Fetching addresses", step*i, "to", step*(i+1))
 		addresses, err = bankClient.DenomOwners(
 			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
 			&banktypes.QueryDenomOwnersRequest{

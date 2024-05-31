@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -38,18 +39,18 @@ func Cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 
 			nftHolders, err := utils.FetchTokenInfo(token, contract, config.GetStargazeConfig().API)
 			if err != nil {
-				fmt.Printf("Error fetching token info for %s: %v\n", token, err)
+				log.Printf("Error fetching token info for %s: %v\n", token, err)
 				return
 			}
 
 			if nftHolders.Address == "" {
-				fmt.Printf("Token id: %s is not NFT\n", token)
+				log.Printf("Token id: %s is not NFT\n", token)
 				return
 			}
 
 			eveBech32Address, err := utils.ConvertBech32Address(nftHolders.Address)
 			if err != nil {
-				fmt.Printf("Error converting Bech32Address for %s: %v\n", nftHolders.Address, err)
+				log.Printf("Error converting Bech32Address for %s: %v\n", nftHolders.Address, err)
 				return
 			}
 

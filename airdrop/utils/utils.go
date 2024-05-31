@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -91,7 +92,7 @@ func GetLatestHeight(apiURL string) (string, error) {
 
 	// Extract the latest block height from the response
 	latestBlockHeight := data.Result.SyncInfo.LatestBlockHeight
-	fmt.Println("Block height:", latestBlockHeight)
+	log.Println("Block height:", latestBlockHeight)
 
 	return latestBlockHeight, nil
 }
@@ -209,7 +210,7 @@ func FetchValidators(rpcURL string) (config.ValidatorResponse, error) {
 		return config.ValidatorResponse{}, fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
-	fmt.Println(data.Pagination.Total)
+	log.Println(data.Pagination.Total)
 	return data, nil
 }
 
@@ -246,7 +247,7 @@ func FetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, 
 		return nil, 0, fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
-	fmt.Println(data.Pagination.Total)
+	log.Println(data.Pagination.Total)
 	total, err := strconv.ParseUint(data.Pagination.Total, 10, 64)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error parsing total from pagination: %w", err)
@@ -410,13 +411,13 @@ func FetchTokenIds(contractAddress, apiFromConfig string) ([]string, error) {
 			break
 		} else {
 			paginationKey = data.Data.Token[len(data.Data.Token)-1]
-			fmt.Println("pagination key:", paginationKey)
+			log.Println("pagination key:", paginationKey)
 			if len(paginationKey) == 0 {
 				break
 			}
 		}
 	}
 
-	fmt.Println(len(tokenIds))
+	log.Println(len(tokenIds))
 	return tokenIds, nil
 }

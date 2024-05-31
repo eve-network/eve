@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -23,16 +24,16 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to fetch validator for Cosmos: %w", err)
 	}
 	validators := validatorsResponse.Validators
-	fmt.Println("Validators: ", len(validators))
+	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch Delegations for Cosmos: %w", err)
 		}
-		fmt.Println(validator.OperatorAddress)
-		fmt.Println("Response ", len(delegations))
-		fmt.Println("Cosmos validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Println(validator.OperatorAddress)
+		log.Println("Response ", len(delegations))
+		log.Println("Cosmos validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegations...)
 	}
 
@@ -83,7 +84,7 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Cosmos balance: ", testAmount)
+	log.Println("Cosmos balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)

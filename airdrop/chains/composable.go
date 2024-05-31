@@ -2,6 +2,7 @@ package chains
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
@@ -41,15 +42,15 @@ func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to get Composable validators: %w", err)
 	}
 
-	fmt.Println("Validators: ", len(validators))
+	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Composable validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
-		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
-		fmt.Println("Composable validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Println("Response ", len(delegationsResponse.DelegationResponses))
+		log.Println("Composable validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
@@ -100,7 +101,7 @@ func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Composable balance: ", testAmount)
+	log.Println("Composable balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
