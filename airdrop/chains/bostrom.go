@@ -53,9 +53,6 @@ func Bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
-			continue
-		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
 	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)

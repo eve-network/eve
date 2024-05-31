@@ -125,6 +125,9 @@ func main() {
 	balanceInfo := []banktypes.Balance{}
 	checkBalance := 0
 	for address, amount := range airdropMap {
+		if amount == 0 {
+			continue
+		}
 		checkBalance += amount
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: address,

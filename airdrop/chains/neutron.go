@@ -45,9 +45,6 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	totalTokenBalance, _ := sdkmath.NewIntFromString("0")
 	for _, address := range addresses {
-		if sdkmath.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
-			continue
-		}
 		totalTokenBalance = totalTokenBalance.Add(address.Balance.Amount)
 	}
 	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
