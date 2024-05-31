@@ -60,7 +60,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop, err:= sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
+	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
 		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)

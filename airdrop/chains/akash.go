@@ -84,7 +84,7 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
 	}
 	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
-	
+
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
