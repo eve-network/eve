@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"os"
 	"sync"
 	"time"
 
+	"github.com/eve-network/eve/airdrop/chains"
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
 
@@ -20,55 +20,34 @@ import (
 // got to export genesis state from neutron and bostrom chain
 
 const (
-	EveAirdrop   = "1000000000" // 1,000,000,000
 	Badkids      = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
 	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
-	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
-	MaxRetries   = 5
-	BackOff      = 200 * time.Millisecond
 )
-
-// Define a function type that returns balance info, reward info and length
-type balanceFunction func() ([]banktypes.Balance, []config.Reward, int, error)
-
-// Retryable function to wrap balanceFunction with retry logic
-func retryable(fn balanceFunction) balanceFunction {
-	return func() ([]banktypes.Balance, []config.Reward, int, error) {
-		for attempt := 1; attempt <= MaxRetries; attempt++ {
-			balances, rewards, length, err := fn()
-			if err == nil {
-				return balances, rewards, length, nil
-			}
-			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, utils.GetFunctionName(fn), err)
-		}
-		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", utils.GetFunctionName(fn))
-	}
-}
 
 func main() {
 	// Capture start time
 	startTime := time.Now()
 
 	// Define balance functions with their associated names
-	balanceFunctions := map[string]balanceFunction{
-		"akash":      akash,
-		"bostrom":    bostrom,
-		"celestia":   celestia,
-		"composable": composable,
-		"cosmos":     cosmos,
-		"neutron":    neutron,
-		"sentinel":   sentinel,
-		"stargaze":   stargaze,
-		"terra":      terra,
-		"terrac":     terrac,
+	balanceFunctions := map[string]utils.BalanceFunction{
+		"akash":      chains.Akash,
+		"bostrom":    chains.Bostrom,
+		"celestia":   chains.Celestia,
+		// "composable": chains.Composable,
+		"cosmos":     chains.Cosmos,
+		"neutron":    chains.Neutron,
+		"sentinel":   chains.Sentinel,
+		"stargaze":   chains.Stargaze,
+		"terra":      chains.Terra,
+		"terrac":     chains.Terrac,
 		"badkids": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
+			return chains.Cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
 		},
 		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
+			return chains.Cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
 		},
 		// need set coin type on Eve
-		"milady": ethereumnft,
+		"milady": chains.Ethereumnft,
 	}
 
 	lenBalanceFunctions := len(balanceFunctions)
@@ -86,7 +65,7 @@ func main() {
 
 	// Iterate over the balanceFunctions map and run each function in a goroutine
 	for name, fn := range balanceFunctions {
-		go func(name string, fn balanceFunction) {
+		go func(name string, fn utils.BalanceFunction) {
 			defer wg.Done()
 			fmt.Println("Fetching balance info: ", name)
 			info, _, len, err := fn() // Call the function
@@ -126,7 +105,7 @@ func main() {
 		errFuncName := funcCh
 		// Retry the failed balance function
 		fmt.Println("Retry the failed balance function: ", errFuncName)
-		info, _, len, err := retryable(balanceFunctions[errFuncName])()
+		info, _, len, err := utils.RetryableBalanceFunc(balanceFunctions[errFuncName])()
 		if err != nil {
 			panic(fmt.Sprintf("error executing balanceFunction %s: %v", errFuncName, err))
 		}
@@ -165,28 +144,4 @@ func main() {
 	// Calculate and print total time duration
 	duration := time.Since(startTime)
 	fmt.Printf("Total time taken: %v\n", duration)
-}
-
-// Define a function type that returns token price from a price source
-type tokenPriceFunction func(apiURL string) (sdkmath.LegacyDec, error)
-
-func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
-	return func(apiURL string) (sdkmath.LegacyDec, error) {
-		for attempt := 1; attempt <= MaxRetries; attempt++ {
-			data, err := fn(apiURL)
-			if err == nil {
-				return data, nil
-			}
-
-			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, utils.GetFunctionName(fn), err)
-
-			if attempt < MaxRetries {
-				// Calculate backoff duration using exponential backoff strategy
-				backoffDuration := time.Duration(BackOff.Seconds() * math.Pow(2, float64(attempt)))
-				fmt.Printf("Retrying after %s...\n", backoffDuration)
-				time.Sleep(backoffDuration)
-			}
-		}
-		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", utils.GetFunctionName(fn))
-	}
 }

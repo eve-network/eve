@@ -1,4 +1,4 @@
-package main
+package chains
 
 import (
 	"context"
@@ -23,21 +23,21 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func akash() ([]banktypes.Balance, []config.Reward, int, error) {
+func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := utils.GetLatestHeight(config.GetAkashConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetComposableConfig().RPC + "/status")
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Composable: %w", err)
 	}
 
-	grpcAddr := config.GetAkashConfig().GRPCAddr
+	grpcAddr := config.GetComposableConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Akash: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Composable: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
@@ -46,8 +46,9 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to get Composable validators: %w", err)
 	}
+
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		var header metadata.MD
@@ -57,27 +58,27 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 				ValidatorAddr: validator.OperatorAddress,
 				Pagination: &query.PageRequest{
 					CountTotal: true,
-					Limit:      utils.LimitPerPage,
+					Limit:      config.LimitPerPage,
 				},
 			},
 			grpc.Header(&header), // Retrieve header from response
 		)
 		if err != nil {
-			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Akash validator: %w", err)
+			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Composable validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
 		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
-		fmt.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
+		fmt.Println("Composable validator "+strconv.Itoa(validatorIndex)+" ", total)
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetAkashConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchAkashTokenPrice)
+	apiURL := config.APICoingecko + config.GetComposableConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchComposableTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to fetch Composable token price: %w", err)
 	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
@@ -94,11 +95,8 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
-	testAmount, err := sdkmath.LegacyNewDecFromStr("0")
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)
-	}
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
+	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -106,7 +104,7 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetAkashConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetComposableConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
@@ -117,7 +115,7 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainID:         config.GetAkashConfig().ChainID,
+			ChainID:         config.GetComposableConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -125,7 +123,7 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Akash balance: ", testAmount)
+	fmt.Println("Composable balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
@@ -135,26 +133,26 @@ func akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchAkashTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
+func fetchComposableTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
 	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Akash token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Composable token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Akash token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Composable token price: %w", err)
 	}
 
-	var data config.AkashPrice
+	var data config.ComposablePrice
 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Akash token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Composable token price: %w", err)
 	}
 
 	tokenInUsd := sdkmath.LegacyMustNewDecFromStr(data.Token.USD.String())

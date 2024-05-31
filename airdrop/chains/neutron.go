@@ -1,4 +1,4 @@
-package main
+package chains
 
 // code = Unimplemented desc = unknown service cosmos.staking.v1beta1.Query
 import (
@@ -21,7 +21,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
+func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	blockHeight, err := utils.GetLatestHeight(config.GetNeutronConfig().RPC + "/status")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Neutron: %w", err)
@@ -36,8 +36,8 @@ func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	usd, _ := sdkmath.LegacyNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchNeutronTokenPrice)
+	apiURL := config.APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchNeutronTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
@@ -53,7 +53,7 @@ func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenBalance = totalTokenBalance.Add(address.Balance.Amount)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, address := range addresses {
 		if sdkmath.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {

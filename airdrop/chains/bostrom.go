@@ -1,4 +1,4 @@
-package main
+package chains
 
 import (
 	"encoding/json"
@@ -17,10 +17,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
+func Bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 	delegators := []stakingtypes.DelegationResponse{}
 
-	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
+	rpc := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch validators for Bostrom: %w", err)
@@ -28,7 +28,7 @@ func bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
+		url := config.GetBostromConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Bostrom: %w", err)
@@ -41,8 +41,8 @@ func bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetBostromConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchBostromTokenPrice)
+	apiURL := config.APICoingecko + config.GetBostromConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchBostromTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Bostrom token price: %w", err)
@@ -62,7 +62,7 @@ func bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)

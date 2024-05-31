@@ -1,4 +1,4 @@
-package main
+package chains
 
 import (
 	"encoding/json"
@@ -16,10 +16,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func terra() ([]banktypes.Balance, []config.Reward, int, error) {
+func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	delegators := []stakingtypes.DelegationResponse{}
 
-	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
+	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch validators for Terra: %w", err)
@@ -28,7 +28,7 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
+		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Terra: %w", err)
@@ -41,8 +41,8 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetTerraConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchTerraTokenPrice)
+	apiURL := config.APICoingecko + config.GetTerraConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchTerraTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Terra token price: %w", err)
@@ -62,7 +62,7 @@ func terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
 	testAmount, err := sdkmath.LegacyNewDecFromStr("0")
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)

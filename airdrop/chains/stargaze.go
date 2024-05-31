@@ -1,4 +1,4 @@
-package main
+package chains
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
+func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
@@ -58,7 +58,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 				ValidatorAddr: validator.OperatorAddress,
 				Pagination: &query.PageRequest{
 					CountTotal: true,
-					Limit:      utils.LimitPerPage,
+					Limit:      config.LimitPerPage,
 				},
 			},
 			grpc.Header(&header), // Retrieve header from response
@@ -74,8 +74,8 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchStargazeTokenPrice)
+	apiURL := config.APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchStargazeTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch Stargaze token price: %w", err)
@@ -95,7 +95,7 @@ func stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)

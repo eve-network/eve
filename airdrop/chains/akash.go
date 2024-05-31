@@ -1,7 +1,7 @@
-package main
+package chains
 
-// error max size response
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,29 +12,32 @@ import (
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
+func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
-	blockHeight, err := utils.GetLatestHeight(config.GetCelestiaConfig().RPC + "/status")
+	blockHeight, err := utils.GetLatestHeight(config.GetAkashConfig().RPC + "/status")
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to get latest height for Celestia: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
 	}
 
-	grpcAddr := config.GetCelestiaConfig().GRPCAddr
+	grpcAddr := config.GetAkashConfig().GRPCAddr
 	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Celestia: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Akash: %w", err)
 	}
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
@@ -43,29 +46,38 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to get Celestia validators: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
 	}
-
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetCelestiaConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
-		delegations, total, err := utils.FetchDelegations(url)
+		var header metadata.MD
+		delegationsResponse, err := stakingClient.ValidatorDelegations(
+			metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight), // Add metadata to request
+			&stakingtypes.QueryValidatorDelegationsRequest{
+				ValidatorAddr: validator.OperatorAddress,
+				Pagination: &query.PageRequest{
+					CountTotal: true,
+					Limit:      config.LimitPerPage,
+				},
+			},
+			grpc.Header(&header), // Retrieve header from response
+		)
 		if err != nil {
-			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Celestia: %w", err)
+			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Akash validator: %w", err)
 		}
-		fmt.Println(validator.OperatorAddress)
-		fmt.Println("Response ", len(delegations))
-		fmt.Println("Celestia validator "+strconv.Itoa(validatorIndex)+" ", total)
-		delegators = append(delegators, delegations...)
+		total := delegationsResponse.Pagination.Total
+		fmt.Println("Response ", len(delegationsResponse.DelegationResponses))
+		fmt.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
+		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
-	apiURL := APICoingecko + config.GetCelestiaConfig().CoinID + "&vs_currencies=usd"
-	fetchTokenPrice := fetchTokenPriceWithRetry(fetchCelestiaTokenPrice)
+	apiURL := config.APICoingecko + config.GetAkashConfig().CoinID + "&vs_currencies=usd"
+	fetchTokenPrice := utils.FetchTokenPriceWithRetry(fetchAkashTokenPrice)
 	tokenInUsd, err := fetchTokenPrice(apiURL)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to fetch Celestia token price: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
 	}
 	tokenIn20Usd := usd.QuoTruncate(tokenInUsd)
 
@@ -82,8 +94,11 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 		}
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
-	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
+	testAmount, err := sdkmath.LegacyNewDecFromStr("0")
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)
+	}
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -91,7 +106,7 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetCelestiaConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetAkashConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
@@ -102,7 +117,7 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
 			EveAirdropToken: eveAirdrop,
-			ChainID:         config.GetCelestiaConfig().ChainID,
+			ChainID:         config.GetAkashConfig().ChainID,
 		})
 		testAmount = eveAirdrop.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
@@ -110,7 +125,7 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
 		})
 	}
-	fmt.Println("Celestia balance: ", testAmount)
+	fmt.Println("Akash balance: ", testAmount)
 	// Write delegations to file
 	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
 	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
@@ -120,26 +135,26 @@ func celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
 
-func fetchCelestiaTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
+func fetchAkashTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
 	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Celestia token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Akash token price: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Celestia token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error reading response body for Akash token price: %w", err)
 	}
 
-	var data config.CelestiaPrice
+	var data config.AkashPrice
 
 	// Unmarshal the JSON byte slice into the defined struct
 	err = json.Unmarshal(responseBody, &data)
 	if err != nil {
-		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Celestia token price: %w", err)
+		return sdkmath.LegacyDec{}, fmt.Errorf("error unmarshalling JSON for Akash token price: %w", err)
 	}
 
 	tokenInUsd := sdkmath.LegacyMustNewDecFromStr(data.Token.USD.String())

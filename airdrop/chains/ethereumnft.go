@@ -1,4 +1,4 @@
-package main
+package chains
 
 import (
 	"encoding/json"
@@ -21,12 +21,12 @@ import (
 
 const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
 
-func ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
+func Ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 	nftOwners, err := fetchNftOwners()
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch nft owners: %w", err)
 	}
-	allEveAirdrop := math.LegacyMustNewDecFromStr(EveAirdrop)
+	allEveAirdrop := math.LegacyMustNewDecFromStr(config.EveAirdrop)
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 

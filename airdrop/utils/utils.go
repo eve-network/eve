@@ -5,23 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"reflect"
 	"runtime"
 	"strconv"
+	"time"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	airdropBackoff "github.com/eve-network/eve/airdrop/backoff"
 	"github.com/eve-network/eve/airdrop/config"
 	"google.golang.org/grpc/metadata"
-)
-
-const (
-	LimitPerPage = 100000000
 )
 
 func MakeGetRequest(uri string) (*http.Response, error) {
@@ -97,7 +98,7 @@ func GetValidators(stakingClient stakingtypes.QueryClient, blockHeight string) (
 	ctx := metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight)
 	req := &stakingtypes.QueryValidatorsRequest{
 		Pagination: &query.PageRequest{
-			Limit: LimitPerPage,
+			Limit: config.LimitPerPage,
 		},
 	}
 
@@ -130,7 +131,7 @@ func GetValidatorDelegations(stakingClient stakingtypes.QueryClient, validatorAd
 		ValidatorAddr: validatorAddr,
 		Pagination: &query.PageRequest{
 			CountTotal: true,
-			Limit:      LimitPerPage,
+			Limit:      config.LimitPerPage,
 		},
 	}
 
@@ -249,4 +250,45 @@ func FetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, 
 	}
 
 	return data.DelegationResponses, total, nil
+}
+
+// Define a function type that returns token price from a price source
+type tokenPriceFunction func(apiURL string) (sdkmath.LegacyDec, error)
+
+func FetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
+	return func(apiURL string) (sdkmath.LegacyDec, error) {
+		for attempt := 1; attempt <= config.MaxRetries; attempt++ {
+			data, err := fn(apiURL)
+			if err == nil {
+				return data, nil
+			}
+
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, GetFunctionName(fn), err)
+
+			if attempt < config.MaxRetries {
+				// Calculate backoff duration using exponential backoff strategy
+				backoffDuration := time.Duration(config.BackOff.Seconds() * math.Pow(2, float64(attempt)))
+				fmt.Printf("Retrying after %s...\n", backoffDuration)
+				time.Sleep(backoffDuration)
+			}
+		}
+		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", GetFunctionName(fn))
+	}
+}
+
+// Define a function type that returns balance info, reward info and length
+type BalanceFunction func() ([]banktypes.Balance, []config.Reward, int, error)
+
+// Retryable function to wrap balanceFunction with retry logic
+func RetryableBalanceFunc(fn BalanceFunction) BalanceFunction {
+	return func() ([]banktypes.Balance, []config.Reward, int, error) {
+		for attempt := 1; attempt <= config.MaxRetries; attempt++ {
+			balances, rewards, length, err := fn()
+			if err == nil {
+				return balances, rewards, length, nil
+			}
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, GetFunctionName(fn), err)
+		}
+		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", GetFunctionName(fn))
+	}
 }
