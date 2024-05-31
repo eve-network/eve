@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/eve-network/eve/airdrop/config"
+	"github.com/eve-network/eve/airdrop/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
@@ -59,7 +60,7 @@ func neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 			continue
 		}
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetNeutronConfig().Percent))).QuoInt64(100).MulInt(address.Balance.Amount).QuoInt(totalTokenBalance)
-		eveBech32Address, err := convertBech32Address(address.Address)
+		eveBech32Address, err := utils.ConvertBech32Address(address.Address)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
@@ -134,7 +135,7 @@ func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 
 func fetchNeutronTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := makeGetRequest(apiURL)
+	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
 		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Neutron token price: %w", err)
 	}

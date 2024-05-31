@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
+	"github.com/eve-network/eve/airdrop/utils"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -43,7 +44,7 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	delegators := []stakingtypes.DelegationResponse{}
 
-	validators, err := getValidators(stakingClient, blockHeight)
+	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to get Composable validators: %w", err)
 	}
@@ -57,7 +58,7 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 				ValidatorAddr: validator.OperatorAddress,
 				Pagination: &query.PageRequest{
 					CountTotal: true,
-					Limit:      LimitPerPage,
+					Limit:      utils.LimitPerPage,
 				},
 			},
 			grpc.Header(&header), // Retrieve header from response
@@ -86,7 +87,7 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -97,14 +98,14 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetComposableConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
-		eveBech32Address, err := convertBech32Address(delegator.Delegation.DelegatorAddress)
+		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
@@ -134,7 +135,7 @@ func composable() ([]banktypes.Balance, []config.Reward, int, error) {
 
 func fetchComposableTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := makeGetRequest(apiURL)
+	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
 		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Composable token price: %w", err)
 	}

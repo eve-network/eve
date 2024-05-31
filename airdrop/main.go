@@ -1,28 +1,21 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math"
-	"net/http"
 	"os"
-	"reflect"
-	"runtime"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
-	"google.golang.org/grpc/metadata"
+	"github.com/eve-network/eve/airdrop/utils"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -31,7 +24,6 @@ import (
 
 const (
 	EveAirdrop   = "1000000000" // 1,000,000,000
-	LimitPerPage = 100000000
 	Badkids      = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
 	Cryptonium   = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
 	APICoingecko = "https://api.coingecko.com/api/v3/simple/price?ids="
@@ -50,9 +42,9 @@ func retryable(fn balanceFunction) balanceFunction {
 			if err == nil {
 				return balances, rewards, length, nil
 			}
-			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, utils.GetFunctionName(fn), err)
 		}
-		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", getFunctionName(fn))
+		return nil, nil, 0, fmt.Errorf("maximum retries reached for function %s", utils.GetFunctionName(fn))
 	}
 }
 
@@ -178,21 +170,12 @@ func main() {
 	fmt.Printf("Total time taken: %v\n", duration)
 }
 
-func findValidatorInfo(validators []stakingtypes.Validator, address string) int {
-	for key, v := range validators {
-		if v.OperatorAddress == address {
-			return key
-		}
-	}
-	return -1
-}
-
 func getLatestHeightWithRetry(rpcURL string) (string, error) {
 	var latestBlockHeight string
 	var err error
 
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		latestBlockHeight, err = getLatestHeight(rpcURL)
+		latestBlockHeight, err = utils.GetLatestHeight(rpcURL)
 		if err == nil {
 			return latestBlockHeight, nil
 		}
@@ -210,50 +193,11 @@ func getLatestHeightWithRetry(rpcURL string) (string, error) {
 	return "", fmt.Errorf("failed to get latest height after %d attempts", MaxRetries)
 }
 
-func getLatestHeight(apiURL string) (string, error) {
-	// Make a GET request to the API
-	response, err := makeGetRequest(apiURL)
-	if err != nil {
-		return "", fmt.Errorf("error making GET request: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return "", fmt.Errorf("error reading response body: %w", err)
-	}
-
-	// Parse the response body into a NodeResponse struct
-	var data config.NodeResponse
-	if err := json.Unmarshal(responseBody, &data); err != nil {
-		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
-	}
-
-	// Extract the latest block height from the response
-	latestBlockHeight := data.Result.SyncInfo.LatestBlockHeight
-	fmt.Println("Block height:", latestBlockHeight)
-
-	return latestBlockHeight, nil
-}
-
-func convertBech32Address(otherChainAddress string) (string, error) {
-	_, bz, err := bech32.DecodeAndConvert(otherChainAddress)
-	if err != nil {
-		return "", fmt.Errorf("error decoding address: %w", err)
-	}
-	newBech32DelAddr, err := bech32.ConvertAndEncode("eve", bz)
-	if err != nil {
-		return "", fmt.Errorf("error converting address: %w", err)
-	}
-	return newBech32DelAddr, nil
-}
-
 func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 	var data config.ValidatorResponse
 	var err error
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
-		data, err = fetchValidators(rpcURL)
+		data, err = utils.FetchValidators(rpcURL)
 		if err == nil {
 			return data, nil
 		}
@@ -268,41 +212,6 @@ func fetchValidatorsWithRetry(rpcURL string) (config.ValidatorResponse, error) {
 		}
 	}
 	return config.ValidatorResponse{}, fmt.Errorf("failed to fetch validtor info after %d attempts", MaxRetries)
-}
-
-func fetchValidators(rpcURL string) (config.ValidatorResponse, error) {
-	// Make a GET request to the API
-	response, err := makeGetRequest(rpcURL)
-	if err != nil {
-		return config.ValidatorResponse{}, fmt.Errorf("error making GET request: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return config.ValidatorResponse{}, fmt.Errorf("error reading response body: %w", err)
-	}
-
-	var data config.ValidatorResponse
-
-	// Unmarshal the JSON byte slice into the defined struct
-	err = json.Unmarshal(responseBody, &data)
-	if err != nil {
-		return config.ValidatorResponse{}, fmt.Errorf("error unmarshalling JSON: %w", err)
-	}
-
-	fmt.Println(data.Pagination.Total)
-	return data, nil
-}
-
-func findValidatorInfoCustomType(validators []config.Validator, address string) int {
-	for key, v := range validators {
-		if v.OperatorAddress == address {
-			return key
-		}
-	}
-	return -1
 }
 
 func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
@@ -329,7 +238,7 @@ func fetchDelegationsWithRetry(rpcURL string) (stakingtypes.DelegationResponses,
 
 func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, error) {
 	// Make a GET request to the API
-	response, err := makeGetRequest(rpcURL)
+	response, err := utils.MakeGetRequest(rpcURL)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error making GET request: %w", err)
 	}
@@ -358,44 +267,6 @@ func fetchDelegations(rpcURL string) (stakingtypes.DelegationResponses, uint64, 
 	return data.DelegationResponses, total, nil
 }
 
-func getValidators(stakingClient stakingtypes.QueryClient, blockHeight string) ([]stakingtypes.Validator, error) {
-	// Get validator
-	ctx := metadata.AppendToOutgoingContext(context.Background(), grpctypes.GRPCBlockHeightHeader, blockHeight)
-	req := &stakingtypes.QueryValidatorsRequest{
-		Pagination: &query.PageRequest{
-			Limit: LimitPerPage,
-		},
-	}
-
-	resp, err := stakingClient.Validators(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get validators: %w", err)
-	}
-
-	validatorsInfo := resp.Validators
-	if validatorsInfo == nil {
-		return nil, fmt.Errorf("validators response is nil")
-	}
-
-	return validatorsInfo, nil
-}
-
-func makeGetRequest(uri string) (*http.Response, error) {
-	// Create a new HTTP request
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Send the HTTP request and get the response
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send HTTP request: %w", err)
-	}
-
-	return res, nil
-}
-
 // Define a function type that returns token price from a price source
 type tokenPriceFunction func(apiURL string) (sdkmath.LegacyDec, error)
 
@@ -407,7 +278,7 @@ func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
 				return data, nil
 			}
 
-			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, getFunctionName(fn), err)
+			fmt.Printf("Failed attempt %d for function %s: %v\n", attempt, utils.GetFunctionName(fn), err)
 
 			if attempt < MaxRetries {
 				// Calculate backoff duration using exponential backoff strategy
@@ -416,10 +287,6 @@ func fetchTokenPriceWithRetry(fn tokenPriceFunction) tokenPriceFunction {
 				time.Sleep(backoffDuration)
 			}
 		}
-		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", getFunctionName(fn))
+		return sdkmath.LegacyDec{}, fmt.Errorf("maximum retries reached for function %s", utils.GetFunctionName(fn))
 	}
-}
-
-func getFunctionName(fn interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 }

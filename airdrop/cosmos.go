@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
+	"github.com/eve-network/eve/airdrop/utils"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -18,7 +19,7 @@ import (
 func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	delegators := []stakingtypes.DelegationResponse{}
 
-	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
+	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse, err := fetchValidatorsWithRetry(rpc)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to fetch validator for Cosmos: %w", err)
@@ -26,7 +27,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	validators := validatorsResponse.Validators
 	fmt.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(LimitPerPage) + "&pagination.count_total=true"
+		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(utils.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := fetchDelegationsWithRetry(url)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to fetch Delegations for Cosmos: %w", err)
@@ -52,7 +53,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
@@ -63,14 +64,14 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(EveAirdrop)
 	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
 	for _, delegator := range delegators {
-		validatorIndex := findValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
+		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetCosmosHubConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
-		eveBech32Address, err := convertBech32Address(delegator.Delegation.DelegatorAddress)
+		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
@@ -100,7 +101,7 @@ func cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 
 func fetchCosmosTokenPrice(apiURL string) (sdkmath.LegacyDec, error) {
 	// Make a GET request to the API
-	response, err := makeGetRequest(apiURL)
+	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
 		return sdkmath.LegacyDec{}, fmt.Errorf("error making GET request to fetch Cosmos token price: %w", err)
 	}

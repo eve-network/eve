@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/eve-network/eve/airdrop/config"
+	"github.com/eve-network/eve/airdrop/utils"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -51,7 +52,7 @@ func cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Re
 				return
 			}
 
-			eveBech32Address, err := convertBech32Address(nftHolders.Address)
+			eveBech32Address, err := utils.ConvertBech32Address(nftHolders.Address)
 			if err != nil {
 				fmt.Printf("Error converting Bech32Address for %s: %v\n", nftHolders.Address, err)
 				return
@@ -129,7 +130,7 @@ func fetchTokenInfo(token, contract string) (config.NftHolder, error) {
 	queryString := fmt.Sprintf(`{"all_nft_info":{"token_id":%s}}`, token)
 	encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 	apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-	response, err := makeGetRequest(apiURL)
+	response, err := utils.MakeGetRequest(apiURL)
 	if err != nil {
 		return config.NftHolder{}, fmt.Errorf("error making GET request to fetch token info: %w", err)
 	}
@@ -182,7 +183,7 @@ func fetchTokenIds(contract string) ([]string, error) {
 		queryString := fmt.Sprintf(`{"all_tokens":{"limit":1000,"start_after":"%s"}}`, paginationKey)
 		encodedQuery := base64.StdEncoding.EncodeToString([]byte(queryString))
 		apiURL := config.GetStargazeConfig().API + "/cosmwasm/wasm/v1/contract/" + contract + "/smart/" + encodedQuery
-		response, err := makeGetRequest(apiURL)
+		response, err := utils.MakeGetRequest(apiURL)
 		if err != nil {
 			return nil, fmt.Errorf("error making GET request to fetch token ids: %w", err)
 		}
