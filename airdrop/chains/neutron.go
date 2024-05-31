@@ -8,7 +8,6 @@ import (
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	sdkmath "cosmossdk.io/math"
@@ -83,7 +82,7 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 
 func fetchBalance(blockHeight string) ([]*banktypes.DenomOwner, uint64, error) {
 	grpcAddr := config.GetNeutronConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to connect to gRPC Neutron: %w", err)
 	}

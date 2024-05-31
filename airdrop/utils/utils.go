@@ -21,6 +21,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	airdropBackoff "github.com/eve-network/eve/airdrop/backoff"
 	"github.com/eve-network/eve/airdrop/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -316,4 +318,8 @@ func FetchTokenPrice(apiURL, coinID string) (sdkmath.LegacyDec, error) {
 		tokenPriceInUsd = sdkmath.LegacyMustNewDecFromStr(priceInUsd)
 	}
 	return tokenPriceInUsd, nil
+}
+
+func SetupGRPCConnection(address string) (*grpc.ClientConn, error) {
+	return grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

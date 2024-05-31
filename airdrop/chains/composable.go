@@ -7,8 +7,6 @@ import (
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
 	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -29,7 +27,7 @@ func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 	}
 
 	grpcAddr := config.GetComposableConfig().GRPCAddr
-	grpcConn, err := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Composable: %w", err)
 	}
