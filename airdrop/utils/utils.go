@@ -29,17 +29,24 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+func handleHTTPError(err error, message string) error {
+	if err != nil {
+		return fmt.Errorf("%s: %w", message, err)
+	}
+	return nil
+}
+
 func MakeGetRequest(uri string) (*http.Response, error) {
 	// Create a new HTTP request
 	req, err := http.NewRequest(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
+		return nil, handleHTTPError(err, "failed to create HTTP request")
 	}
 
 	// Send the HTTP request and get the response
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send HTTP request: %w", err)
+		return nil, handleHTTPError(err, "failed to send HTTP request")
 	}
 
 	return res, nil
@@ -73,7 +80,7 @@ func GetLatestHeight(apiURL string) (string, error) {
 	}
 
 	if err := backoff.Retry(retryableRequest, exponentialBackoff); err != nil {
-		return "", fmt.Errorf("error making GET request to get latest height: %w", err)
+		return "", handleHTTPError(err, "error making GET request to get latest height")
 	}
 
 	defer response.Body.Close()
@@ -81,13 +88,13 @@ func GetLatestHeight(apiURL string) (string, error) {
 	// Read the response body
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("error reading response body: %w", err)
+		return "", handleHTTPError(err, "error reading response body")
 	}
 
 	// Parse the response body into a NodeResponse struct
 	var data config.NodeResponse
 	if err := json.Unmarshal(responseBody, &data); err != nil {
-		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
+		return "", handleHTTPError(err, "error unmarshalling JSON")
 	}
 
 	// Extract the latest block height from the response
