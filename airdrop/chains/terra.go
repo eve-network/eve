@@ -21,7 +21,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
-		log.Printf("Failed to fetch validators for Terra: %v", err)
+		log.Printf("Failed to fetch validators for Terra using URL %s: %v\n", rpc, err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch validators for Terra: %w", err)
 	}
 
@@ -31,7 +31,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
-			log.Printf("Failed to fetch delegations for Terra: %v", err)
+			log.Printf("Failed to fetch delegations for validator %s at Terra using URL %s: %v\n", validator.OperatorAddress, url, err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Terra: %w", err)
 		}
 		log.Println(validator.OperatorAddress)
@@ -45,7 +45,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	apiURL := config.APICoingecko + config.GetTerraConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetTerraConfig().CoinID)
 	if err != nil {
-		log.Println("Failed to fetch Terra token price: %w", err)
+		log.Printf("Failed to fetch Terra token price from URL %s: %v\n", apiURL, err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Terra token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
@@ -76,7 +76,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetTerraConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
-			log.Println("Failed to convert Terra bech32 address: %w", err)
+			log.Printf("Failed to convert Terra bech32 address for delegator %s: %v\n", delegator.Delegation.DelegatorAddress, err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{
