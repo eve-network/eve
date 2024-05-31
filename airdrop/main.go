@@ -42,10 +42,10 @@ func main() {
 		"terra":      chains.Terra,
 		"terrac":     chains.Terrac,
 		"badkids": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return chains.Cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent))
+			return chains.Cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent), config.GetStargazeConfig().API)
 		},
 		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return chains.Cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent))
+			return chains.Cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent), config.GetStargazeConfig().API)
 		},
 		// need set coin type on Eve
 		"milady": chains.Ethereumnft,

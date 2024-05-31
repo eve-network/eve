@@ -19,17 +19,20 @@ import (
 func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
+		log.Printf("Error loading Stargaze environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
 	blockHeight, err := utils.GetLatestHeight(config.GetStargazeConfig().RPC + "/status")
 	if err != nil {
+		log.Printf("Failed to get latest height for Stargaze: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Stargaze: %w", err)
 	}
 
 	grpcAddr := config.GetStargazeConfig().GRPCAddr
 	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
+		log.Printf("Failed to connect to gRPC Stargaze: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Stargaze: %w", err)
 	}
 	defer grpcConn.Close()
@@ -39,13 +42,15 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
+		log.Printf("Failed to get Stargaze validators: %v", err)
+		return nil, nil, 0, fmt.Errorf("failed to get Stargaze validators: %w", err)
 	}
 
 	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
+			log.Printf("Failed to query delegate info for Stagaze validator: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Stargaze validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
@@ -59,6 +64,7 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	apiURL := config.APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetStargazeConfig().CoinID)
 	if err != nil {
+		log.Println("Failed to fetch Stargaze token price: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Stargaze token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
@@ -73,8 +79,12 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
-	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
+	if err != nil {
+		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
+	}
+	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -85,6 +95,7 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetStargazeConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
+			log.Println("Failed to convert Stargaze bech32 address: %w", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{

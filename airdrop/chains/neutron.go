@@ -22,21 +22,24 @@ import (
 func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	blockHeight, err := utils.GetLatestHeight(config.GetNeutronConfig().RPC + "/status")
 	if err != nil {
+		log.Printf("Failed to get latest height for Neutron: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Neutron: %w", err)
 	}
 
 	addresses, total, err := fetchBalance(blockHeight)
 	if err != nil {
+		log.Printf("Failed to get balance for Neutron: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch balance for Neutron: %w", err)
 	}
 	log.Println("Response ", len(addresses))
 	log.Println("Total ", total)
 
-	usd, _ := sdkmath.LegacyNewDecFromStr("20")
+	usd := sdkmath.LegacyMustNewDecFromStr("20")
 
 	apiURL := config.APICoingecko + config.GetNeutronConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetNeutronConfig().CoinID)
 	if err != nil {
+		log.Printf("Failed to get Neutron token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
@@ -47,8 +50,12 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	for _, address := range addresses {
 		totalTokenBalance = totalTokenBalance.Add(address.Balance.Amount)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
-	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
+	if err != nil {
+		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
+	}
+	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, address := range addresses {
 		if sdkmath.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
 			continue
@@ -56,6 +63,7 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetNeutronConfig().Percent))).QuoInt64(100).MulInt(address.Balance.Amount).QuoInt(totalTokenBalance)
 		eveBech32Address, err := utils.ConvertBech32Address(address.Address)
 		if err != nil {
+			log.Println("Failed to convert Neutron bech32 address: %w", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{

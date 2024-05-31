@@ -21,6 +21,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	rpc := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
+		log.Printf("Failed to fetch validators for Terra: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch validators for Terra: %w", err)
 	}
 
@@ -30,6 +31,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		url := config.GetTerraConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
+			log.Printf("Failed to fetch delegations for Terra: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Terra: %w", err)
 		}
 		log.Println(validator.OperatorAddress)
@@ -43,6 +45,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	apiURL := config.APICoingecko + config.GetTerraConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetTerraConfig().CoinID)
 	if err != nil {
+		log.Println("Failed to fetch Terra token price: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Terra token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
@@ -57,11 +60,12 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
-	testAmount, err := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop, err:= sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
+		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert string to dec: %w", err)
 	}
+	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -72,6 +76,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetTerraConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
+			log.Println("Failed to convert Terra bech32 address: %w", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{

@@ -19,17 +19,20 @@ import (
 func Sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 	err := godotenv.Load()
 	if err != nil {
+		log.Printf("Error loading Sentinel environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
 	blockHeight, err := utils.GetLatestHeight(config.GetSentinelConfig().RPC + "/status")
 	if err != nil {
+		log.Printf("Failed to get latest height for Sentinel: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Sentinel: %w", err)
 	}
 
 	grpcAddr := config.GetSentinelConfig().GRPCAddr
 	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
+		log.Printf("Failed to connect to gRPC Sentinel: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Sentinel: %w", err)
 	}
 	defer grpcConn.Close()
@@ -39,12 +42,14 @@ func Sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
+		log.Printf("Failed to get Sentinel validators: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get Sentinel validators: %w", err)
 	}
 	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
+			log.Printf("Failed to query delegate info for Sentinel validator: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Sentinel validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
@@ -58,6 +63,7 @@ func Sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 	apiURL := config.APICoingecko + config.GetSentinelConfig().CoinID + "&vs_currencies=usd"
 	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetSentinelConfig().CoinID)
 	if err != nil {
+		log.Println("Failed to fetch Sentinel token price: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Sentinel token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
@@ -72,8 +78,12 @@ func Sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
-	eveAirdrop := sdkmath.LegacyMustNewDecFromStr(config.EveAirdrop)
-	testAmount, _ := sdkmath.LegacyNewDecFromStr("0")
+	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
+	if err != nil {
+		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
+	}
+	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
@@ -84,6 +94,7 @@ func Sentinel() ([]banktypes.Balance, []config.Reward, int, error) {
 		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetSentinelConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
+			log.Println("Failed to convert Sentinel bech32 address: %w", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{

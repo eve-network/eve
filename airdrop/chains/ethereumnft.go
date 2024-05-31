@@ -25,9 +25,14 @@ const MILADY = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"
 func Ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 	nftOwners, err := fetchNftOwners()
 	if err != nil {
+		log.Println("Failed to fetch nft owners: %w", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch nft owners: %w", err)
 	}
-	allEveAirdrop := math.LegacyMustNewDecFromStr(config.EveAirdrop)
+	allEveAirdrop, err := math.LegacyNewDecFromStr(config.EveAirdrop)
+	if err != nil {
+		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
+	}
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
 
@@ -42,6 +47,7 @@ func Ethereumnft() ([]banktypes.Balance, []config.Reward, int, error) {
 		log.Println(index)
 		eveBech32Address, err := convertEvmAddress(owner.OwnerOf)
 		if err != nil {
+			log.Println("Failed to convert evm address: %w", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert evm address: %w", err)
 		}
 		rewardInfo = append(rewardInfo, config.Reward{

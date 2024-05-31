@@ -14,9 +14,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func Cosmosnft(contract string, percent int64) ([]banktypes.Balance, []config.Reward, int, error) {
-	tokenIds, err := utils.FetchTokenIds(contract, config.GetStargazeConfig().API)
+func Cosmosnft(contract string, percent int64, apiConfig string) ([]banktypes.Balance, []config.Reward, int, error) {
+	tokenIds, err := utils.FetchTokenIds(contract, apiConfig)
 	if err != nil {
+		log.Printf("Failed to fetch token ids: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch token ids: %w", err)
 	}
 
