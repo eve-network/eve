@@ -20,11 +20,6 @@ import (
 
 // got to export genesis state from neutron and bostrom chain
 
-const (
-	Badkids    = "stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420"
-	Cryptonium = "stars1g2ptrqnky5pu70r3g584zpk76cwqplyc63e8apwayau6l3jr8c0sp9q45u"
-)
-
 func main() {
 	// Capture start time
 	startTime := time.Now()
@@ -42,10 +37,10 @@ func main() {
 		"terra":      chains.Terra,
 		"terrac":     chains.Terrac,
 		"badkids": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return chains.Cosmosnft(Badkids, int64(config.GetBadKidsConfig().Percent), config.GetStargazeConfig().API)
+			return chains.Cosmosnft(config.BadkidsContractAddress, int64(config.GetBadKidsConfig().Percent), config.GetStargazeConfig().API)
 		},
 		"cryptonium": func() ([]banktypes.Balance, []config.Reward, int, error) {
-			return chains.Cosmosnft(Cryptonium, int64(config.GetCryptoniumConfig().Percent), config.GetStargazeConfig().API)
+			return chains.Cosmosnft(config.CryptoniumContractAddress, int64(config.GetCryptoniumConfig().Percent), config.GetStargazeConfig().API)
 		},
 		// need set coin type on Eve
 		"milady": chains.Ethereumnft,
