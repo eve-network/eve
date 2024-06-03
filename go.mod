@@ -16,7 +16,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/osmosis-labs/fee-abstraction/v8 v8.0.0
+	github.com/osmosis-labs/fee-abstraction/v8 v8.0.1
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.19.0
 	github.com/spf13/cast v1.6.0
