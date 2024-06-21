@@ -9,10 +9,12 @@ import (
 	"sort"
 	"sync"
 
+	errorsmod "cosmossdk.io/errors"
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/gogoproto/proto"
 	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
@@ -51,6 +53,9 @@ import (
 	"github.com/osmosis-labs/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/osmosis-labs/tokenfactory/keeper"
 	tokenfactorytypes "github.com/osmosis-labs/tokenfactory/types"
+	feemarketapp "github.com/skip-mev/feemarket/tests/app"
+	"github.com/skip-mev/feemarket/x/feemarket"
+	feemarketpost "github.com/skip-mev/feemarket/x/feemarket/post"
 	"github.com/spf13/cast"
 	bank "github.com/terra-money/alliance/custom/bank"
 	bankkeeper "github.com/terra-money/alliance/custom/bank/keeper"
@@ -80,6 +85,8 @@ import (
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -104,7 +111,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -206,6 +212,8 @@ var maccPerms = map[string][]string{
 	alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 	alliancemoduletypes.RewardsPoolName: nil,
 	feeabstypes.ModuleName:              nil,
+	feemarkettypes.ModuleName:           {authtypes.Burner},
+	feemarkettypes.FeeCollectorName:     {authtypes.Burner},
 }
 
 var (
@@ -246,6 +254,7 @@ type EveApp struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	CircuitKeeper         circuitkeeper.Keeper
 	FeeabsKeeper          feeabskeeper.Keeper
+	FeeMarketKeeper       *feemarketkeeper.Keeper
 
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCFeeKeeper        ibcfeekeeper.Keeper
@@ -332,7 +341,7 @@ func NewEveApp(
 		icacontrollertypes.StoreKey, tokenfactorytypes.StoreKey,
 		ibchookstypes.StoreKey,
 		alliancemoduletypes.StoreKey,
-		feeabstypes.StoreKey,
+		feeabstypes.StoreKey, feemarkettypes.StoreKey,
 	)
 
 	tkeys := storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -595,6 +604,8 @@ func NewEveApp(
 		),
 	)
 
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(appCodec, keys[feemarkettypes.StoreKey], app.AccountKeeper, &feemarkettypes.TestDenomResolver{}, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
 		keys[ibchookstypes.StoreKey],
 	)
@@ -795,6 +806,7 @@ func NewEveApp(
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them,
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		feeabsmodule.NewAppModule(appCodec, app.FeeabsKeeper),
+		feemarket.NewAppModule(appCodec, *app.FeeMarketKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -831,6 +843,7 @@ func NewEveApp(
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	app.ModuleManager.SetOrderBeginBlockers(
 		minttypes.ModuleName,
+		feemarkettypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -855,6 +868,7 @@ func NewEveApp(
 
 	app.ModuleManager.SetOrderEndBlockers(
 		crisistypes.ModuleName,
+		feemarkettypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		genutiltypes.ModuleName,
@@ -917,6 +931,7 @@ func NewEveApp(
 		tokenfactorytypes.ModuleName,
 		alliancemoduletypes.ModuleName,
 
+		feemarkettypes.ModuleName,
 		feeabstypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
@@ -968,6 +983,9 @@ func NewEveApp(
 	app.SetPreBlocker(app.PreBlocker)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+
+	// set denom resolver to test variant.
+	app.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.TestDenomResolver{})
 	app.setAnteHandler(txConfig, wasmConfig, keys[wasmtypes.StoreKey])
 
 	// must be before Loading version
@@ -1062,6 +1080,8 @@ func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes
 			WasmKeeper:            &app.WasmKeeper,
 			TXCounterStoreService: runtime.NewKVStoreService(txCounterStoreKey),
 			CircuitKeeper:         &app.CircuitKeeper,
+			FeeMarketKeeper:       app.FeeMarketKeeper,
+			AccountKeeper:         app.AccountKeeper,
 		},
 	)
 	if err != nil {
@@ -1073,14 +1093,18 @@ func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes
 }
 
 func (app *EveApp) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
-		panic(err)
+	postHandler := feemarketapp.PostHandlerOptions{
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		FeeGrantKeeper:  app.FeeGrantKeeper,
+		FeeMarketKeeper: app.FeeMarketKeeper,
 	}
-
-	app.SetPostHandler(postHandler)
+	// Set the PostHandler for the app
+	sdkPostHandler, err := feemarketapp.NewPostHandler(postHandler)
+	if err != nil {
+		panic(fmt.Errorf("failed to create PostHandler: %s", err))
+	}
+	app.SetPostHandler(sdkPostHandler)
 }
 
 // Name returns the name of the App
@@ -1317,4 +1341,30 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(feeabstypes.ModuleName)
 
 	return paramsKeeper
+}
+
+// NewPostHandler returns a PostHandler chain with the fee deduct decorator.
+func NewPostHandler(options feemarketapp.PostHandlerOptions) (sdk.PostHandler, error) {
+	if options.AccountKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for post builder")
+	}
+
+	if options.BankKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for post builder")
+	}
+
+	if options.FeeMarketKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "feemarket keeper is required for post builder")
+	}
+
+	postDecorators := []sdk.PostDecorator{
+		feemarketpost.NewFeeMarketDeductDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeeGrantKeeper,
+			options.FeeMarketKeeper,
+		),
+	}
+
+	return sdk.ChainPostDecorators(postDecorators...), nil
 }
