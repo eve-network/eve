@@ -1,6 +1,6 @@
 # Eve Testnet
 
-This testnet will start with the node version `v0.0.3`.
+This testnet will start with the node version `v0.0.5`.
 
 ## Minimum hardware requirements
 
@@ -15,17 +15,17 @@ This testnet will start with the node version `v0.0.3`.
 ```bash
 git clone https://github.com/eve-network/eve.git
 cd eve
-git checkout v0.0.3
+git checkout v0.0.5
 make install
 ```
 
 ### Check Node version
 
 ```bash
-# Get node version (should be v0.0.3)
+# Get node version (should be v0.0.5)
 eved version
 
-# Get node long version (should be 1f0f1f82a8225b23341bbabd2a034ce7415d7e3d)
+# Get node long version (should be 31f4be4340efe6e6b05b819b83fee1ed1c9b280b)
 eved version --long | grep commit
 ```
 
@@ -35,10 +35,10 @@ eved version --long | grep commit
 eved init MONIKER --chain-id=evenetwork-1
 ```
 
-### Download pre-genesis
+### Download genesis
 
 ```bash
-curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/pre_genesis.json > ~/.eved/config/genesis.json
+curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/genesis.json > ~/.eved/config/genesis.json
 ```
 
 ## Create gentx
@@ -73,3 +73,9 @@ Genesis transaction written to "/home/user/.eved/config/gentx/gentx-******.json"
 - Copy the generated gentx json file to `testnets/gentx/`
 - Commit and push to your repo
 - Create a PR on this repo
+
+
+## Setup validator
+Set up your node and add seed-nodes
+
+    aad13aee1a9e3f55c16364c2af42832fefb2b735@94.130.64.229:26656
