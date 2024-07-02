@@ -80,9 +80,9 @@ func setupLegacyKeyTables(k *paramskeeper.Keeper) {
 		case authtypes.ModuleName:
 			keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 		case banktypes.ModuleName:
-			keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
+			keyTable = banktypes.ParamKeyTable()
 		case stakingtypes.ModuleName:
-			keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
+			keyTable = stakingtypes.ParamKeyTable()
 		case minttypes.ModuleName:
 			keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 		case distrtypes.ModuleName:
