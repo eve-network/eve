@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	feeabsante "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/ante"
 	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
+	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
 
 	corestoretypes "cosmossdk.io/core/store"
 	circuitante "cosmossdk.io/x/circuit/ante"
@@ -30,6 +31,8 @@ type HandlerOptions struct {
 	TXCounterStoreService corestoretypes.KVStoreService
 	CircuitKeeper         *circuitkeeper.Keeper
 	FeeAbskeeper          feeabskeeper.Keeper
+	FeeMarketKeeper       feemarketante.FeeMarketKeeper
+	AccountKeeper         feemarketante.AccountKeeper
 }
 
 // NewAnteHandler constructor
