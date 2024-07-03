@@ -1,0 +1,23 @@
+package v1
+
+import (
+	"github.com/eve-network/eve/app/upgrades"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
+
+	store "cosmossdk.io/store/types"
+)
+
+const (
+	// UpgradeName defines the on-chain upgrade name.
+	UpgradeName = "v1"
+)
+
+var Upgrade = upgrades.Upgrade{
+	UpgradeName:          UpgradeName,
+	CreateUpgradeHandler: CreateUpgradeHandler,
+	StoreUpgrades: store.StoreUpgrades{
+		Added: []string{
+			feemarkettypes.ModuleName,
+		},
+	},
+}

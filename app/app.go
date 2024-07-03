@@ -9,12 +9,10 @@ import (
 	"sort"
 	"sync"
 
-	errorsmod "cosmossdk.io/errors"
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/gogoproto/proto"
 	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
@@ -55,7 +53,9 @@ import (
 	tokenfactorytypes "github.com/osmosis-labs/tokenfactory/types"
 	feemarketapp "github.com/skip-mev/feemarket/tests/app"
 	"github.com/skip-mev/feemarket/x/feemarket"
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
 	feemarketpost "github.com/skip-mev/feemarket/x/feemarket/post"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 	"github.com/spf13/cast"
 	bank "github.com/terra-money/alliance/custom/bank"
 	bankkeeper "github.com/terra-money/alliance/custom/bank/keeper"
@@ -67,6 +67,7 @@ import (
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/circuit"
@@ -85,8 +86,6 @@ import (
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
-	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -104,6 +103,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -985,7 +985,7 @@ func NewEveApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	// set denom resolver to test variant.
-	app.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.TestDenomResolver{})
+	app.FeeMarketKeeper.SetDenomResolver(&DenomResolverImpl{})
 	app.setAnteHandler(txConfig, wasmConfig, keys[wasmtypes.StoreKey])
 
 	// must be before Loading version
@@ -1339,6 +1339,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(alliancemoduletypes.ModuleName)
 	paramsKeeper.Subspace(feeabstypes.ModuleName)
+	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -1367,4 +1368,49 @@ func NewPostHandler(options feemarketapp.PostHandlerOptions) (sdk.PostHandler, e
 	}
 
 	return sdk.ChainPostDecorators(postDecorators...), nil
+}
+
+// DenomResolverImpl is Eve's implementation of x/feemarket's DenomResolver
+type DenomResolverImpl struct {
+	feeabsKeeper  feeabskeeper.Keeper
+	stakingKeeper stakingkeeper.Keeper
+}
+
+var _ feemarkettypes.DenomResolver = &DenomResolverImpl{}
+
+// ConvertToDenom returns the equivalent DecCoin in native denom for any given denom.
+// Return error if the conversion is not possible, or the denom is not in the ExtraDenoms list.
+// TODO: make error more descriptive
+func (r *DenomResolverImpl) ConvertToDenom(ctx sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
+	bondDenom, err := r.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return sdk.DecCoin{}, err
+	}
+	if denom != bondDenom {
+		return sdk.DecCoin{}, fmt.Errorf("denom argument should be the staking bond denom, got %s", denom)
+	}
+
+	hostZoneConfig, found := r.feeabsKeeper.GetHostZoneConfig(ctx, coin.Denom)
+	if !found {
+		return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
+	}
+	amount, err := r.feeabsKeeper.CalculateNativeFromIBCCoins(ctx, sdk.NewCoins(sdk.NewInt64Coin(coin.Denom, coin.Amount.RoundInt64())), hostZoneConfig)
+	if err != nil {
+		return sdk.DecCoin{}, err
+	}
+	return sdk.NewDecCoinFromDec(denom, amount[0].Amount.ToLegacyDec()), nil
+}
+
+// TODO: implement this method
+// extra denoms should be all denoms that have been registered via governance(host zone)
+func (r *DenomResolverImpl) ExtraDenoms(ctx sdk.Context) ([]string, error) {
+	allHostZoneConfigs, err := r.feeabsKeeper.GetAllHostZoneConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	denoms := make([]string, 0, len(allHostZoneConfigs))
+	for _, hostZoneConfig := range allHostZoneConfigs {
+		denoms = append(denoms, hostZoneConfig.IbcDenom)
+	}
+	return denoms, nil
 }
