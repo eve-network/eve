@@ -44,6 +44,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"github.com/eve-network/eve/app/ante"
 	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs"
 	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
 	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
@@ -108,7 +109,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -981,7 +982,10 @@ func NewEveApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	// set denom resolver to test variant.
-	app.FeeMarketKeeper.SetDenomResolver(&DenomResolverImpl{})
+	app.FeeMarketKeeper.SetDenomResolver(&ante.DenomResolverImpl{
+		FeeabsKeeper:  app.FeeabsKeeper,
+		StakingKeeper: &app.StakingKeeper,
+	})
 	app.setAnteHandler(txConfig, wasmConfig, keys[wasmtypes.StoreKey])
 
 	// must be before Loading version
@@ -1061,14 +1065,14 @@ func (app *EveApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.Response
 }
 
 func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes.WasmConfig, txCounterStoreKey *storetypes.KVStoreKey) {
-	anteHandler, err := NewAnteHandler(
-		HandlerOptions{
-			HandlerOptions: ante.HandlerOptions{
+	anteHandler, err := ante.NewAnteHandler(
+		ante.HandlerOptions{
+			HandlerOptions: authante.HandlerOptions{
 				AccountKeeper:   app.AccountKeeper,
 				BankKeeper:      app.BankKeeper,
 				SignModeHandler: txConfig.SignModeHandler(),
 				FeegrantKeeper:  app.FeeGrantKeeper,
-				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+				SigGasConsumer:  authante.DefaultSigVerificationGasConsumer,
 			},
 			FeeAbskeeper:          app.FeeabsKeeper,
 			IBCKeeper:             app.IBCKeeper,
@@ -1364,49 +1368,4 @@ func NewPostHandler(options feemarketapp.PostHandlerOptions) (sdk.PostHandler, e
 	}
 
 	return sdk.ChainPostDecorators(postDecorators...), nil
-}
-
-// DenomResolverImpl is Eve's implementation of x/feemarket's DenomResolver
-type DenomResolverImpl struct {
-	feeabsKeeper  feeabskeeper.Keeper
-	stakingKeeper stakingkeeper.Keeper
-}
-
-var _ feemarkettypes.DenomResolver = &DenomResolverImpl{}
-
-// ConvertToDenom returns the equivalent DecCoin in native denom for any given denom.
-// Return error if the conversion is not possible, or the denom is not in the ExtraDenoms list.
-// TODO: make error more descriptive
-func (r *DenomResolverImpl) ConvertToDenom(ctx sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
-	bondDenom, err := r.stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return sdk.DecCoin{}, err
-	}
-	if denom != bondDenom {
-		return sdk.DecCoin{}, fmt.Errorf("denom argument should be the staking bond denom, got %s", denom)
-	}
-
-	hostZoneConfig, found := r.feeabsKeeper.GetHostZoneConfig(ctx, coin.Denom)
-	if !found {
-		return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
-	}
-	amount, err := r.feeabsKeeper.CalculateNativeFromIBCCoins(ctx, sdk.NewCoins(sdk.NewInt64Coin(coin.Denom, coin.Amount.RoundInt64())), hostZoneConfig)
-	if err != nil {
-		return sdk.DecCoin{}, err
-	}
-	return sdk.NewDecCoinFromDec(denom, amount[0].Amount.ToLegacyDec()), nil
-}
-
-// TODO: implement this method
-// extra denoms should be all denoms that have been registered via governance(host zone)
-func (r *DenomResolverImpl) ExtraDenoms(ctx sdk.Context) ([]string, error) {
-	allHostZoneConfigs, err := r.feeabsKeeper.GetAllHostZoneConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-	denoms := make([]string, 0, len(allHostZoneConfigs))
-	for _, hostZoneConfig := range allHostZoneConfigs {
-		denoms = append(denoms, hostZoneConfig.IbcDenom)
-	}
-	return denoms, nil
 }
