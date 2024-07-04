@@ -1,7 +1,6 @@
 package ante
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
@@ -77,7 +76,7 @@ func TestMempoolDecorator(t *testing.T) {
 			func(suite *AnteTestSuite) {
 				suite.stakingKeeper.EXPECT().BondDenom(gomock.Any()).Return("ueve", nil).AnyTimes()
 			},
-			fmt.Errorf("error resolving denom"),
+			ErrDenomNotRegistered("unsupported"),
 		},
 		{
 			"multiple fee denoms, only one supported, should pass",
