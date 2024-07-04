@@ -131,7 +131,6 @@ func (r *DenomResolverImpl) ConvertToDenom(ctx sdk.Context, coin sdk.DecCoin, de
 	return sdk.NewDecCoinFromDec(denom, amount[0].Amount.ToLegacyDec()), nil
 }
 
-// TODO: implement this method
 // extra denoms should be all denoms that have been registered via governance(host zone)
 func (r *DenomResolverImpl) ExtraDenoms(ctx sdk.Context) ([]string, error) {
 	allHostZoneConfigs, err := r.FeeabsKeeper.GetAllHostZoneConfig(ctx)
