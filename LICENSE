@@ -9,9 +9,10 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-* no one is permitted to use this code until eve's mainnet genesis.
+* no one except Hyperia is permitted to use this code until eve's mainnet genesis.
   * this restriction refers to all code in the eve-network gitbub organization and this repository.
 * if you do want to use this code before genesis, please see: github.com/CosmWasm/wasmd -- the initial code here came from there and everything there is apache2.  You can use that stuff before eve's genesis.
+* The hyperia community has perpetual license to use this work without restriction, including before the launch of Eve.
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.

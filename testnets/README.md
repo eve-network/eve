@@ -1,6 +1,6 @@
 # Eve Testnet
 
-This testnet will start with the node version `v0.0.4`.
+This testnet will start with the node version `v0.0.5`.
 
 ## Minimum hardware requirements
 
@@ -15,17 +15,17 @@ This testnet will start with the node version `v0.0.4`.
 ```bash
 git clone https://github.com/eve-network/eve.git
 cd eve
-git checkout v0.0.4
+git checkout v0.0.5
 make install
 ```
 
 ### Check Node version
 
 ```bash
-# Get node version (should be v0.0.4)
+# Get node version (should be v0.0.5)
 eved version
 
-# Get node long version (should be f31035e45725505a001e4f45a7fdd85be22e110a)
+# Get node long version (should be 31f4be4340efe6e6b05b819b83fee1ed1c9b280b)
 eved version --long | grep commit
 ```
 
@@ -78,4 +78,4 @@ Genesis transaction written to "/home/user/.eved/config/gentx/gentx-******.json"
 ## Setup validator
 Set up your node and add seed-nodes
 
-    bc7506bbcf9fef7182f3a4628f9fc62c25c2fd27@94.130.64.229:26656
+    aad13aee1a9e3f55c16364c2af42832fefb2b735@94.130.64.229:26656
