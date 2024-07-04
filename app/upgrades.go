@@ -65,7 +65,7 @@ func (app *EveApp) RegisterUpgradeHandlers() {
 	// register store loader for current upgrade
 	for _, upgrade := range Upgrades {
 		if upgradeInfo.Name == upgrade.UpgradeName {
-			//nolint:gosec
+
 			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height,
 				&upgrade.StoreUpgrades))
 			break
@@ -80,11 +80,11 @@ func setupLegacyKeyTables(k *paramskeeper.Keeper) {
 		var keyTable paramstypes.KeyTable
 		switch subspace.Name() {
 		case authtypes.ModuleName:
-			keyTable = authtypes.ParamKeyTable()
+			keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 		case banktypes.ModuleName:
 			keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
 		case stakingtypes.ModuleName:
-			keyTable = stakingtypes.ParamKeyTable()
+			keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
 		case minttypes.ModuleName:
 			keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 		case distrtypes.ModuleName:
