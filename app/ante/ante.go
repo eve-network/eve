@@ -104,7 +104,7 @@ func (r *DenomResolverImpl) ConvertToDenom(ctx sdk.Context, coin sdk.DecCoin, de
 	if err != nil {
 		return sdk.DecCoin{}, err
 	}
-	if denom != bondDenom || coin.Denom != bondDenom {
+	if denom != bondDenom && coin.Denom != bondDenom {
 		return sdk.DecCoin{}, ErrNeitherNativeDenom(coin.Denom, denom)
 	}
 	var amount sdk.Coins
