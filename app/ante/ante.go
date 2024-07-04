@@ -1,9 +1,6 @@
 package ante
 
 import (
-	"errors"
-	"fmt"
-
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
@@ -40,22 +37,22 @@ type HandlerOptions struct {
 // NewAnteHandler constructor
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
-		return nil, errors.New("account keeper is required for ante builder")
+		return nil, ErrMissingAccountKeeper
 	}
 	if options.BankKeeper == nil {
-		return nil, errors.New("bank keeper is required for ante builder")
+		return nil, ErrMissingBankKeeper
 	}
 	if options.SignModeHandler == nil {
-		return nil, errors.New("sign mode handler is required for ante builder")
+		return nil, ErrMissingSignModeHandler
 	}
 	if options.WasmConfig == nil {
-		return nil, errors.New("wasm config is required for ante builder")
+		return nil, ErrMissingWasmConfig
 	}
 	if options.TXCounterStoreService == nil {
-		return nil, errors.New("wasm store service is required for ante builder")
+		return nil, ErrMissingWasmStoreService
 	}
 	if options.CircuitKeeper == nil {
-		return nil, errors.New("circuit keeper is required for ante builder")
+		return nil, ErrMissingCircuitKeeper
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
@@ -98,36 +95,36 @@ type DenomResolverImpl struct {
 
 var _ feemarkettypes.DenomResolver = &DenomResolverImpl{}
 
-// ConvertToDenom returns the equivalent DecCoin in a given denom.
-// Return error if the conversion is not possible, or the coin's denom is not in the ExtraDenoms list.
-// TODO: make error more descriptive
+// ConvertToDenom converts any given coin to the native denom of the chain or the other way around.
+// Return error if neither of coin.Denom and denom is the native denom of the chain.
+// If the denom is the bond denom, convert `coin` to the native denom. return error if coin.Denom is not in the allowed list
+// If the denom is not the bond denom, convert the `coin` to the given denom. return error if denom is not in the allowed list
 func (r *DenomResolverImpl) ConvertToDenom(ctx sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
-	// TODO: Assume that the bond denom is the native token
 	bondDenom, err := r.StakingKeeper.BondDenom(ctx)
 	if err != nil {
 		return sdk.DecCoin{}, err
 	}
+	if denom != bondDenom || coin.Denom != bondDenom {
+		return sdk.DecCoin{}, ErrNeitherNativeDenom(coin.Denom, denom)
+	}
+	var amount sdk.Coins
 	var hostZoneConfig feeabstypes.HostChainFeeAbsConfig
+	var found bool
 
-	// If the denom is the bond denom, convert `coin` to the native denom
 	if denom == bondDenom {
-		hostZoneConfig, found := r.FeeabsKeeper.GetHostZoneConfig(ctx, coin.Denom)
+		hostZoneConfig, found = r.FeeabsKeeper.GetHostZoneConfig(ctx, coin.Denom)
 		if !found {
-			return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
+			return sdk.DecCoin{}, ErrDenomNotRegistered(coin.Denom)
 		}
-		amount, err := r.getIBCCoinFromNative(ctx, sdk.NewCoins(sdk.NewCoin(coin.Denom, coin.Amount.TruncateInt())), hostZoneConfig)
-		if err != nil {
-			return sdk.DecCoin{}, err
+		amount, err = r.getIBCCoinFromNative(ctx, sdk.NewCoins(sdk.NewCoin(coin.Denom, coin.Amount.TruncateInt())), hostZoneConfig)
+	} else if coin.Denom == bondDenom {
+		hostZoneConfig, found := r.FeeabsKeeper.GetHostZoneConfig(ctx, denom)
+		if !found {
+			return sdk.DecCoin{}, ErrDenomNotRegistered(denom)
 		}
-		return sdk.NewDecCoinFromDec(denom, amount[0].Amount.ToLegacyDec()), nil
+		amount, err = r.FeeabsKeeper.CalculateNativeFromIBCCoins(ctx, sdk.NewCoins(sdk.NewCoin(denom, coin.Amount.TruncateInt())), hostZoneConfig)
 	}
 
-	// If the denom is not the bond denom, convert the `coin` to the given denom
-	hostZoneConfig, found := r.FeeabsKeeper.GetHostZoneConfig(ctx, denom)
-	if !found {
-		return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
-	}
-	amount, err := r.FeeabsKeeper.CalculateNativeFromIBCCoins(ctx, sdk.NewCoins(sdk.NewCoin(denom, coin.Amount.TruncateInt())), hostZoneConfig)
 	if err != nil {
 		return sdk.DecCoin{}, err
 	}
@@ -154,7 +151,7 @@ func (r *DenomResolverImpl) ExtraDenoms(ctx sdk.Context) ([]string, error) {
 
 func (r *DenomResolverImpl) getIBCCoinFromNative(ctx sdk.Context, nativeCoins sdk.Coins, chainConfig feeabstypes.HostChainFeeAbsConfig) (coins sdk.Coins, err error) {
 	if len(nativeCoins) != 1 {
-		return sdk.Coins{}, fmt.Errorf("expected exactly one native coin, got %d", len(nativeCoins))
+		return sdk.Coins{}, ErrExpectedOneCoin(len(nativeCoins))
 	}
 
 	nativeCoin := nativeCoins[0]
