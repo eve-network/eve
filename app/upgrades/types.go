@@ -5,6 +5,7 @@ import (
 
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
 
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -19,6 +20,7 @@ import (
 type AppKeepers struct {
 	AccountKeeper         *authkeeper.AccountKeeper
 	ParamsKeeper          *paramskeeper.Keeper
+	FeeMarketKeeper       *feemarketkeeper.Keeper
 	ConsensusParamsKeeper *consensusparamkeeper.Keeper
 	Codec                 codec.Codec
 	GetStoreKey           func(storeKey string) *storetypes.KVStoreKey
