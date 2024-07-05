@@ -3,7 +3,6 @@ package chains
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -17,18 +16,20 @@ import (
 )
 
 func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
-	err := godotenv.Load()
-	if err != nil {
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
 		log.Printf("Error loading Akash environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
+	// Get latest block height
 	blockHeight, err := utils.GetLatestHeight(config.GetAkashConfig().RPC + "/status")
 	if err != nil {
 		log.Printf("Failed to get latest height for Akash: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Akash: %w", err)
 	}
 
+	// Setup gRPC connection
 	grpcAddr := config.GetAkashConfig().GRPCAddr
 	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
 	if err != nil {
@@ -36,16 +37,19 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Akash: %w", err)
 	}
 	defer grpcConn.Close()
-	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
+	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 	delegators := []stakingtypes.DelegationResponse{}
 
+	// Get validators
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
 		log.Printf("Failed to get Akash validators: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get Akash validators: %w", err)
 	}
 	log.Println("Validators: ", len(validators))
+
+	// Get delegations for each validator
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
@@ -53,71 +57,71 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Akash validator: %w", err)
 		}
 		total := delegationsResponse.Pagination.Total
-		log.Println("Response ", len(delegationsResponse.DelegationResponses))
-		log.Println("Akash validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Printf("Akash validator %d has %d delegators", validatorIndex, total)
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
+	// Calculate token price and threshold
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
-
-	apiURL := config.APICoingecko + config.GetAkashConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetAkashConfig().CoinID)
+	tokenInUsd, err := utils.FetchTokenPrice(config.GetAkashConfig().CoinID)
 	if err != nil {
-		log.Println("Failed to fetch Akash token price: %w", err)
+		log.Printf("Failed to fetch Akash token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 
+	// Prepare for airdrop calculation
 	rewardInfo := []config.Reward{}
 	balanceInfo := []banktypes.Balance{}
-
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
+
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
+
 	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
-		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		log.Printf("Failed to convert EveAirdrop string to dec: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
 	}
+
 	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetAkashConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+
+		eveAirdropTokens := (eveAirdrop.MulInt64(int64(config.GetAkashConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
-			log.Println("Failed to convert Akash bech32 address: %w", err)
+			log.Printf("Failed to convert Akash bech32 address: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
+
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
 			EveAddress:      eveBech32Address,
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
-			EveAirdropToken: eveAirdrop,
+			EveAirdropToken: eveAirdropTokens,
 			ChainID:         config.GetAkashConfig().ChainID,
 		})
-		testAmount = eveAirdrop.Add(testAmount)
+		testAmount = eveAirdropTokens.Add(testAmount)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: eveBech32Address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdropTokens.TruncateInt())),
 		})
 	}
-	log.Println("Akash balance: ", testAmount)
-	// Write delegations to file
-	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
-	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
-	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
-	// _ = os.WriteFile("balance.json", fileBalance, 0644)
+	log.Println("Akash balance: ", testAmount)
+
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }

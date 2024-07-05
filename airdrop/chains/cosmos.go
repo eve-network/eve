@@ -3,7 +3,6 @@ package chains
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -16,89 +15,94 @@ import (
 )
 
 func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
-	delegators := []stakingtypes.DelegationResponse{}
+	var delegators []stakingtypes.DelegationResponse
 
-	rpc := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
+	// Fetch validators
+	rpc := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators?pagination.limit=%d&pagination.count_total=true", config.GetCosmosHubConfig().API, config.LimitPerPage)
 	validatorsResponse, err := utils.FetchValidators(rpc)
 	if err != nil {
 		log.Printf("Failed to fetch validator for Cosmos: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch validator for Cosmos: %w", err)
 	}
 	validators := validatorsResponse.Validators
-	log.Println("Validators: ", len(validators))
+	log.Printf("Validators: %d", len(validators))
+
+	// Fetch delegations for each validator
 	for validatorIndex, validator := range validators {
-		url := config.GetCosmosHubConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
+		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true", config.GetCosmosHubConfig().API, validator.OperatorAddress, config.LimitPerPage)
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			log.Printf("Failed to fetch Delegations for Cosmos: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch Delegations for Cosmos: %w", err)
 		}
-		log.Println(validator.OperatorAddress)
-		log.Println("Response ", len(delegations))
-		log.Println("Cosmos validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Printf("Cosmos validator %d has %d delegators", validatorIndex, total)
+		log.Printf("Validator %s: %d delegations (total: %d)", validator.OperatorAddress, len(delegations), total)
 		delegators = append(delegators, delegations...)
 	}
 
+	// Fetch token price in USD
 	usd := sdkmath.LegacyMustNewDecFromStr("20")
-
-	apiURL := config.APICoingecko + config.GetCosmosHubConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetCosmosHubConfig().CoinID)
+	tokenInUsd, err := utils.FetchTokenPrice(config.GetCosmosHubConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Cosmos token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Cosmos token price: %w", err)
 	}
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 
-	rewardInfo := []config.Reward{}
-	balanceInfo := []banktypes.Balance{}
+	var (
+		rewardInfo         []config.Reward
+		balanceInfo        []banktypes.Balance
+		totalTokenDelegate = sdkmath.LegacyMustNewDecFromStr("0")
+	)
 
-	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
+	// Calculate total delegated tokens
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
 
 	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
-		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		log.Printf("Failed to convert EveAirdrop string to dec: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
 	}
-	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
+
+	totalEveAirdrop := sdkmath.LegacyMustNewDecFromStr("0")
+
+	// Process each delegator
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetCosmosHubConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+
+		eveAirdropToken := eveAirdrop.MulInt64(int64(config.GetCosmosHubConfig().Percent)).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
-			log.Println("Failed to convert Cosmos bech32 address: %w", err)
+			log.Printf("Failed to convert Cosmos bech32 address: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
+
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
 			EveAddress:      eveBech32Address,
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
-			EveAirdropToken: eveAirdrop,
+			EveAirdropToken: eveAirdropToken,
 			ChainID:         config.GetCosmosHubConfig().ChainID,
 		})
-		testAmount = eveAirdrop.Add(testAmount)
+
+		totalEveAirdrop = totalEveAirdrop.Add(eveAirdropToken)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: eveBech32Address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdropToken.TruncateInt())),
 		})
 	}
-	log.Println("Cosmos balance: ", testAmount)
-	// Write delegations to file
-	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
-	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
-	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
-	// _ = os.WriteFile("balance.json", fileBalance, 0644)
+	log.Printf("Cosmos balance: %s", totalEveAirdrop)
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }

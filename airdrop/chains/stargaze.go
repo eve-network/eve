@@ -3,7 +3,6 @@ package chains
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -17,8 +16,7 @@ import (
 )
 
 func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Printf("Error loading Stargaze environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
@@ -29,95 +27,88 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Stargaze: %w", err)
 	}
 
-	grpcAddr := config.GetStargazeConfig().GRPCAddr
-	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
+	grpcConn, err := utils.SetupGRPCConnection(config.GetStargazeConfig().GRPCAddr)
 	if err != nil {
 		log.Printf("Failed to connect to gRPC Stargaze: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Stargaze: %w", err)
 	}
 	defer grpcConn.Close()
+
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
-
-	delegators := []stakingtypes.DelegationResponse{}
-
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
 		log.Printf("Failed to get Stargaze validators: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get Stargaze validators: %w", err)
 	}
 
-	log.Println("Validators: ", len(validators))
+	var delegators []stakingtypes.DelegationResponse
 	for validatorIndex, validator := range validators {
 		delegationsResponse, err := utils.GetValidatorDelegations(stakingClient, validator.OperatorAddress, blockHeight)
 		if err != nil {
 			log.Printf("Failed to query delegate info for Stagaze validator: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to query delegate info for Stargaze validator: %w", err)
 		}
-		total := delegationsResponse.Pagination.Total
-		log.Println("Response ", len(delegationsResponse.DelegationResponses))
-		log.Println("Stargaze validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Printf("Validator %d: %d delegations", validatorIndex, len(delegationsResponse.DelegationResponses))
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-
-	apiURL := config.APICoingecko + config.GetStargazeConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetStargazeConfig().CoinID)
+	tokenInUsd, err := utils.FetchTokenPrice(config.GetStargazeConfig().CoinID)
 	if err != nil {
-		log.Println("Failed to fetch Stargaze token price: %w", err)
+		log.Printf("Failed to fetch Stargaze token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Stargaze token price: %w", err)
 	}
+
+	usd := sdkmath.LegacyMustNewDecFromStr("20")
 	tokenIn20Usd := usd.Quo(tokenInUsd)
 
-	rewardInfo := []config.Reward{}
-	balanceInfo := []banktypes.Balance{}
-
+	var rewardInfo []config.Reward
+	var balanceInfo []banktypes.Balance
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
-		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := (delegator.Delegation.Shares.MulInt(validators[validatorIndex].Tokens)).QuoTruncate(validators[validatorIndex].DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
+
 	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
-		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		log.Printf("Failed to convert EveAirdrop string to dec: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
 	}
+
 	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
-		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := (delegator.Delegation.Shares.MulInt(validators[validatorIndex].Tokens)).QuoTruncate(validators[validatorIndex].DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetStargazeConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+
+		eveReward := eveAirdrop.MulInt64(int64(config.GetStargazeConfig().Percent)).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
-			log.Println("Failed to convert Stargaze bech32 address: %w", err)
+			log.Printf("Failed to convert Stargaze bech32 address: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
+
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
 			EveAddress:      eveBech32Address,
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
-			EveAirdropToken: eveAirdrop,
+			EveAirdropToken: eveReward,
 			ChainID:         config.GetStargazeConfig().ChainID,
 		})
-		testAmount = eveAirdrop.Add(testAmount)
+
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: eveBech32Address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveReward.TruncateInt())),
 		})
-	}
-	log.Println("Stargaze balance: ", testAmount)
-	// Write delegations to file
-	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
-	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
-	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
-	// _ = os.WriteFile("balance.json", fileBalance, 0644)
+		testAmount = eveReward.Add(testAmount)
+	}
+
+	log.Printf("Stargaze balance: %s", testAmount)
+
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }

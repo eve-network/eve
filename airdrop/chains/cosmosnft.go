@@ -21,15 +21,14 @@ func Cosmosnft(contract string, percent int64, apiConfig string) ([]banktypes.Ba
 		return nil, nil, 0, fmt.Errorf("failed to fetch token ids: %w", err)
 	}
 
-	// Create channels to receive balance info and rewards
-	balanceCh := make(chan banktypes.Balance)
-	rewardCh := make(chan config.Reward)
-	doneCh := make(chan struct{})
+	var (
+		balanceCh = make(chan banktypes.Balance)
+		rewardCh  = make(chan config.Reward)
+		doneCh    = make(chan struct{})
+		semaphore = make(chan struct{}, 10) // Limit to 10 concurrent goroutines
+		wg        = &sync.WaitGroup{}
+	)
 
-	// Use a buffered channel as a semaphore to limit concurrency
-	semaphore := make(chan struct{}, 10) // Limit to 10 concurrent goroutines
-
-	wg := &sync.WaitGroup{}
 	wg.Add(len(tokenIds))
 
 	for _, token := range tokenIds {
@@ -71,7 +70,6 @@ func Cosmosnft(contract string, percent int64, apiConfig string) ([]banktypes.Ba
 		}(token)
 	}
 
-	// Close channels once all goroutines are done
 	go func() {
 		wg.Wait()
 		close(balanceCh)

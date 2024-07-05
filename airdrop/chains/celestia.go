@@ -1,10 +1,8 @@
 package chains
 
-// error max size response
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/eve-network/eve/airdrop/config"
 	"github.com/eve-network/eve/airdrop/utils"
@@ -18,20 +16,21 @@ import (
 )
 
 func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
-	err := godotenv.Load()
-	if err != nil {
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
 		log.Printf("Error loading Celestial environment variables: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to load env: %w", err)
 	}
 
+	// Get the latest block height
 	blockHeight, err := utils.GetLatestHeight(config.GetCelestiaConfig().RPC + "/status")
 	if err != nil {
 		log.Printf("Failed to get latest height for Celestial: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get latest height for Celestia: %w", err)
 	}
 
-	grpcAddr := config.GetCelestiaConfig().GRPCAddr
-	grpcConn, err := utils.SetupGRPCConnection(grpcAddr)
+	// Setup gRPC connection
+	grpcConn, err := utils.SetupGRPCConnection(config.GetCelestiaConfig().GRPCAddr)
 	if err != nil {
 		log.Printf("Failed to connect to gRPC Celestial: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to connect to gRPC Celestia: %w", err)
@@ -39,87 +38,86 @@ func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 	defer grpcConn.Close()
 	stakingClient := stakingtypes.NewQueryClient(grpcConn)
 
-	delegators := []stakingtypes.DelegationResponse{}
-
+	// Fetch validators
 	validators, err := utils.GetValidators(stakingClient, blockHeight)
 	if err != nil {
 		log.Printf("Failed to get Celestial validators: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to get Celestia validators: %w", err)
 	}
-
 	log.Println("Validators: ", len(validators))
+
+	// Fetch delegations for each validator
+	var delegators []stakingtypes.DelegationResponse
 	for validatorIndex, validator := range validators {
-		url := config.GetCelestiaConfig().API + "/cosmos/staking/v1beta1/validators/" + validator.OperatorAddress + "/delegations?pagination.limit=" + strconv.Itoa(config.LimitPerPage) + "&pagination.count_total=true"
+		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true",
+			config.GetCelestiaConfig().API, validator.OperatorAddress, config.LimitPerPage)
 		delegations, total, err := utils.FetchDelegations(url)
 		if err != nil {
 			log.Printf("Failed to query delegate info for Celestial validator: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Celestia: %w", err)
 		}
-		log.Println(validator.OperatorAddress)
-		log.Println("Response ", len(delegations))
-		log.Println("Celestia validator "+strconv.Itoa(validatorIndex)+" ", total)
+		log.Println("Validator:", validator.OperatorAddress, "Index:", validatorIndex, "Total:", total)
 		delegators = append(delegators, delegations...)
 	}
 
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-
-	apiURL := config.APICoingecko + config.GetCelestiaConfig().CoinID + "&vs_currencies=usd"
-	tokenInUsd, err := utils.FetchTokenPrice(apiURL, config.GetCelestiaConfig().CoinID)
+	// Fetch token price in USD
+	tokenInUsd, err := utils.FetchTokenPrice(config.GetCelestiaConfig().CoinID)
 	if err != nil {
-		log.Println("Failed to fetch Celestial token price: %w", err)
+		log.Printf("Failed to fetch Celestial token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Celestia token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
+	tokenIn20Usd := sdkmath.LegacyMustNewDecFromStr("20").Quo(tokenInUsd)
 
-	rewardInfo := []config.Reward{}
-	balanceInfo := []banktypes.Balance{}
-
+	// Process delegations and calculate rewards
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
 		totalTokenDelegate = totalTokenDelegate.Add(token)
 	}
+
 	eveAirdrop, err := sdkmath.LegacyNewDecFromStr(config.EveAirdrop)
 	if err != nil {
-		log.Println("Failed to convert EveAirdrop string to dec: %w", err)
+		log.Printf("Failed to convert EveAirdrop string to dec: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to convert EveAirdrop string to dec: %w", err)
 	}
+
+	var rewardInfo []config.Reward
+	var balanceInfo []banktypes.Balance
 	testAmount := sdkmath.LegacyMustNewDecFromStr("0")
+
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
-		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
+		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
 		if token.LT(tokenIn20Usd) {
 			continue
 		}
-		eveAirdrop := (eveAirdrop.MulInt64(int64(config.GetCelestiaConfig().Percent))).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
+		eveAirdropToken := eveAirdrop.MulInt64(int64(config.GetCelestiaConfig().Percent)).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)
 		eveBech32Address, err := utils.ConvertBech32Address(delegator.Delegation.DelegatorAddress)
 		if err != nil {
-			log.Println("Failed to convert Celestial bech32 address: %w", err)
+			log.Printf("Failed to convert Celestial bech32 address: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to convert Bech32Address: %w", err)
 		}
+
 		rewardInfo = append(rewardInfo, config.Reward{
 			Address:         delegator.Delegation.DelegatorAddress,
 			EveAddress:      eveBech32Address,
 			Shares:          delegator.Delegation.Shares,
 			Token:           token,
-			EveAirdropToken: eveAirdrop,
+			EveAirdropToken: eveAirdropToken,
 			ChainID:         config.GetCelestiaConfig().ChainID,
 		})
-		testAmount = eveAirdrop.Add(testAmount)
+
+		testAmount = testAmount.Add(eveAirdropToken)
 		balanceInfo = append(balanceInfo, banktypes.Balance{
 			Address: eveBech32Address,
-			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdrop.TruncateInt())),
+			Coins:   sdk.NewCoins(sdk.NewCoin("eve", eveAirdropToken.TruncateInt())),
 		})
 	}
-	log.Println("Celestia balance: ", testAmount)
-	// Write delegations to file
-	// fileForDebug, _ := json.MarshalIndent(rewardInfo, "", " ")
-	// _ = os.WriteFile("rewards.json", fileForDebug, 0644)
 
-	// fileBalance, _ := json.MarshalIndent(balanceInfo, "", " ")
-	// _ = os.WriteFile("balance.json", fileBalance, 0644)
+	log.Println("Celestia balance: ", testAmount)
+
 	return balanceInfo, rewardInfo, len(balanceInfo), nil
 }
