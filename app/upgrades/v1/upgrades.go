@@ -19,7 +19,19 @@ func CreateUpgradeHandler(mm upgrades.ModuleManager,
 	keepers *upgrades.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return mm.RunMigrations(ctx, configurator, vm)
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
+		sdkCtx.Logger().Info("Starting module migrations...")
+
+		vm, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return vm, err
+		}
+
+		err = ConfigureFeeMarketModule(sdkCtx, keepers)
+		if err != nil {
+			return vm, err
+		}
+		return vm, nil
 	}
 }
 
@@ -31,7 +43,7 @@ func ConfigureFeeMarketModule(ctx sdk.Context, keepers *upgrades.AppKeepers) err
 
 	params.Enabled = true
 	params.FeeDenom = "ueve"
-	params.DistributeFees = false // burn fees
+	params.DistributeFees = true // burn fees
 	params.MinBaseGasPrice = sdkmath.LegacyMustNewDecFromStr("0.005")
 	params.MaxBlockUtilization = feemarkettypes.DefaultMaxBlockUtilization
 	if err := keepers.FeeMarketKeeper.SetParams(ctx, params); err != nil {
