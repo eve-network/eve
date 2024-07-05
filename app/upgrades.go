@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eve-network/eve/app/upgrades"
+	v1 "github.com/eve-network/eve/app/upgrades/v1"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -25,7 +26,7 @@ import (
 )
 
 // Upgrades list of chain upgrades
-var Upgrades = []upgrades.Upgrade{}
+var Upgrades = []upgrades.Upgrade{v1.Upgrade}
 
 // RegisterUpgradeHandlers registers the chain upgrade handlers
 func (app *EveApp) RegisterUpgradeHandlers() {
