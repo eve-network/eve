@@ -4,4 +4,3 @@ balance.json
 rewards.json
 balancenft.json
 .env
-scripts/wasm/*.wasm
