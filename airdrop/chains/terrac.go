@@ -27,9 +27,11 @@ func Terrac() ([]banktypes.Balance, []config.Reward, int, error) {
 	validators := validatorsResponse.Validators
 	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true",
-			config.GetTerracConfig().API, validator.OperatorAddress, config.LimitPerPage)
-		delegations, total, err := utils.FetchDelegations(url)
+		delegations, total, err := utils.FetchDelegations(
+			config.GetTerracConfig().API,
+			validator.OperatorAddress,
+			config.LimitPerPage,
+		)
 		if err != nil {
 			log.Printf("Failed to fetch delegations for TerraC: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for TerraC: %w", err)

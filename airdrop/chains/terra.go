@@ -27,11 +27,13 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 	validators := validatorsResponse.Validators
 	log.Println("Validators: ", len(validators))
 	for validatorIndex, validator := range validators {
-		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true",
-			config.GetTerraConfig().API, validator.OperatorAddress, config.LimitPerPage)
-		delegations, total, err := utils.FetchDelegations(url)
+		delegations, total, err := utils.FetchDelegations(
+			config.GetTerraConfig().API,
+			validator.OperatorAddress,
+			config.LimitPerPage,
+		)
 		if err != nil {
-			log.Printf("Failed to fetch delegations for validator %s at Terra using URL %s: %v\n", validator.OperatorAddress, url, err)
+			log.Printf("Failed to fetch delegations for validator %s at Terra: %v\n", validator.OperatorAddress, err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Terra: %w", err)
 		}
 		log.Println(validator.OperatorAddress)

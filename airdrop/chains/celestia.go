@@ -49,9 +49,11 @@ func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 	// Fetch delegations for each validator
 	var delegators []stakingtypes.DelegationResponse
 	for validatorIndex, validator := range validators {
-		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true",
-			config.GetCelestiaConfig().API, validator.OperatorAddress, config.LimitPerPage)
-		delegations, total, err := utils.FetchDelegations(url)
+		delegations, total, err := utils.FetchDelegations(
+			config.GetCelestiaConfig().API,
+			validator.OperatorAddress,
+			config.LimitPerPage,
+		)
 		if err != nil {
 			log.Printf("Failed to query delegate info for Celestial validator: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Celestia: %w", err)

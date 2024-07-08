@@ -28,9 +28,11 @@ func Bostrom() ([]banktypes.Balance, []config.Reward, int, error) {
 
 	// Fetch delegations for each validator
 	for validatorIndex, validator := range validators {
-		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s/delegations?pagination.limit=%d&pagination.count_total=true",
-			config.GetBostromConfig().API, validator.OperatorAddress, config.LimitPerPage)
-		delegations, total, err := utils.FetchDelegations(url)
+		delegations, total, err := utils.FetchDelegations(
+			config.GetBostromConfig().API,
+			validator.OperatorAddress,
+			config.LimitPerPage,
+		)
 		if err != nil {
 			log.Printf("Failed to fetch delegations for Bostrom: %v", err)
 			return nil, nil, 0, fmt.Errorf("failed to fetch delegations for Bostrom: %w", err)
