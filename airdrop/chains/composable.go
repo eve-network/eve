@@ -60,14 +60,12 @@ func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
-	// Fetch token price in USD
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetComposableConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetComposableConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Composable token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Composable token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	// Process delegations and calculate rewards
 	var (
@@ -94,7 +92,7 @@ func Composable() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 		eveAirdropToken := eveAirdrop.MulInt64(int64(config.GetComposableConfig().Percent)).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)

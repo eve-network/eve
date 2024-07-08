@@ -62,13 +62,12 @@ func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegations...)
 	}
 
-	// Fetch token price in USD
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetCelestiaConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetCelestiaConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Celestial token price: %v", err)
-		return nil, nil, 0, fmt.Errorf("failed to fetch Celestia token price: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to fetch Celestial token price: %w", err)
 	}
-	tokenIn20Usd := sdkmath.LegacyMustNewDecFromStr("20").Quo(tokenInUsd)
 
 	// Process delegations and calculate rewards
 	totalTokenDelegate := sdkmath.LegacyMustNewDecFromStr("0")
@@ -93,7 +92,7 @@ func Celestia() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 		eveAirdropToken := eveAirdrop.MulInt64(int64(config.GetCelestiaConfig().Percent)).QuoInt64(100).Mul(token).QuoTruncate(totalTokenDelegate)

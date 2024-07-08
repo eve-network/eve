@@ -42,14 +42,12 @@ func Terrac() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegations...)
 	}
 
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetTerracConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetTerracConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch TerraC token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch TerraC token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
-
 	var rewardInfo []config.Reward
 	var balanceInfo []banktypes.Balance
 
@@ -72,7 +70,7 @@ func Terrac() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 

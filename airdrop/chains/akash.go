@@ -62,13 +62,11 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 	}
 
 	// Calculate token price and threshold
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetAkashConfig().CoinID)
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetAkashConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Akash token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Akash token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	// Prepare for airdrop calculation
 	rewardInfo := []config.Reward{}
@@ -95,7 +93,7 @@ func Akash() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
 
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 

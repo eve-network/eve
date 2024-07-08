@@ -30,13 +30,12 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 		return nil, nil, 0, fmt.Errorf("failed to fetch balance for Neutron: %w", err)
 	}
 
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetNeutronConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetNeutronConfig().CoinID)
 	if err != nil {
-		log.Printf("Failed to get Neutron token price: %v", err)
+		log.Printf("Failed to fetch Neutron token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Neutron token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	rewardInfo := make([]config.Reward, 0, len(addresses))
 	balanceInfo := make([]banktypes.Balance, 0, len(addresses))
@@ -53,7 +52,7 @@ func Neutron() ([]banktypes.Balance, []config.Reward, int, error) {
 	}
 
 	for _, address := range addresses {
-		if sdkmath.LegacyNewDecFromInt(address.Balance.Amount).LT(tokenIn20Usd) {
+		if sdkmath.LegacyNewDecFromInt(address.Balance.Amount).LT(minimumTokensThreshold) {
 			continue
 		}
 

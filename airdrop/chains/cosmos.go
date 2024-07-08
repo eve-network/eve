@@ -42,14 +42,12 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegations...)
 	}
 
-	// Fetch token price in USD
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetCosmosHubConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetCosmosHubConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Cosmos token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Cosmos token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	var (
 		rewardInfo         []config.Reward
@@ -78,7 +76,7 @@ func Cosmos() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := delegator.Delegation.Shares.MulInt(validatorInfo.Tokens).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 

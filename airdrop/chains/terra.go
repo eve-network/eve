@@ -42,14 +42,12 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegations...)
 	}
 
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetTerraConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetTerraConfig().CoinID)
 	if err != nil {
-		log.Printf("Failed to fetch Terra token price: %v\n", err)
+		log.Printf("Failed to fetch Terra token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Terra token price: %w", err)
 	}
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	var rewardInfo []config.Reward
 	var balanceInfo []banktypes.Balance
@@ -73,7 +71,7 @@ func Terra() ([]banktypes.Balance, []config.Reward, int, error) {
 		validatorIndex := utils.FindValidatorInfoCustomType(validators, delegator.Delegation.ValidatorAddress)
 		validatorInfo := validators[validatorIndex]
 		token := (delegator.Delegation.Shares.MulInt(validatorInfo.Tokens)).QuoTruncate(validatorInfo.DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 

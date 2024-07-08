@@ -419,3 +419,13 @@ func FetchTokenIds(contractAddress, apiFromConfig string) ([]string, error) {
 func StringFromEthAddress(codec address.Codec, ethAddress common.Address) (string, error) {
 	return codec.BytesToString(ethAddress.Bytes())
 }
+
+func GetMinimumTokensThreshold(coinID string) (sdkmath.LegacyDec, error) {
+	minimumStakingTokensWorth := sdkmath.LegacyMustNewDecFromStr(config.MinimumStakingTokensWorth)
+	tokenInUsd, err := FetchTokenPrice(coinID)
+	if err != nil {
+		return sdkmath.LegacyDec{}, fmt.Errorf("failed to fetch token price for coin ID %s: %w", coinID, err)
+	}
+	minimumTokensThreshold := minimumStakingTokensWorth.Quo(tokenInUsd)
+	return minimumTokensThreshold, nil
+}

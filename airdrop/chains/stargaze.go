@@ -52,14 +52,12 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 		delegators = append(delegators, delegationsResponse.DelegationResponses...)
 	}
 
-	tokenInUsd, err := utils.FetchTokenPrice(config.GetStargazeConfig().CoinID)
+	// Calculate token price and threshold
+	minimumTokensThreshold, err := utils.GetMinimumTokensThreshold(config.GetStargazeConfig().CoinID)
 	if err != nil {
 		log.Printf("Failed to fetch Stargaze token price: %v", err)
 		return nil, nil, 0, fmt.Errorf("failed to fetch Stargaze token price: %w", err)
 	}
-
-	usd := sdkmath.LegacyMustNewDecFromStr("20")
-	tokenIn20Usd := usd.Quo(tokenInUsd)
 
 	var rewardInfo []config.Reward
 	var balanceInfo []banktypes.Balance
@@ -80,7 +78,7 @@ func Stargaze() ([]banktypes.Balance, []config.Reward, int, error) {
 	for _, delegator := range delegators {
 		validatorIndex := utils.FindValidatorInfo(validators, delegator.Delegation.ValidatorAddress)
 		token := (delegator.Delegation.Shares.MulInt(validators[validatorIndex].Tokens)).QuoTruncate(validators[validatorIndex].DelegatorShares)
-		if token.LT(tokenIn20Usd) {
+		if token.LT(minimumTokensThreshold) {
 			continue
 		}
 
