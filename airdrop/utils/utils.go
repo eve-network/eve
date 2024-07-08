@@ -183,12 +183,15 @@ func FindValidatorInfoCustomType(validators []config.Validator, address string) 
 }
 
 // FetchValidators fetches the list of validators from the given RPC URL.
-func FetchValidators(rpcURL string) (config.ValidatorResponse, error) {
+func FetchValidators(chainAPI string, limitPerPage int) (config.ValidatorResponse, error) {
 	ctx := context.Background()
 	exponentialBackoff := airdropBackoff.NewBackoff(ctx)
 
 	var response *http.Response
 	var err error
+
+	rpcURL := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators?pagination.limit=%d&pagination.count_total=true",
+		chainAPI, limitPerPage)
 
 	retryableRequest := func() error {
 		response, err = MakeGetRequest(rpcURL)
