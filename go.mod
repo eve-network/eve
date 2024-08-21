@@ -54,7 +54,7 @@ require (
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.2.1-0.20240523101951-4b45d1822fb6
 	github.com/cosmos/ibc-go/v8 v8.3.2
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
-	github.com/skip-mev/feemarket v1.0.3
+	github.com/skip-mev/feemarket v1.0.4
 	github.com/terra-money/alliance v0.4.3
 	go.uber.org/mock v0.4.0
 )

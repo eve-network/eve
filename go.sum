@@ -1321,8 +1321,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skip-mev/chaintestutil v0.0.0-20240514161515-056d7ba45610 h1:4JlsiRVt/YZOvrKH525T7sZXgEWUEjqSDMwE6fXNbdo=
 github.com/skip-mev/chaintestutil v0.0.0-20240514161515-056d7ba45610/go.mod h1:kB8gFZX07CyJnw8q9iEZijI3qJTIe1K/Y++P5VGkrcg=
-github.com/skip-mev/feemarket v1.0.3 h1:DpB1tj51MlFN5iOg1lN+fwWqSF62xdND46BqgTko0C4=
-github.com/skip-mev/feemarket v1.0.3/go.mod h1:lszt7zGEEActbDYq1hOKogQvfCsnLEHH5113LwgmYcE=
+github.com/skip-mev/feemarket v1.0.4 h1:OPZ9D0tlDUa55n+HIjE2DgL+geMOwcDwUXTYdz4ig9Y=
+github.com/skip-mev/feemarket v1.0.4/go.mod h1:lszt7zGEEActbDYq1hOKogQvfCsnLEHH5113LwgmYcE=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
