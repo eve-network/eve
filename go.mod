@@ -1,8 +1,8 @@
 module github.com/eve-network/eve
 
-go 1.22.3
+go 1.22.6
 
-toolchain go1.22.4
+toolchain go1.23.1
 
 require (
 	github.com/CosmWasm/wasmd v0.53.0
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda // indirect
-	google.golang.org/grpc v1.64.1 // indirect
+	google.golang.org/grpc v1.65.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
@@ -54,7 +54,7 @@ require (
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.2.1-0.20240523101951-4b45d1822fb6
 	github.com/cosmos/ibc-go/v8 v8.4.0
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
-	github.com/skip-mev/feemarket v1.0.4
+	github.com/skip-mev/feemarket v1.1.1
 	github.com/terra-money/alliance v0.4.3
 	go.uber.org/mock v0.4.0
 )
