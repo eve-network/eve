@@ -2,6 +2,7 @@ package ante
 
 import (
 	"testing"
+
 	"github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
 	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
