@@ -6,12 +6,14 @@ import (
 	"github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
 	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
 	"cosmossdk.io/errors"
 	math "cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -45,7 +47,10 @@ func TestMempoolDecorator(t *testing.T) {
 		{
 			"valid native fee, should pass",
 			validFee,
-			func(suite *AnteTestSuite) {},
+			func(suite *AnteTestSuite) {
+				suite.bankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, mock.Anything,
+					feemarkettypes.FeeCollectorName, mock.Anything).Return(nil).Once()
+			},
 			nil,
 		},
 		{
@@ -56,6 +61,8 @@ func TestMempoolDecorator(t *testing.T) {
 				require.NoError(t, err)
 				suite.feeabsKeeper.SetTwapRate(suite.ctx, "ibcfee", math.LegacyNewDec(1))
 				suite.stakingKeeper.EXPECT().BondDenom(gomock.Any()).Return("ueve", nil).AnyTimes()
+				suite.bankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, mock.Anything,
+					feemarkettypes.FeeCollectorName, mock.Anything).Return(nil).Once()
 			},
 			nil,
 		},
@@ -93,11 +100,19 @@ func TestMempoolDecorator(t *testing.T) {
 			tc.malleate(suite)
 			suite.txBuilder.SetGasLimit(gasLimit)
 			suite.txBuilder.SetFeeAmount(tc.feeAmount)
+			accs := suite.CreateTestAccounts(1)
+			require.NoError(t, suite.txBuilder.SetMsgs([]sdk.Msg{testdata.NewTestMsg(accs[0].acc.GetAddress())}...))
+
 			suite.ctx = suite.ctx.WithMinGasPrices(minGasPrice)
 
 			// Construct tx and run through mempool decorator
 			tx := suite.txBuilder.GetTx()
-			feemarketDecorator := feemarketante.NewFeeMarketCheckDecorator(suite.feemarketKeeper, nil)
+			feemarketDecorator := feemarketante.NewFeeMarketCheckDecorator(
+				suite.accountKeeper,
+				suite.bankKeeper,
+				suite.feeGrantKeeper,
+				suite.feemarketKeeper,
+				nil)
 			antehandler := sdk.ChainAnteDecorators(feemarketDecorator)
 
 			// Run the ante handler

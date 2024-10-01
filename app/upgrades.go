@@ -76,7 +76,6 @@ func (app *EveApp) RegisterUpgradeHandlers() {
 
 func setupLegacyKeyTables(k *paramskeeper.Keeper) {
 	for _, subspace := range k.GetSubspaces() {
-		subspace := subspace
 
 		var keyTable paramstypes.KeyTable
 		switch subspace.Name() {

@@ -32,6 +32,7 @@ type HandlerOptions struct {
 	FeeAbskeeper          feeabskeeper.Keeper
 	FeeMarketKeeper       feemarketante.FeeMarketKeeper
 	AccountKeeper         feemarketante.AccountKeeper
+	BankKeeper            feemarketante.BankKeeper
 }
 
 // NewAnteHandler constructor
@@ -63,6 +64,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		circuitante.NewCircuitBreakerDecorator(options.CircuitKeeper),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		feemarketante.NewFeeMarketCheckDecorator( // fee market check replaces fee deduct decorator
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
 			options.FeeMarketKeeper,
 			ante.NewDeductFeeDecorator(
 				options.AccountKeeper,
