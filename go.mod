@@ -56,7 +56,7 @@ require (
 	github.com/osmosis-labs/tokenfactory v0.0.0-20240310155926-981fbeb0fe42
 	github.com/skip-mev/feemarket v1.1.1
 	github.com/terra-money/alliance v0.4.3
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 )
 
 require (
