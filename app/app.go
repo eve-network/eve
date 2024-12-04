@@ -1100,6 +1100,7 @@ func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes
 			CircuitKeeper:         &app.CircuitKeeper,
 			FeeMarketKeeper:       app.FeeMarketKeeper,
 			AccountKeeper:         app.AccountKeeper,
+			BankKeeper:            app.BankKeeper,
 		},
 	)
 	if err != nil {
