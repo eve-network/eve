@@ -2,21 +2,29 @@ name: test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
   run-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: "1.22"
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
 
-    - name: Test
-      run: go test -v ./...
+      - name: Test
+        run: go test -v ./...
+
+      - name: Test Simulation Deterministic
+        run: make test-sim-deterministic
+
+      - name: Test Simulation Import/Export
+        run: make test-sim-import-export
+
+      - name: Test Simulation Multi Seed Short
+        run: make test-sim-multi-seed-short
