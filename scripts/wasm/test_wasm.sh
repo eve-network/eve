@@ -47,7 +47,7 @@ fi
 echo "Success executing basic wasm tests!"
 
 # kill chain
-pkill -9 eved
+pkill -9 limed
 
 
 

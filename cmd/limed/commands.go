@@ -5,9 +5,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/LimeChain/lime/app"
 	cmtcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/eve-network/eve/app"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -196,7 +196,7 @@ func newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.NewEveApp(
+	return app.NewLimeApp(
 		logger, db, traceStore, true,
 		appOpts,
 		wasmOpts,
@@ -215,7 +215,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var wasmApp *app.EveApp
+	var wasmApp *app.LimeApp
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
@@ -233,7 +233,7 @@ func appExport(
 	appOpts = viperAppOpts
 
 	var emptyWasmOpts []wasmkeeper.Option
-	wasmApp = app.NewEveApp(
+	wasmApp = app.NewLimeApp(
 		logger,
 		db,
 		traceStore,

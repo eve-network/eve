@@ -91,7 +91,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
 
-// DenomResolverImpl is Eve's implementation of x/feemarket's DenomResolver
+// DenomResolverImpl is Lime's implementation of x/feemarket's DenomResolver
 type DenomResolverImpl struct {
 	FeeabsKeeper  feeabskeeper.Keeper
 	StakingKeeper feeabstypes.StakingKeeper

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-BINARY=build/eved
+BINARY=build/limed
 
-CHAIN_ID=local-eve
+CHAIN_ID=local-lime
 
 CONTRACT=cw20_base
 HOME=mytestnet
-DENOM="ueve"
+DENOM="ulime"
 KEY="test0"
 
 KEYRING="test"

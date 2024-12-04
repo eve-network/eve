@@ -1,4 +1,4 @@
-module github.com/eve-network/eve
+module github.com/LimeChain/lime
 
 go 1.23
 

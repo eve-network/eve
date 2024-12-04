@@ -1,13 +1,13 @@
 #!/bin/bash
-BINARY=build/eved
+BINARY=build/limed
 
-CHAIN_ID=local-eve
+CHAIN_ID=local-lime
 VAL_KEY=test0
 VOTER=
 VAL=$($BINARY keys show -a $VAL_KEY --keyring-backend test)
 CONTRACT=cw20_base
 PROPOSAL=1
-DENOM=${2:-"ueve"}
+DENOM=${2:-"ulime"}
 HOME=mytestnet
 
 echo "submit wasm store proposal..."
@@ -17,7 +17,7 @@ if ! $BINARY tx wasm submit-proposal wasm-store scripts/wasm/$CONTRACT.wasm --ti
 fi
 
 
-echo "deposit ueve to proposal..."
+echo "deposit ulime to proposal..."
 sleep 5
 # $BINARY query gov proposal $PROPOSAL
 $BINARY tx gov deposit $PROPOSAL "40000000000000000000$DENOM" --from $VAL_KEY --keyring-backend test \

@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 
-	"github.com/eve-network/eve/app/upgrades"
-	v1 "github.com/eve-network/eve/app/upgrades/v1"
+	"github.com/LimeChain/lime/app/upgrades"
+	v1 "github.com/LimeChain/lime/app/upgrades/v1"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -29,7 +29,7 @@ import (
 var Upgrades = []upgrades.Upgrade{v1.Upgrade}
 
 // RegisterUpgradeHandlers registers the chain upgrade handlers
-func (app *EveApp) RegisterUpgradeHandlers() {
+func (app *LimeApp) RegisterUpgradeHandlers() {
 	setupLegacyKeyTables(&app.ParamsKeeper)
 
 	keepers := upgrades.AppKeepers{

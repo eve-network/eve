@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/eve-network/eve/app"
+	"github.com/LimeChain/lime/app"
 
 	"cosmossdk.io/log"
 

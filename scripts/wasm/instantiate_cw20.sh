@@ -2,8 +2,8 @@
 
 # this is cw20 code from install_contracts.sh, true if this is the first proposal
 CODE=1
-CHAIN_ID=local-eve
-BINARY=build/eved
+CHAIN_ID=local-lime
+BINARY=build/limed
 HOME=mytestnet
 $BINARY keys add demo --keyring-backend test --home $HOME
 VAL_KEY=test0

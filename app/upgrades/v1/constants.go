@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/eve-network/eve/app/upgrades"
+	"github.com/LimeChain/lime/app/upgrades"
 	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	store "cosmossdk.io/store/types"

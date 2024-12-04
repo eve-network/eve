@@ -1,4 +1,4 @@
-# Eve Testnet
+# Lime Testnet
 
 This testnet will start with the node version `v0.0.5`.
 
@@ -13,8 +13,8 @@ This testnet will start with the node version `v0.0.5`.
 ### Install node
 
 ```bash
-git clone https://github.com/eve-network/eve.git
-cd eve
+git clone https://github.com/LimeChain/lime.git
+cd lime
 git checkout v0.0.5
 make install
 ```
@@ -23,22 +23,22 @@ make install
 
 ```bash
 # Get node version (should be v0.0.5)
-eved version
+limed version
 
 # Get node long version (should be 31f4be4340efe6e6b05b819b83fee1ed1c9b280b)
-eved version --long | grep commit
+limed version --long | grep commit
 ```
 
 ### Initialize Chain
 
 ```bash
-eved init MONIKER --chain-id=evenetwork-1
+limed init MONIKER --chain-id=lime-1
 ```
 
 ### Download genesis
 
 ```bash
-curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/genesis.json > ~/.eved/config/genesis.json
+curl -s https://raw.githubusercontent.com/LimeChain/lime/main/testnets/genesis.json > ~/.limed/config/genesis.json
 ```
 
 ## Create gentx
@@ -46,25 +46,25 @@ curl -s https://raw.githubusercontent.com/eve-network/eve/main/testnets/genesis.
 Create wallet
 
 ```bash
-eved keys add KEY_NAME
+limed keys add KEY_NAME
 ```
 
-Fund yourself `1000000000ueve`
+Fund yourself `1000000000lime`
 
 ```bash
-eved genesis add-genesis-account $(eved keys show KEY_NAME -a) 1000000000ueve
+limed genesis add-genesis-account $(limed keys show KEY_NAME -a) 1000000000lime
 ```
 
-Use half (`1000000ueve`) for self-delegation
+Use half (`1000000lime`) for self-delegation
 
 ```bash
-eved genesis gentx KEY_NAME 1000000ueve --chain-id=evenetwork-1
+limed genesis gentx KEY_NAME 1000000lime --chain-id=lime-1
 ```
 
 If all goes well, you will see a message similar to the following:
 
 ```bash
-Genesis transaction written to "/home/user/.eved/config/gentx/gentx-******.json"
+Genesis transaction written to "/home/user/.limed/config/gentx/gentx-******.json"
 ```
 
 ### Submit genesis transaction

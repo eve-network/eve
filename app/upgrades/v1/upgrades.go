@@ -3,7 +3,7 @@ package v1
 import (
 	"context"
 
-	"github.com/eve-network/eve/app/upgrades"
+	"github.com/LimeChain/lime/app/upgrades"
 	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	sdkmath "cosmossdk.io/math"
@@ -42,7 +42,7 @@ func ConfigureFeeMarketModule(ctx sdk.Context, keepers *upgrades.AppKeepers) err
 	}
 
 	params.Enabled = true
-	params.FeeDenom = "ueve"
+	params.FeeDenom = "ulime"
 	params.DistributeFees = true // burn fees
 	params.MinBaseGasPrice = sdkmath.LegacyMustNewDecFromStr("0.005")
 	params.MaxBlockUtilization = feemarkettypes.DefaultMaxBlockUtilization

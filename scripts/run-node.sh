@@ -11,10 +11,10 @@ if [ "$CONTINUE" == "true" ]; then
 fi
 
 rm -rf mytestnet
-pkill -9 eved
+pkill -9 limed
 
-# check DENOM is set. If not, set to ueve
-DENOM=${2:-ueve}
+# check DENOM is set. If not, set to ulime
+DENOM=${2:-ulime}
 
 COMMISSION_RATE=0.01
 COMMISSION_MAX_RATE=0.02
@@ -35,10 +35,10 @@ fi
 # check BINARY is set. If not, build eved and set BINARY
 if [ -z "$BINARY" ]; then
     make build
-    BINARY=build/eved
+    BINARY=build/limed
 fi
 
-CHAIN_ID="evenetwork-1"
+CHAIN_ID="lime-1"
 KEYRING="test"
 KEY="test0"
 
@@ -64,7 +64,7 @@ update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 $SED_BINARY -i '0,/enable = false/s//enable = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i 's/swagger = false/swagger = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i -e 's/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g' $HOME_DIR/config/app.toml
-$SED_BINARY -i 's/minimum-gas-prices = "0.25ueve"/minimum-gas-prices = "0.0eve"/' $HOME_DIR/config/app.toml
+$SED_BINARY -i 's/minimum-gas-prices = "0.25ulime"/minimum-gas-prices = "0.0lime"/' $HOME_DIR/config/app.toml
 
 
 # Sign genesis transaction

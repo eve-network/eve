@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BINARY=eved
+BINARY=limed
 CHAIN_DIR=$(pwd)/data
 CHAINID_1=test-1
 CHAINID_2=test-2

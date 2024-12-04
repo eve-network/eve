@@ -12,30 +12,30 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
-func (app *EveApp) GetIBCKeeper() *ibckeeper.Keeper {
+func (app *LimeApp) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
 }
 
-func (app *EveApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+func (app *LimeApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return app.ScopedIBCKeeper
 }
 
-func (app *EveApp) GetBaseApp() *baseapp.BaseApp {
+func (app *LimeApp) GetBaseApp() *baseapp.BaseApp {
 	return app.BaseApp
 }
 
-func (app *EveApp) GetBankKeeper() bankkeeper.Keeper {
+func (app *LimeApp) GetBankKeeper() bankkeeper.Keeper {
 	return app.BankKeeper
 }
 
-func (app *EveApp) GetStakingKeeper() *stakingkeeper.Keeper {
+func (app *LimeApp) GetStakingKeeper() *stakingkeeper.Keeper {
 	return &app.StakingKeeper
 }
 
-func (app *EveApp) GetAccountKeeper() authkeeper.AccountKeeper {
+func (app *LimeApp) GetAccountKeeper() authkeeper.AccountKeeper {
 	return app.AccountKeeper
 }
 
-func (app *EveApp) GetWasmKeeper() wasmkeeper.Keeper {
+func (app *LimeApp) GetWasmKeeper() wasmkeeper.Keeper {
 	return app.WasmKeeper
 }

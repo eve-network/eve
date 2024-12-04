@@ -12,7 +12,7 @@ SIMAPP = ./app
 DOCKER := $(shell which docker)
 BUF_IMAGE=bufbuild/buf@sha256:3cb1f8a4b48bd5ad8f09168f10f607ddc318af202f5c057d52a45216793d85e5 #v1.4.0
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(BUF_IMAGE)
-HTTPS_GIT := https://github.com/eve-network/eve.git
+HTTPS_GIT := https://github.com/LimeChain/lime.git
 
 export GO111MODULE = on
 
@@ -55,11 +55,11 @@ build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=eve \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=eved \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=lime \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=limed \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X github.com/eve-network/eve/app.Bech32Prefix=eve \
+		  -X github.com/LimeChain/lime/app.Bech32Prefix=lime \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq ($(WITH_CLEVELDB),yes)
@@ -80,14 +80,14 @@ all: install lint test
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	$(error eved server not supported. Use "make build-windows-client" for client)
+	$(error limed server not supported. Use "make build-windows-client" for client)
 	exit 1
 else
-	go build $(BUILD_FLAGS) -o build/eved ./cmd/eved
+	go build $(BUILD_FLAGS) -o build/limed ./cmd/limed
 endif
 
 build-windows-client: go.sum
-	GOOS=windows GOARCH=amd64 go build $(BUILD_FLAGS) -o build/eved.exe ./cmd/eved
+	GOOS=windows GOARCH=amd64 go build $(BUILD_FLAGS) -o build/limed.exe ./cmd/limed
 
 build-contract-tests-hooks:
 ifeq ($(OS),Windows_NT)
@@ -97,7 +97,7 @@ else
 endif
 
 install: go.sum
-	go install $(BUILD_FLAGS) ./cmd/eved
+	go install $(BUILD_FLAGS) ./cmd/limed
 
 ########################################
 ### Tools & dependencies
@@ -113,7 +113,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go install github.com/RobotsAndPencils/goviz@latest
-	@goviz -i ./cmd/eved -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/limed -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/
@@ -170,11 +170,11 @@ init-test-framework: clean-testing-data install
 	./scripts/tests/relayer/interchain-acc-config/rly-init.sh
 
 clean-testing-data:
-	@echo "Killing eved and removing previous data"
+	@echo "Killing limed and removing previous data"
 	-@pkill $(BINARY) 2>/dev/null
 	-@pkill rly 2>/dev/null
-	-@pkill eved_new 2>/dev/null
-	-@pkill eved_old 2>/dev/null
+	-@pkill limed_new 2>/dev/null
+	-@pkill limed_old 2>/dev/null
 	-@rm -rf ./data
 
 ###############################################################################
@@ -193,7 +193,7 @@ lint: format-tools
 format: format-tools
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "./tests/system/vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gofumpt -w
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "./tests/system/vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "./tests/system/vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gci write --skip-generated -s standard -s default -s "prefix(cosmossdk.io)" -s "prefix(github.com/cosmos/cosmos-sdk)" -s "prefix(github.com/eve-network/eve)" --custom-order
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "./tests/system/vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gci write --skip-generated -s standard -s default -s "prefix(cosmossdk.io)" -s "prefix(github.com/cosmos/cosmos-sdk)" -s "prefix(github.com/LimeChain/lime)" --custom-order
 
 
 ###############################################################################
