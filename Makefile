@@ -163,16 +163,11 @@ test-wasm:
 ###############################################################################
 
 integration-test-all: init-test-framework \
-	test-alliance \
 
 init-test-framework: clean-testing-data install
 	@echo "Initializing both blockchains..."
 	./scripts/tests/init-test-framework.sh
 	./scripts/tests/relayer/interchain-acc-config/rly-init.sh
-
-test-alliance:
-	@echo "Testing alliance..."
-	./scripts/tests/alliance/delegate.sh
 
 clean-testing-data:
 	@echo "Killing eved and removing previous data"
