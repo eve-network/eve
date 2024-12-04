@@ -4,7 +4,7 @@ import (
 	"context"
 
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
 
 	storetypes "cosmossdk.io/store/types"
