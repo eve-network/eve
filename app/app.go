@@ -58,11 +58,6 @@ import (
 	feemarketpost "github.com/skip-mev/feemarket/x/feemarket/post"
 	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 	"github.com/spf13/cast"
-	bank "github.com/terra-money/alliance/custom/bank"
-	bankkeeper "github.com/terra-money/alliance/custom/bank/keeper"
-	alliancemodule "github.com/terra-money/alliance/x/alliance"
-	alliancemodulekeeper "github.com/terra-money/alliance/x/alliance/keeper"
-	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -122,6 +117,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -207,16 +204,14 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	nft.ModuleName:                 nil,
 	// non sdk modules
-	ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-	ibcfeetypes.ModuleName:              nil,
-	icatypes.ModuleName:                 nil,
-	wasmtypes.ModuleName:                {authtypes.Burner},
-	tokenfactorytypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
-	alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
-	alliancemoduletypes.RewardsPoolName: nil,
-	feeabstypes.ModuleName:              nil,
-	feemarkettypes.ModuleName:           {authtypes.Burner},
-	feemarkettypes.FeeCollectorName:     {authtypes.Burner},
+	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+	ibcfeetypes.ModuleName:          nil,
+	icatypes.ModuleName:             nil,
+	wasmtypes.ModuleName:            {authtypes.Burner},
+	tokenfactorytypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+	feeabstypes.ModuleName:          nil,
+	feemarkettypes.ModuleName:       {authtypes.Burner},
+	feemarkettypes.FeeCollectorName: {authtypes.Burner},
 }
 
 var (
@@ -266,7 +261,6 @@ type EveApp struct {
 	TransferKeeper      ibctransferkeeper.Keeper
 	Wasm08Keeper        wasm08keeper.Keeper
 	WasmKeeper          wasmkeeper.Keeper
-	AllianceKeeper      alliancemodulekeeper.Keeper
 
 	IBCHooksKeeper ibchookskeeper.Keeper
 
@@ -343,7 +337,6 @@ func NewEveApp(
 		wasm08types.StoreKey, wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, tokenfactorytypes.StoreKey,
 		ibchookstypes.StoreKey,
-		alliancemoduletypes.StoreKey,
 		feeabstypes.StoreKey, feemarkettypes.StoreKey,
 	)
 
@@ -427,17 +420,6 @@ func NewEveApp(
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	)
-	app.AllianceKeeper = alliancemodulekeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[alliancemoduletypes.StoreKey]),
-		app.AccountKeeper,
-		app.BankKeeper,
-		&app.StakingKeeper,
-		app.DistrKeeper,
-		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-	app.BankKeeper.RegisterKeepers(app.AllianceKeeper, app.StakingKeeper)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
@@ -483,7 +465,7 @@ func NewEveApp(
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks(), app.AllianceKeeper.StakingHooks()),
+		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
 	app.CircuitKeeper = circuitkeeper.NewKeeper(
@@ -578,7 +560,7 @@ func NewEveApp(
 	// See: https://docs.cosmos.network/main/modules/gov#proposal-messages
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).AddRoute(alliancemoduletypes.RouterKey, alliancemodule.NewAllianceProposalHandler(app.AllianceKeeper)).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(feeabstypes.RouterKey, feeabsmodule.NewHostZoneProposal(app.FeeabsKeeper))
 
 	govConfig := govtypes.DefaultConfig()
@@ -663,7 +645,7 @@ func NewEveApp(
 		app.GetSubspace(feeabstypes.ModuleName),
 		&app.StakingKeeper,
 		app.AccountKeeper,
-		app.BankKeeper.BaseKeeper,
+		app.BankKeeper,
 		app.TransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
@@ -815,7 +797,6 @@ func NewEveApp(
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		ibctm.NewAppModule(),
 		ibchooks.NewAppModule(app.AccountKeeper),
-		alliancemodule.NewAppModule(appCodec, app.AllianceKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry, app.GetSubspace(alliancemoduletypes.ModuleName)),
 
 		// sdk
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them,
@@ -840,7 +821,6 @@ func NewEveApp(
 					feeabsmodule.UpdateSetHostZoneClientProposalHandler,
 				},
 			),
-			alliancemoduletypes.ModuleName: alliancemodule.AppModuleBasic{},
 			// wasm08types.ModuleName: wasm08.AppModuleBasic{},
 			// wasmtypes.ModuleName:   wasm.AppModuleBasic{},
 		})
@@ -877,7 +857,6 @@ func NewEveApp(
 		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		alliancemoduletypes.ModuleName,
 		feeabstypes.ModuleName,
 	)
 
@@ -899,7 +878,6 @@ func NewEveApp(
 		wasm08types.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		alliancemoduletypes.ModuleName,
 		feeabstypes.ModuleName,
 	)
 
@@ -944,7 +922,6 @@ func NewEveApp(
 
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		alliancemoduletypes.ModuleName,
 
 		feemarkettypes.ModuleName,
 		feeabstypes.ModuleName,
@@ -1100,6 +1077,7 @@ func (app *EveApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes
 			CircuitKeeper:         &app.CircuitKeeper,
 			FeeMarketKeeper:       app.FeeMarketKeeper,
 			AccountKeeper:         app.AccountKeeper,
+			BankKeeper:            app.BankKeeper,
 		},
 	)
 	if err != nil {
@@ -1114,7 +1092,6 @@ func (app *EveApp) setPostHandler() {
 	postHandler := feemarketapp.PostHandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
-		FeeGrantKeeper:  app.FeeGrantKeeper,
 		FeeMarketKeeper: app.FeeMarketKeeper,
 	}
 	// Set the PostHandler for the app
@@ -1327,7 +1304,6 @@ func BlockedAddresses() map[string]bool {
 
 	// allow the following addresses to receive funds
 	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	delete(modAccAddrs, authtypes.NewModuleAddress(alliancemoduletypes.ModuleName).String())
 	delete(modAccAddrs, authtypes.NewModuleAddress(feeabstypes.ModuleName).String())
 
 	return modAccAddrs
@@ -1355,7 +1331,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName).WithKeyTable(tokenfactorytypes.ParamKeyTable())
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	paramsKeeper.Subspace(alliancemoduletypes.ModuleName)
 	paramsKeeper.Subspace(feeabstypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 
@@ -1380,7 +1355,6 @@ func NewPostHandler(options feemarketapp.PostHandlerOptions) (sdk.PostHandler, e
 		feemarketpost.NewFeeMarketDeductDecorator(
 			options.AccountKeeper,
 			options.BankKeeper,
-			options.FeeGrantKeeper,
 			options.FeeMarketKeeper,
 		),
 	}

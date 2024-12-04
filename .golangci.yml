@@ -9,9 +9,9 @@ run:
 linters:
   disable-all: true
   enable:
+    - copyloopvar
     - errcheck
     - dogsled
-    - exportloopref
     - goconst
     - gocritic
     - gci
