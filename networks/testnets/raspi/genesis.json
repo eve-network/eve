@@ -37,14 +37,21 @@
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "address": "eve18r27aslqyuk3wsmaqqq9l4lyd6c0dach4y9lxd",
           "pub_key": null,
-          "account_number": "1",
+          "account_number": "2",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "address": "eve1wrns6kdtxql3rstkk7mx8f4v49tal3dzsptfr7",
           "pub_key": null,
-          "account_number": "1",
+          "account_number": "3",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1yy4u2ap6zl95tsvg36k3datly7ctek05w22g7h",
+          "pub_key": null,
+          "account_number": "4",
           "sequence": "0"
         }
       ]
@@ -93,12 +100,21 @@
               "amount": "100000000000000"
             }
           ]
+        },
+        {
+          "address": "eve1yy4u2ap6zl95tsvg36k3datly7ctek05w22g7h",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
         }
       ],
       "supply": [
         {
           "denom": "ueve",
-          "amount": "300000000000000"
+          "amount": "500000000000000"
         }
       ],
       "denom_metadata": [],
