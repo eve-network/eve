@@ -53,6 +53,13 @@
           "pub_key": null,
           "account_number": "4",
           "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1l6qf3pdxe8rrr8ak8lt9ypff66s3rhuaphvc2c",
+          "pub_key": null,
+          "account_number": "5",
+          "sequence": "0"
         }
       ]
     },
@@ -109,12 +116,21 @@
               "amount": "100000000000000"
             }
           ]
+        },
+        {
+          "address": "eve1l6qf3pdxe8rrr8ak8lt9ypff66s3rhuaphvc2c",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
         }
       ],
       "supply": [
         {
           "denom": "ueve",
-          "amount": "500000000000000"
+          "amount": "600000000000000"
         }
       ],
       "denom_metadata": [],
