@@ -25,6 +25,48 @@
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve18p4wl3hss9e9wv264yklyjp700kn8uazvwwxyy",
+          "pub_key": null,
+          "account_number": "1",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve18r27aslqyuk3wsmaqqq9l4lyd6c0dach4y9lxd",
+          "pub_key": null,
+          "account_number": "2",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1wrns6kdtxql3rstkk7mx8f4v49tal3dzsptfr7",
+          "pub_key": null,
+          "account_number": "3",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1yy4u2ap6zl95tsvg36k3datly7ctek05w22g7h",
+          "pub_key": null,
+          "account_number": "4",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1l6qf3pdxe8rrr8ak8lt9ypff66s3rhuaphvc2c",
+          "pub_key": null,
+          "account_number": "5",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "eve1l732ry6k3zrf5jre96c0jmy5mdjvddpumutqqe",
+          "pub_key": null,
+          "account_number": "6",
+          "sequence": "0"
         }
       ]
     },
@@ -38,7 +80,61 @@
       },
       "balances": [
         {
+          "address": "eve18p4wl3hss9e9wv264yklyjp700kn8uazvwwxyy",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
           "address": "eve16hpk4083nxajqhuc3rh9lvxpw6rz8z60ra3sem",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "eve18r27aslqyuk3wsmaqqq9l4lyd6c0dach4y9lxd",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "eve1wrns6kdtxql3rstkk7mx8f4v49tal3dzsptfr7",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "eve1yy4u2ap6zl95tsvg36k3datly7ctek05w22g7h",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "eve1l6qf3pdxe8rrr8ak8lt9ypff66s3rhuaphvc2c",
+          "coins": [
+            {
+              "denom": "ueve",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "eve1l732ry6k3zrf5jre96c0jmy5mdjvddpumutqqe",
           "coins": [
             {
               "denom": "ueve",
@@ -50,7 +146,7 @@
       "supply": [
         {
           "denom": "ueve",
-          "amount": "100000000000000"
+          "amount": "700000000000000"
         }
       ],
       "denom_metadata": [],
