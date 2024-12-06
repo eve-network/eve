@@ -28,6 +28,8 @@ import (
 // NewRootCmd creates a new root command for wasmd. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {
+	sdk.DefaultBondDenom = "ueve"
+
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
