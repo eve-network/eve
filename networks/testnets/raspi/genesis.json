@@ -579,7 +579,7 @@
                   "details": ""
                 },
                 "commission": {
-                  "rate": "0.420699000000000000",
+                  "rate": "0.100000000000000000",
                   "max_rate": "0.200000000000000000",
                   "max_change_rate": "0.010000000000000000"
                 },
@@ -625,7 +625,7 @@
             "tip": null
           },
           "signatures": [
-            "SLhcbNL5S+y80vaf8fhzGTMs7InW0P2SUkO8m7auYtR+iTYXrKoqJfwP1mlosv9R5haRwT1XqpTA6VPJ0tZAEw=="
+            "SEGxd8GH+DeuW0FgwiGt4e4pCK0oyNPzdIUJI+DmqqwIRW5HpHN346RNyHhFHEeHCgyurWhbMKzCb4cMtG3BZg=="
           ]
         },
         {
