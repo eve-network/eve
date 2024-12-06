@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	transferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
-	portkeeper "github.com/cosmos/ibc-go/v8/modules/core/05-port/keeper"
+	transferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v9/modules/core/04-channel/keeper"
+	portkeeper "github.com/cosmos/ibc-go/v9/modules/core/05-port/keeper"
 	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
 	feeabstestutil "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/testutil"
 	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"

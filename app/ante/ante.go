@@ -1,8 +1,8 @@
 package ante
 
 import (
-	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
-	"github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ibcante "github.com/cosmos/ibc-go/v9/modules/core/ante"
+	"github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/keeper"
 	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
